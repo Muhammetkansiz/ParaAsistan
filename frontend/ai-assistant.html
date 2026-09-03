@@ -1,0 +1,429 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>ParaAsistan - AI Finans & Satın Alma Danışmanı</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@600;700&amp;family=Manrope:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-surface-variant": "#454652",
+                        "secondary-fixed-dim": "#88d982",
+                        "surface-bright": "#f7f9fc",
+                        "on-background": "#191c1e",
+                        "primary-fixed-dim": "#bdc2ff",
+                        "tertiary-container": "#67000a",
+                        "error": "#ba1a1a",
+                        "on-primary-fixed-variant": "#343d96",
+                        "inverse-surface": "#2d3133",
+                        "on-tertiary-fixed": "#410004",
+                        "surface-container": "#eceef1",
+                        "inverse-on-surface": "#eff1f4",
+                        "primary-container": "#1a237e",
+                        "primary": "#000666",
+                        "secondary": "#1b6d24",
+                        "on-secondary-fixed": "#002204",
+                        "surface-dim": "#d8dadd",
+                        "on-surface": "#191c1e",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-highest": "#e0e3e6",
+                        "on-secondary": "#ffffff",
+                        "outline": "#767683",
+                        "secondary-fixed": "#a3f69c",
+                        "on-tertiary-fixed-variant": "#910816",
+                        "surface-tint": "#4c56af",
+                        "primary-fixed": "#e0e0ff",
+                        "error-container": "#ffdad6",
+                        "surface-container-lowest": "#ffffff",
+                        "outline-variant": "#c6c5d4",
+                        "tertiary": "#400004",
+                        "on-secondary-container": "#217128",
+                        "surface-container-low": "#f2f4f7",
+                        "surface": "#f7f9fc",
+                        "on-tertiary-container": "#ff635f",
+                        "tertiary-fixed-dim": "#ffb3ae",
+                        "on-primary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "on-primary-fixed": "#000767",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed": "#ffdad7",
+                        "on-secondary-fixed-variant": "#005312",
+                        "surface-variant": "#e0e3e6",
+                        "inverse-primary": "#bdc2ff",
+                        "background": "#f7f9fc",
+                        "secondary-container": "#a0f399",
+                        "surface-container-high": "#e6e8eb",
+                        "on-primary-container": "#8690ee"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xxl": "48px",
+                        "margin-mobile": "20px",
+                        "gutter-mobile": "16px",
+                        "lg": "24px",
+                        "unit": "4px",
+                        "md": "16px",
+                        "xl": "32px",
+                        "xs": "4px",
+                        "sm": "8px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Hanken Grotesk"],
+                        "label-md": ["Manrope"],
+                        "body-md": ["Manrope"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "body-lg": ["Manrope"],
+                        "display": ["Hanken Grotesk"],
+                        "headline-lg-mobile": ["Hanken Grotesk"],
+                        "label-sm": ["Manrope"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "display": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "600" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: theme('colors.background'); color: theme('colors.on-background'); }
+        .glass-card { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.3); }
+        .ambient-shadow { box-shadow: 16px 0 24px rgba(26, 35, 126, 0.05); }
+    </style>
+</head>
+<body class="flex min-h-screen overflow-hidden">
+<!-- SideNavBar (Ortak Standart Sidebar) -->
+<nav aria-label="Sidebar Navigation" class="bg-surface-container-lowest text-primary shadow-[16px_0_24px_rgba(26,35,126,0.05)] h-screen w-64 fixed left-0 top-0 flex flex-col h-full py-xl z-40 hidden md:flex">
+    <div class="px-lg mb-xl">
+        <h1 class="font-display text-display font-bold text-primary">ParaAsistan</h1>
+        <p class="font-label-md text-label-md text-on-surface-variant mt-xs">Akıllı Finans Yönetimi</p>
+    </div>
+    <ul class="flex-1 px-sm space-y-sm">
+        <li>
+            <a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-all" href="dashboard.html">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">dashboard</span>
+                <span class="font-label-md text-label-md">Genel Bakış</span>
+            </a>
+        </li>
+        <li>
+            <a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-all" href="islemler.html">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">receipt_long</span>
+                <span class="font-label-md text-label-md">İşlemler</span>
+            </a>
+        </li>
+        <li>
+            <a aria-current="page" class="flex items-center gap-md px-md py-sm rounded-lg text-primary font-bold border-r-4 border-primary bg-surface-container-low transition-all" href="ai-assistant.html">
+                <span class="material-symbols-outlined filled-icon" style="font-variation-settings: 'FILL' 1;">smart_toy</span>
+                <span class="font-label-md text-label-md">Yapay Zeka Asistanı</span>
+            </a>
+        </li>
+        <li>
+            <a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-all" href="analiz.html">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">query_stats</span>
+                <span class="font-label-md text-label-md">Raporlar & Analiz</span>
+            </a>
+        </li>
+        <li>
+            <a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-all" href="bt.html">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">account_balance_wallet</span>
+                <span class="font-label-md text-label-md">Bütçeler</span>
+            </a>
+        </li>
+    </ul>
+    <ul class="px-sm mt-auto space-y-sm border-t border-surface-variant pt-lg">
+        <li>
+            <a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-all" href="#">
+                <span class="material-symbols-outlined" data-icon="help">help</span>
+                <span class="font-label-md text-label-md">Yardım Merkezi</span>
+            </a>
+        </li>
+        <li>
+            <a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-all" href="#">
+                <span class="material-symbols-outlined" data-icon="logout">logout</span>
+                <span class="font-label-md text-label-md">Çıkış Yap</span>
+            </a>
+        </li>
+    </ul>
+</nav>
+<!-- TopNavBar (Mobile) -->
+<header class="w-full h-16 bg-surface-bright dark:bg-surface-container-low shadow-sm flex justify-between items-center px-lg w-full sticky top-0 z-50 md:hidden flex justify-between items-center px-lg w-full sticky top-0 z-50">
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary">ParaAsistan</h1>
+<div class="flex gap-md">
+<button class="text-primary hover:bg-surface-container p-2 rounded-full transition-colors"><span class="material-symbols-outlined" data-icon="notifications">notifications</span></button>
+<button class="text-primary hover:bg-surface-container p-2 rounded-full transition-colors"><span class="material-symbols-outlined" data-icon="settings">settings</span></button>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="flex-1 ml-0 md:ml-64 flex flex-col md:flex-row h-screen pt-16 md:pt-0">
+<!-- Left Panel: Chat UI -->
+<section class="flex-1 flex flex-col bg-surface-container-lowest h-full relative z-10 ambient-shadow md:border-r border-surface-container-high">
+<!-- Chat Header -->
+<div class="px-lg py-md border-b border-surface-container-high bg-surface-bright/80 backdrop-blur-md sticky top-0 z-20 flex justify-between items-center">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface">Finans & Satın Alma Danışmanı</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Bir şey satın almadan önce bana danışın.</p>
+</div>
+<div class="flex items-center gap-md">
+<button aria-label="Bildirimler" class="p-sm text-on-surface-variant hover:bg-surface-container transition-colors rounded-full">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden shadow-sm cursor-pointer border-2 border-surface-container-lowest">
+<img alt="User profile avatar" class="w-full h-full object-cover" src="/Users/macbook/paraasistan/frontend/profile_picture.jpg"/>
+</div>
+</div>
+</div>
+<!-- Chat Messages Area -->
+<div id="chat-messages" class="flex-1 overflow-y-auto p-lg flex flex-col gap-lg space-y-4">
+<!-- AI Greeting -->
+<div class="flex items-start gap-md max-w-[85%]">
+<div class="w-10 h-10 rounded-full bg-surface-tint flex items-center justify-center text-on-primary shrink-0">
+<span class="material-symbols-outlined text-sm" data-icon="smart_toy">smart_toy</span>
+</div>
+<div class="bg-surface-container-low p-md rounded-2xl rounded-tl-sm text-on-surface font-body-md text-body-md shadow-sm">
+                        Merhaba! Ben ParaAsistan. Yeni bir harcama mı planlıyorsun? Bana ne almak istediğini ve fiyatını söyle, bütçene uygunluğunu birlikte değerlendirelim.
+                    </div>
+</div>
+<!-- User Message -->
+<div class="flex items-start gap-md max-w-[85%] self-end flex-row-reverse">
+<div class="w-10 h-10 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-sm" data-icon="person">person</span>
+</div>
+<div class="bg-primary-container text-on-primary-container p-md rounded-2xl rounded-tr-sm font-body-md text-body-md shadow-sm">
+                        Bu yeni dizüstü bilgisayarı almalı mıyım? Fiyatı 45.000 ₺.
+                    </div>
+</div>
+<!-- AI Analysis Response -->
+<div class="flex items-start gap-md max-w-[95%]">
+<div class="w-10 h-10 rounded-full bg-surface-tint flex items-center justify-center text-on-primary shrink-0">
+<span class="material-symbols-outlined text-sm" data-icon="smart_toy">smart_toy</span>
+</div>
+<div class="bg-surface-container-low p-md rounded-2xl rounded-tl-sm text-on-surface font-body-md text-body-md shadow-sm w-full">
+<p class="mb-sm">Rakamlara birlikte bakalım. 45.000 ₺ önemli bir harcama tutarı.</p>
+<div class="bg-surface-bright p-sm rounded-lg border border-surface-variant mt-sm">
+<div class="flex items-center gap-sm text-secondary-container-dark font-label-md text-label-md">
+<span class="material-symbols-outlined text-secondary" data-icon="check_circle">check_circle</span>
+<span class="text-secondary">Acil Durum Fonunuz güvende.</span>
+</div>
+<div class="flex items-center gap-sm text-error font-label-md text-label-md mt-xs">
+<span class="material-symbols-outlined" data-icon="warning">warning</span>
+<span>Bu harcama kalan "Teknoloji" bütçenizin %80'ini tüketecektir.</span>
+</div>
+</div>
+<p class="mt-sm">Sağ taraftaki Bütçe Etki panelini güncelledim. Eğer iş için acil bir ihtiyaçsa değerlendirilebilir, ancak indirim dönemlerini beklemek daha karlı olabilir.</p>
+</div>
+</div>
+<!-- AI Typing Indicator (Simulated) -->
+<div class="flex items-start gap-md max-w-[85%] opacity-50">
+<div class="w-10 h-10 rounded-full bg-surface-tint flex items-center justify-center text-on-primary shrink-0">
+<span class="material-symbols-outlined text-sm" data-icon="more_horiz">more_horiz</span>
+</div>
+</div>
+</div>
+<!-- Chat Input -->
+<form id="chat-form" onsubmit="handleSendChatMessage(event)" class="p-lg bg-surface-bright border-t border-surface-container-high sticky bottom-0">
+<div class="relative flex items-center">
+<input id="chat-input" required class="w-full bg-surface-container-lowest border-2 border-transparent focus:border-primary-container rounded-full py-md pl-lg pr-[100px] font-body-md text-body-md text-on-surface outline-none transition-all shadow-sm placeholder:text-outline-variant" placeholder="Mesajınızı yazın veya '5000 TL mont alayım mı?' diye sorun..." type="text">
+<div class="absolute right-2 flex gap-xs">
+<button type="button" title="Fiş Yükle" onclick="document.getElementById('receipt-file-input').click()" class="p-2 text-outline hover:text-primary transition-colors rounded-full hover:bg-surface-container-low"><span class="material-symbols-outlined" data-icon="attach_file">attach_file</span></button>
+<button type="submit" class="p-2 bg-primary-container text-on-primary-container rounded-full hover:opacity-90 transition-opacity"><span class="material-symbols-outlined" data-icon="send">send</span></button>
+</div>
+</div>
+<input type="file" id="receipt-file-input" accept="image/*" class="hidden" onchange="handleReceiptUpload(event)">
+</form>
+</section>
+<!-- Right Panel: Bütçe Etki Analizi Preview -->
+<section class="flex-1 bg-surface flex flex-col p-lg md:p-xl overflow-y-auto hidden lg:flex">
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-lg">Bütçe Etki Analizi</h2>
+<div class="grid grid-cols-1 gap-lg">
+<!-- Hero Card: The Purchase -->
+<div class="glass-card rounded-DEFAULT p-lg ambient-shadow relative overflow-hidden">
+<!-- Subtle background gradient -->
+<div class="absolute inset-0 bg-gradient-to-br from-primary-fixed/20 to-transparent pointer-events-none"></div>
+<div class="relative z-10">
+<div class="flex justify-between items-start mb-md">
+<div>
+<h3 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider mb-xs">Planlanan Alışveriş</h3>
+<p id="impact-product-name" class="font-headline-md text-headline-md text-on-surface">Dizüstü Bilgisayar</p>
+</div>
+<span id="impact-price" class="font-display text-display text-primary">45.000 ₺</span>
+</div>
+<div class="mt-lg">
+<h4 id="impact-category-title" class="font-label-md text-label-md text-on-surface-variant mb-sm">'Teknoloji' Bütçesine Etkisi</h4>
+<div class="w-full bg-surface-container-high h-2 rounded-full overflow-hidden">
+<div id="impact-progress-bar" class="bg-error h-full rounded-full transition-all duration-1000" style="width: 85%;"></div>
+</div>
+<div class="flex justify-between mt-sm font-label-sm text-label-sm text-on-surface-variant">
+<span>Mevcut: 3.500 ₺ harcandı</span>
+<span>Yeni Toplam: 48.500 ₺ / 50.000 ₺ Limit</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Bento Grid: Secondary Metrics -->
+<div class="grid grid-cols-2 gap-md">
+<!-- Birikim Hedefi Impact -->
+<div class="bg-surface-container-lowest rounded-DEFAULT p-md ambient-shadow flex flex-col justify-between">
+<div class="flex items-center gap-sm mb-sm text-secondary">
+<span class="material-symbols-outlined" data-icon="trending_down">trending_down</span>
+<span class="font-label-md text-label-md">Birikim Hedefi</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">'Tatil Fonu' hedefini geciktirme:</p>
+<p class="font-headline-md text-headline-md text-error mt-xs">1.5 Ay</p>
+</div>
+<!-- Recommendation Chip -->
+<div class="bg-surface-container-lowest rounded-DEFAULT p-md ambient-shadow flex flex-col justify-between items-center text-center">
+<span class="material-symbols-outlined text-4xl text-outline-variant mb-sm" data-icon="hourglass_empty">hourglass_empty</span>
+<p class="font-label-md text-label-md text-on-surface">Yapay Zeka Tavsiyesi</p>
+<p id="impact-suggestion" class="font-body-sm text-body-sm text-on-surface-variant mt-xs">Yaklaşan indirim fırsatlarını bekleyin.</p>
+</div>
+</div>
+<!-- Historical Context -->
+<div class="bg-surface-container-lowest rounded-DEFAULT p-lg ambient-shadow">
+<h3 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider mb-md">Benzer Geçmiş Alışverişler</h3>
+<div class="flex flex-col gap-md">
+<div class="flex justify-between items-center pb-sm border-b border-surface-container-high">
+<div class="flex items-center gap-sm">
+<div class="w-8 h-8 rounded-full bg-surface-container-low flex items-center justify-center text-outline">
+<span class="material-symbols-outlined text-sm" data-icon="computer">computer</span>
+</div>
+<span class="font-body-md text-body-md text-on-surface">Tablet Pro</span>
+</div>
+<span class="font-body-md text-body-md text-on-surface-variant">-18.500 ₺</span>
+</div>
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-sm">
+<div class="w-8 h-8 rounded-full bg-surface-container-low flex items-center justify-center text-outline">
+<span class="material-symbols-outlined text-sm" data-icon="headphones">headphones</span>
+</div>
+<span class="font-body-md text-body-md text-on-surface">Gürültü Engelleyici Kulaklık</span>
+</div>
+<span class="font-body-md text-body-md text-on-surface-variant">-6.500 ₺</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+
+<script>
+    const API_BASE = "http://127.0.0.1:8000/api";
+
+    async function handleSendChatMessage(event) {
+        event.preventDefault();
+
+        const inputEl = document.getElementById("chat-input");
+        const messageText = inputEl.value.trim();
+        if (!messageText) return;
+
+        const messagesContainer = document.getElementById("chat-messages");
+
+        // 1. Kullanıcı mesaj balonu:
+        const userBubble = document.createElement("div");
+        userBubble.className = "flex items-start gap-md max-w-[85%] self-end flex-row-reverse";
+        userBubble.innerHTML = `
+            <div class="w-10 h-10 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center shrink-0">
+                <span class="material-symbols-outlined text-sm">person</span>
+            </div>
+            <div class="bg-primary-container text-on-primary-container p-md rounded-2xl rounded-tr-sm font-body-md text-body-md shadow-sm">
+                ${messageText}
+            </div>
+        `;
+        messagesContainer.appendChild(userBubble);
+        inputEl.value = "";
+
+        // 2. Yükleniyor / Düşünüyor animasyonu:
+        const loadingBubble = document.createElement("div");
+        loadingBubble.id = "ai-loading-indicator";
+        loadingBubble.className = "flex items-start gap-md max-w-[85%]";
+        loadingBubble.innerHTML = `
+            <div class="w-10 h-10 rounded-full bg-surface-tint flex items-center justify-center text-on-primary shrink-0">
+                <span class="material-symbols-outlined text-sm">smart_toy</span>
+            </div>
+            <div class="bg-surface-container-low p-md rounded-2xl rounded-tl-sm text-on-surface-variant font-body-md text-body-md shadow-sm flex items-center gap-2">
+                <span class="material-symbols-outlined animate-spin text-sm">progress_activity</span>
+                ParaAsistan bütçenizi inceliyor ve analiz ediyor...
+            </div>
+        `;
+        messagesContainer.appendChild(loadingBubble);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+        try {
+            const response = await fetch(`${API_BASE}/ai/chat`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: messageText })
+            });
+
+            const data = await response.json();
+            loadingBubble.remove();
+
+            // 3. Yapay Zeka Cevap Balonu:
+            const aiBubble = document.createElement("div");
+            aiBubble.className = "flex items-start gap-md max-w-[95%]";
+            aiBubble.innerHTML = `
+                <div class="w-10 h-10 rounded-full bg-surface-tint flex items-center justify-center text-on-primary shrink-0">
+                    <span class="material-symbols-outlined text-sm">smart_toy</span>
+                </div>
+                <div class="bg-surface-container-low p-md rounded-2xl rounded-tl-sm text-on-surface font-body-md text-body-md shadow-sm w-full leading-relaxed">
+                    ${data.reply ? data.reply.replace(/\n/g, '<br>') : 'Yanıt alınamadı.'}
+                </div>
+            `;
+            messagesContainer.appendChild(aiBubble);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+            // 4. Sağ Panel Bütçe Etkisi Güncellemesi:
+            if (data.impact && data.impact.price) {
+                updateImpactPanel(data.impact);
+            }
+
+        } catch (error) {
+            loadingBubble.remove();
+            console.error("Chat hatası:", error);
+        }
+    }
+
+    function updateImpactPanel(impact) {
+        if (impact.product_name) document.getElementById("impact-product-name").innerText = impact.product_name;
+        if (impact.price) document.getElementById("impact-price").innerText = `₺${impact.price.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}`;
+        if (impact.category) document.getElementById("impact-category-title").innerText = `'${impact.category}' Bütçesine Etkisi`;
+        if (impact.ai_suggestion) document.getElementById("impact-suggestion").innerText = impact.ai_suggestion;
+
+        const bar = document.getElementById("impact-progress-bar");
+        if (impact.is_budget_exceeded) {
+            bar.className = "bg-error h-full rounded-full transition-all duration-1000";
+            bar.style.width = "100%";
+        } else {
+            bar.className = "bg-primary h-full rounded-full transition-all duration-1000";
+            bar.style.width = "70%";
+        }
+    }
+
+    function handleReceiptUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        
+        const inputEl = document.getElementById("chat-input");
+        inputEl.value = `Fiş tarandı: ${file.name} (Tutar ve kategori analizi yapılıyor...)`;
+        document.getElementById("chat-form").dispatchEvent(new Event('submit'));
+    }
+</script>
+
+</body></html>

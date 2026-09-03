@@ -1,0 +1,491 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Budgets - ParaAsistan</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&amp;family=Hanken+Grotesk:wght@600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-fixed-variant": "#005312",
+                        "surface-container-highest": "#e0e3e6",
+                        "outline": "#767683",
+                        "error": "#ba1a1a",
+                        "tertiary": "#400004",
+                        "error-container": "#ffdad6",
+                        "on-tertiary": "#ffffff",
+                        "background": "#f7f9fc",
+                        "primary-container": "#1a237e",
+                        "tertiary-container": "#67000a",
+                        "on-primary-fixed": "#000767",
+                        "surface-container-high": "#e6e8eb",
+                        "surface-tint": "#4c56af",
+                        "on-tertiary-fixed-variant": "#910816",
+                        "inverse-primary": "#bdc2ff",
+                        "on-primary": "#ffffff",
+                        "on-surface": "#191c1e",
+                        "on-secondary": "#ffffff",
+                        "surface": "#f7f9fc",
+                        "secondary": "#1b6d24",
+                        "surface-container-low": "#f2f4f7",
+                        "secondary-fixed-dim": "#88d982",
+                        "primary": "#000666",
+                        "surface-dim": "#d8dadd",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-fixed": "#002204",
+                        "inverse-on-surface": "#eff1f4",
+                        "on-error-container": "#93000a",
+                        "primary-fixed-dim": "#bdc2ff",
+                        "secondary-fixed": "#a3f69c",
+                        "on-surface-variant": "#454652",
+                        "primary-fixed": "#e0e0ff",
+                        "on-primary-container": "#8690ee",
+                        "on-background": "#191c1e",
+                        "surface-container": "#eceef1",
+                        "surface-variant": "#e0e3e6",
+                        "secondary-container": "#a0f399",
+                        "surface-bright": "#f7f9fc",
+                        "on-tertiary-container": "#ff635f",
+                        "on-tertiary-fixed": "#410004",
+                        "outline-variant": "#c6c5d4",
+                        "on-error": "#ffffff",
+                        "on-secondary-container": "#217128",
+                        "tertiary-fixed": "#ffdad7",
+                        "on-primary-fixed-variant": "#343d96",
+                        "inverse-surface": "#2d3133",
+                        "tertiary-fixed-dim": "#ffb3ae"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xl": "32px",
+                        "sm": "8px",
+                        "unit": "4px",
+                        "gutter-mobile": "16px",
+                        "md": "16px",
+                        "margin-mobile": "20px",
+                        "lg": "24px",
+                        "xs": "4px",
+                        "xxl": "48px"
+                    },
+                    "fontFamily": {
+                        "headline-lg-mobile": ["Hanken Grotesk"],
+                        "body-lg": ["Manrope"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "label-md": ["Manrope"],
+                        "body-md": ["Manrope"],
+                        "label-sm": ["Manrope"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "display": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "display": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #f7f9fc; /* base neutral canvas */
+        }
+        .soft-shadow {
+            box-shadow: 0 8px 24px rgba(26, 35, 126, 0.05);
+        }
+    </style>
+</head>
+<body class="text-on-background font-body-md h-screen flex overflow-hidden">
+<!-- SideNavBar (Ortak Standart Sidebar) -->
+<nav aria-label="Sidebar Navigation" class="bg-surface-container-lowest text-primary shadow-[16px_0_24px_rgba(26,35,126,0.05)] h-screen w-64 fixed left-0 top-0 flex flex-col h-full py-xl z-40 hidden md:flex">
+    <div class="px-lg mb-xl">
+        <h1 class="font-display text-display font-bold text-primary">ParaAsistan</h1>
+        <p class="font-label-md text-label-md text-on-surface-variant mt-xs">Akıllı Finans Yönetimi</p>
+    </div>
+    <ul class="flex-1 px-sm space-y-sm">
+        <li>
+            <a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-all" href="dashboard.html">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">dashboard</span>
+                <span class="font-label-md text-label-md">Genel Bakış</span>
+            </a>
+        </li>
+        <li>
+            <a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-all" href="islemler.html">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">receipt_long</span>
+                <span class="font-label-md text-label-md">İşlemler</span>
+            </a>
+        </li>
+        <li>
+            <a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-all" href="ai-assistant.html">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">smart_toy</span>
+                <span class="font-label-md text-label-md">Yapay Zeka Asistanı</span>
+            </a>
+        </li>
+        <li>
+            <a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-all" href="analiz.html">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">query_stats</span>
+                <span class="font-label-md text-label-md">Raporlar & Analiz</span>
+            </a>
+        </li>
+        <li>
+            <a aria-current="page" class="flex items-center gap-md px-md py-sm rounded-lg text-primary font-bold border-r-4 border-primary bg-surface-container-low transition-all" href="bt.html">
+                <span class="material-symbols-outlined filled-icon" style="font-variation-settings: 'FILL' 1;">account_balance_wallet</span>
+                <span class="font-label-md text-label-md">Bütçeler</span>
+            </a>
+        </li>
+    </ul>
+    <ul class="px-sm mt-auto space-y-sm border-t border-surface-variant pt-lg">
+        <li>
+            <a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-all" href="#">
+                <span class="material-symbols-outlined" data-icon="help">help</span>
+                <span class="font-label-md text-label-md">Yardım Merkezi</span>
+            </a>
+        </li>
+        <li>
+            <a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-all" href="#">
+                <span class="material-symbols-outlined" data-icon="logout">logout</span>
+                <span class="font-label-md text-label-md">Çıkış Yap</span>
+            </a>
+        </li>
+    </ul>
+</nav>
+<!-- Main Content Area -->
+<div class="flex-1 md:ml-64 flex flex-col h-screen overflow-hidden">
+<!-- TopNavBar (Mobile only top row, desktop relies on side nav but we need header) -->
+<header class="md:hidden flex justify-between items-center px-lg w-full h-16 bg-surface z-10">
+<h1 class="font-headline-md text-headline-md font-bold text-primary">ParaAsistan</h1>
+<div class="flex items-center gap-4 text-on-surface-variant">
+<span class="material-symbols-outlined cursor-pointer hover:text-primary transition-all duration-200">notifications</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-primary transition-all duration-200">settings</span>
+<img class="w-8 h-8 rounded-full object-cover" data-alt="A small, circular profile picture of a young professional in business casual attire against a clean, light grey background. Soft, even lighting highlights a subtle smile, conveying trustworthiness and competence in a high-end fintech context." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCKA3Tjfzgcy5yrtaRn84n3dgY0T10MfuoI2_4w0he399DyEUahdv52xCcDBB4DBKqM7MnSQoQ1XgyOBvM0rugPXbOLWm2BITe7lZp9gsNSQZA3UsyjrlwEM7njfsO6B47COrsfIKB-M29cYa45r7WeDIoOC4XijGmGBFlMXadQCEUVGzkAUfqEXMCQuN7O0I5wyXYCpSAH4mfn0RdR43IyZRGe_lgh32pdKIcArw0DMMi7twRd8hAS">
+</div>
+</header>
+<!-- Desktop Header Area (Title & Actions) -->
+<div class="hidden md:flex justify-between items-center px-xxl pt-xl pb-lg w-full bg-surface shrink-0 z-10">
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Bütçelere Genel Bakış</h2>
+<div class="flex items-center gap-md">
+<button class="bg-surface-container-lowest border-2 border-outline-variant text-on-surface px-lg py-2 rounded-full font-label-md text-label-md hover:bg-surface-container-low transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">calendar_month</span>
+<span>Ekim 2026</span>
+</button>
+<button onclick="openBudgetModal()" class="bg-primary text-on-primary px-lg py-2 rounded-full font-label-md text-label-md hover:opacity-90 transition-opacity flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">add</span>
+<span>Bütçe Ekle</span>
+</button>
+<button aria-label="Bildirimler" class="p-sm text-on-surface-variant hover:bg-surface-container transition-colors rounded-full ml-sm">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden shadow-sm cursor-pointer border-2 border-surface-container-lowest">
+<img alt="User profile avatar" class="w-full h-full object-cover" src="/Users/macbook/paraasistan/frontend/profile_picture.jpg"/>
+</div>
+</div>
+</div>
+<!-- Scrollable Content Canvas -->
+<main class="flex-1 overflow-y-auto px-margin-mobile md:px-xxl pb-xxl pt-lg md:pt-0">
+<div class="md:hidden mb-xl">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">Bütçelere Genel Bakış</h2>
+</div>
+<!-- Summary Section (Bento Style) -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-lg mb-xl">
+<!-- Toplam Budget Performance -->
+<div class="col-span-1 md:col-span-2 bg-surface-container-lowest rounded-[2rem] p-lg soft-shadow relative overflow-hidden flex flex-col justify-between min-h-[200px]">
+<div class="absolute -right-12 -top-12 w-48 h-48 bg-primary/5 rounded-full blur-2xl"></div>
+<div class="z-10">
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-2">Toplam Aylık Bütçe</p>
+<div class="flex items-end gap-4 mb-xl">
+<h3 id="budget-total-spent" class="font-display text-display text-on-surface">0,00 ₺</h3>
+<p id="budget-total-limit" class="font-body-md text-body-md text-on-surface-variant pb-1">/ 0,00 ₺</p>
+</div>
+</div>
+<div class="z-10 w-full">
+<div class="flex justify-between font-label-sm text-label-sm mb-2">
+<span id="budget-total-percentage" class="text-on-surface-variant">%0 Harcandı</span>
+<span id="budget-total-remaining" class="text-secondary font-medium">0,00 ₺ Kalan</span>
+</div>
+<div class="w-full h-3 bg-surface-container-high rounded-full overflow-hidden">
+<div id="budget-total-progress" class="h-full bg-primary rounded-full transition-all duration-1000 ease-out" style="width: 0%;"></div>
+</div>
+</div>
+</div>
+<!-- Quick Insight / Status -->
+<div class="col-span-1 bg-surface-container-lowest rounded-[2rem] p-lg soft-shadow flex flex-col justify-center items-center text-center">
+<div class="w-16 h-16 rounded-full bg-secondary-container flex items-center justify-center mb-md">
+<span class="material-symbols-outlined text-on-secondary-container text-3xl" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<h4 class="font-headline-md text-headline-md text-on-surface mb-2">Hedefte / Dengeli</h4>
+<p class="font-body-md text-body-md text-on-surface-variant">Bu ay çoğu kategoride planlanan bütçe limitleriniz dahilinde harcama yapıyorsunuz.</p>
+</div>
+</section>
+<!-- Categories Grid -->
+<section>
+<div class="flex justify-between items-end mb-lg">
+<h3 class="font-headline-md text-headline-md text-on-surface">Kategori Budgets</h3>
+</div>
+<div id="budget-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md">
+    <!-- Dinamik Bütçe Kartları JavaScript ile buraya basılacak -->
+</div>
+</section>
+</main>
+<!-- BottomNavBar (Mobile only) -->
+<nav class="md:hidden flex justify-around items-center h-16 w-full bg-surface shrink-0 border-t border-outline-variant/30">
+<a class="flex flex-col items-center justify-center w-full h-full text-on-surface-variant" href="dashboard.html">
+<span class="material-symbols-outlined">dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center w-full h-full text-on-surface-variant" href="islemler.html">
+<span class="material-symbols-outlined">receipt_long</span>
+</a>
+<a class="flex flex-col items-center justify-center w-full h-full text-primary border-t-2 border-primary" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">account_balance_wallet</span>
+</a>
+<a class="flex flex-col items-center justify-center w-full h-full text-on-surface-variant" href="ai-assistant.html">
+<span class="material-symbols-outlined">smart_toy</span>
+</a>
+</nav>
+</div>
+
+<!-- Bütçe Ekle Modal Formu -->
+<div class="fixed inset-0 z-50 flex justify-end pointer-events-none">
+    <div class="absolute inset-0 bg-on-background/30 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300" id="budget-backdrop" onclick="closeBudgetModal()"></div>
+    <div class="relative w-full max-w-md h-full bg-surface-container-lowest shadow-2xl flex flex-col pointer-events-auto transform translate-x-full transition-transform duration-300 ease-in-out" id="budget-panel">
+        <div class="flex items-center justify-between p-lg border-b border-surface-variant">
+            <h2 class="font-headline-md text-headline-md text-on-background">Kategori Bütçesi Belirle</h2>
+            <button class="p-sm text-on-surface-variant hover:bg-surface-container rounded-full transition-colors" onclick="closeBudgetModal()">
+                <span class="material-symbols-outlined" data-icon="close">close</span>
+            </button>
+        </div>
+        <div class="p-lg flex-1 overflow-y-auto">
+            <form id="budget-form" class="space-y-lg flex-1 flex flex-col h-full" onsubmit="handleCreateBudget(event)">
+                <div class="space-y-xs">
+                    <label class="font-label-sm text-label-sm text-on-surface-variant">Kategori *</label>
+                    <select id="budget-category" required class="w-full px-md py-md bg-surface-container-low border border-surface-variant rounded-xl font-body-md text-on-background focus:ring-2 focus:ring-primary outline-none appearance-none transition-all">
+                        <option value="Market">Market</option>
+                        <option value="Kira">Kira</option>
+                        <option value="Fatura">Fatura</option>
+                        <option value="Ulaşım">Ulaşım</option>
+                        <option value="Teknoloji">Teknoloji</option>
+                        <option value="Eğlence">Eğlence</option>
+                        <option value="Sağlık">Sağlık</option>
+                        <option value="Eğitim">Eğitim</option>
+                        <option value="Diğer">Diğer</option>
+                    </select>
+                </div>
+
+                <div class="space-y-xs">
+                    <label class="font-label-sm text-label-sm text-on-surface-variant">Aylık Harcama Limiti (₺) *</label>
+                    <div class="relative">
+                        <span class="absolute left-md top-1/2 -translate-y-1/2 text-on-surface-variant font-body-md">₺</span>
+                        <input id="budget-limit" required step="0.01" min="1" class="w-full pl-xl pr-md py-md bg-surface-container-low border border-surface-variant rounded-xl font-body-md text-on-background focus:ring-2 focus:ring-primary outline-none transition-all" placeholder="Örn: 4000" type="number"/>
+                    </div>
+                </div>
+
+                <div class="mt-auto pt-lg">
+                    <button class="w-full py-md bg-primary text-on-primary font-label-md rounded-full hover:opacity-90 transition-opacity shadow-sm" type="submit">
+                        Bütçeyi Kaydet
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Şık Toast Bildirim Kutusu -->
+<div id="toast" class="fixed top-6 right-6 z-50 transform translate-x-full opacity-0 transition-all duration-300 pointer-events-none flex items-center gap-3 px-lg py-md rounded-2xl shadow-xl text-on-primary font-label-md">
+    <span id="toast-icon" class="material-symbols-outlined text-xl">check_circle</span>
+    <span id="toast-message">İşlem başarılı!</span>
+</div>
+
+<script>
+    const API_BASE = "http://127.0.0.1:8000/api";
+
+    document.addEventListener("DOMContentLoaded", () => {
+        loadBudgetsSummary();
+        loadBudgets();
+    });
+
+    function showToast(message, type = "success") {
+        const toast = document.getElementById("toast");
+        const toastMsg = document.getElementById("toast-message");
+        const toastIcon = document.getElementById("toast-icon");
+
+        toastMsg.innerText = message;
+
+        if (type === "success") {
+            toast.className = "fixed top-6 right-6 z-50 transform translate-x-0 opacity-100 transition-all duration-300 pointer-events-auto flex items-center gap-3 px-lg py-md rounded-2xl shadow-xl bg-secondary text-on-secondary font-label-md";
+            toastIcon.innerText = "check_circle";
+        } else {
+            toast.className = "fixed top-6 right-6 z-50 transform translate-x-0 opacity-100 transition-all duration-300 pointer-events-auto flex items-center gap-3 px-lg py-md rounded-2xl shadow-xl bg-error text-on-error font-label-md";
+            toastIcon.innerText = "error";
+        }
+
+        setTimeout(() => {
+            toast.classList.remove("translate-x-0", "opacity-100");
+            toast.classList.add("translate-x-full", "opacity-0");
+        }, 3000);
+    }
+
+    function openBudgetModal() {
+        document.getElementById('budget-panel').classList.remove('translate-x-full');
+        document.getElementById('budget-backdrop').classList.remove('opacity-0', 'pointer-events-none');
+    }
+
+    function closeBudgetModal() {
+        document.getElementById('budget-panel').classList.add('translate-x-full');
+        document.getElementById('budget-backdrop').classList.add('opacity-0', 'pointer-events-none');
+    }
+
+    function getCategoryIcon(category) {
+        const icons = {
+            "Market": "shopping_cart",
+            "Maaş": "payments",
+            "Kira": "home",
+            "Ulaşım": "directions_car",
+            "Fatura": "bolt",
+            "Teknoloji": "laptop",
+            "Eğlence": "movie",
+            "Ek Gelir": "savings",
+            "Yatırım": "trending_up",
+            "Sağlık": "medical_services",
+            "Eğitim": "school",
+            "Diğer": "receipt"
+        };
+        return icons[category] || "receipt";
+    }
+
+    async function loadBudgetsSummary() {
+        try {
+            const res = await fetch(`${API_BASE}/budgets/summary`);
+            const data = await res.json();
+
+            document.getElementById("budget-total-spent").innerText = `₺${data.total_spent.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}`;
+            document.getElementById("budget-total-limit").innerText = `/ ₺${data.total_budget.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}`;
+            document.getElementById("budget-total-percentage").innerText = `%${data.percentage} Harcandı`;
+            
+            const remEl = document.getElementById("budget-total-remaining");
+            if (data.remaining >= 0) {
+                remEl.innerText = `${data.remaining.toLocaleString('tr-TR', { minimumFractionDigits: 2 })} ₺ Kalan`;
+                remEl.className = "text-secondary font-medium";
+            } else {
+                remEl.innerText = `${Math.abs(data.remaining).toLocaleString('tr-TR', { minimumFractionDigits: 2 })} ₺ Aşıldı!`;
+                remEl.className = "text-error font-medium";
+            }
+
+            const bar = document.getElementById("budget-total-progress");
+            const visualPct = Math.min(data.percentage, 100);
+            bar.style.width = `${visualPct}%`;
+            bar.className = data.percentage > 100 ? "h-full bg-error rounded-full" : "h-full bg-primary rounded-full";
+
+        } catch (err) {
+            console.error("Bütçe özeti yüklenemedi:", err);
+        }
+    }
+
+    async function loadBudgets() {
+        const container = document.getElementById("budget-cards-container");
+        if (!container) return;
+
+        try {
+            const res = await fetch(`${API_BASE}/budgets`);
+            const budgets = await res.json();
+
+            container.innerHTML = "";
+
+            budgets.forEach(b => {
+                const isExceeded = b.status === "exceeded";
+                const iconName = getCategoryIcon(b.category);
+                const visualPct = Math.min(b.percentage, 100);
+
+                const statusBadge = isExceeded
+                    ? `<span class="inline-block mt-1 px-2 py-1 rounded-full bg-error/10 text-error font-label-sm text-label-sm font-semibold">Bütçe Aşıldı</span>`
+                    : `<span class="inline-block mt-1 px-2 py-1 rounded-full bg-secondary/10 text-secondary font-label-sm text-label-sm font-semibold">Hedefte / Dengeli</span>`;
+
+                const remainingText = isExceeded
+                    ? `<p class="font-label-sm text-label-sm text-error font-semibold">${Math.abs(b.remaining).toLocaleString('tr-TR', { minimumFractionDigits: 2 })} ₺ aşıldı</p>`
+                    : `<p class="font-label-sm text-label-sm text-on-surface-variant">${b.remaining.toLocaleString('tr-TR', { minimumFractionDigits: 2 })} ₺ kaldı</p>`;
+
+                const progressBarColor = isExceeded ? "bg-error" : "bg-primary";
+                const iconBoxBg = isExceeded ? "bg-error-container/50 text-error" : "bg-surface-container-low text-on-surface-variant";
+
+                const card = document.createElement("div");
+                card.className = "bg-surface-container-lowest rounded-[1.5rem] p-md soft-shadow hover:-translate-y-1 transition-transform duration-300";
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-lg">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-[1rem] ${iconBoxBg} flex items-center justify-center">
+                                <span class="material-symbols-outlined text-xl">${iconName}</span>
+                            </div>
+                            <div>
+                                <h4 class="font-label-md text-label-md text-on-surface font-bold">${b.category}</h4>
+                                ${statusBadge}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <div class="flex items-end gap-2 mb-1">
+                            <span class="font-headline-md text-headline-md text-on-surface font-bold">₺${b.spent.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</span>
+                            <span class="font-body-md text-body-md text-on-surface-variant">/ ₺${b.monthly_limit.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</span>
+                        </div>
+                        ${remainingText}
+                    </div>
+                    <div class="w-full h-2 bg-surface-container-high rounded-full overflow-hidden">
+                        <div class="h-full ${progressBarColor} rounded-full transition-all duration-1000" style="width: ${visualPct}%;"></div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+        } catch (err) {
+            console.error("Bütçeler yüklenemedi:", err);
+        }
+    }
+
+    async function handleCreateBudget(event) {
+        event.preventDefault();
+
+        const category = document.getElementById("budget-category").value;
+        const limit = parseFloat(document.getElementById("budget-limit").value);
+
+        const payload = {
+            category: category,
+            monthly_limit: limit
+        };
+
+        try {
+            const res = await fetch(`${API_BASE}/budgets`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                document.getElementById("budget-form").reset();
+                closeBudgetModal();
+                loadBudgetsSummary();
+                loadBudgets();
+                showToast(`${category} bütçesi başarıyla güncellendi! 🎯`, "success");
+            } else {
+                alert("Bütçe kaydedilemedi.");
+            }
+        } catch (err) {
+            alert("Sunucu hatası: " + err.message);
+        }
+    }
+</script>
+
+</body></html>
