@@ -195,7 +195,7 @@
         }
     </style>
 </head>
-<body class="text-on-background font-body-md bg-background flex">
+<body class="bg-background text-on-background font-body-md h-screen overflow-hidden flex">
 <!-- SideNavBar (Ortak Standart Sidebar) -->
 <nav aria-label="Sidebar Navigation" class="bg-surface-container-lowest text-primary shadow-[16px_0_24px_rgba(26,35,126,0.05)] h-screen w-64 fixed left-0 top-0 flex flex-col h-full py-xl z-40 hidden md:flex">
     <div class="px-lg mb-xl">
@@ -242,7 +242,7 @@
             </a>
         </li>
         <li>
-            <a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-all" href="#">
+            <a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-all cursor-pointer" href="javascript:void(0)" onclick="handleLogout()">
                 <span class="material-symbols-outlined" data-icon="logout">logout</span>
                 <span class="font-label-md text-label-md">Çıkış Yap</span>
             </a>
@@ -250,26 +250,21 @@
     </ul>
 </nav>
 <!-- Main Content Area -->
-<main class="flex-1 w-full md:ml-64 flex flex-col min-h-screen">
+<main class="flex-1 md:ml-64 h-full overflow-y-auto bg-surface-bright flex flex-col relative">
 <!-- TopNavBar (Desktop & Mobile header) -->
-<header class="flex justify-between items-center px-lg w-full h-16 sticky top-0 z-30 bg-surface-bright shadow-sm">
+<header class="flex justify-between items-center px-8 w-full h-20 sticky top-0 z-30 bg-surface-bright border-b border-surface-variant/40">
 <div class="flex items-center gap-md md:hidden">
-
 <h1 class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary">ParaAsistan</h1>
 </div>
-<div class="hidden md:flex items-center bg-surface-container-lowest rounded-full px-md py-xs border border-surface-variant focus-within:border-primary transition-colors">
-<span class="material-symbols-outlined text-outline mr-sm">search</span>
-<input class="bg-transparent border-none focus:ring-0 text-body-md font-body-md text-on-surface outline-none w-64 placeholder-outline-variant" placeholder="Analizlerde ara..." type="text">
-</div>
-<div class="flex items-center gap-md">
-<button class="p-sm text-on-surface-variant hover:bg-surface-container rounded-full transition-colors relative">
+<h2 class="hidden md:block font-headline-lg text-headline-lg font-bold text-on-background">Raporlar & Analiz</h2>
+<div class="flex items-center gap-4">
+<button class="p-2 text-on-surface-variant hover:bg-surface-container rounded-full transition-colors relative">
 <span class="material-symbols-outlined">notifications</span>
 <span class="absolute top-1 right-1 w-2 h-2 bg-error rounded-full"></span>
 </button>
-<button class="p-sm text-on-surface-variant hover:bg-surface-container rounded-full transition-colors">
-<span class="material-symbols-outlined">settings</span>
-</button>
-<img alt="User profile avatar" class="w-10 h-10 rounded-full object-cover border-2 border-surface-container-lowest shadow-sm cursor-pointer ml-sm" data-alt="A professional headshot of a young professional in a sharp, modern navy blazer, smiling confidently. The lighting is soft and cinematic, set against a pristine, light-mode architectural interior. The image exudes trust, premium quality, and effortless control." src="/Users/macbook/paraasistan/frontend/profile_picture.jpg">
+<div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden shadow-sm cursor-pointer border-2 border-surface-container-lowest shrink-0">
+<img alt="User profile avatar" class="w-full h-full object-cover" src="/Users/macbook/paraasistan/frontend/profile_picture.jpg">
+</div>
 </div>
 </header>
 <!-- Analytics Canvas -->
@@ -453,6 +448,18 @@
 <script>
     const API_BASE = "http://127.0.0.1:8000/api";
 
+    // 🔐 GİRİŞ KONTROLÜ (Auth Guard)
+    const token = localStorage.getItem("paraasistan_token");
+    if (!token) {
+        window.location.href = "login.html";
+    }
+
+    function handleLogout() {
+        localStorage.removeItem("paraasistan_token");
+        localStorage.removeItem("paraasistan_user");
+        window.location.href = "login.html";
+    }
+
     document.addEventListener("DOMContentLoaded", function() {
         initSavingsLineChart();
         initSpendingPieChart();
@@ -468,6 +475,13 @@
         '#d97706', '#dc2626', '#0891b2', '#9333ea', '#65a30d'
     ];
 
+    function getAuthHeaders() {
+        return {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${localStorage.getItem("paraasistan_token")}`
+        };
+    }
+
     // 1. Çizgi Grafik: Son 6 Ayın Birikim / Net Nakit Akışı
     async function initSavingsLineChart() {
         const ctxLine = document.getElementById('savingsChart').getContext('2d');
@@ -476,7 +490,9 @@
         gradient.addColorStop(1, 'rgba(0, 6, 102, 0)');
 
         try {
-            const res = await fetch(`${API_BASE}/analytics/monthly-cashflow`);
+            const res = await fetch(`${API_BASE}/analytics/monthly-cashflow`, {
+                headers: getAuthHeaders()
+            });
             const data = await res.json();
 
             const labels = data.map(d => d.month);
@@ -550,7 +566,9 @@
         const totalSpentEl = document.getElementById('pie-total-spent');
 
         try {
-            const res = await fetch(`${API_BASE}/analytics/category-spending`);
+            const res = await fetch(`${API_BASE}/analytics/category-spending`, {
+                headers: getAuthHeaders()
+            });
             const data = await res.json();
 
             totalSpentEl.innerText = `₺${data.total_spent.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}`;
@@ -622,7 +640,9 @@
         if (!tbody) return;
 
         try {
-            const res = await fetch(`${API_BASE}/transactions?limit=5`);
+            const res = await fetch(`${API_BASE}/transactions?limit=5`, {
+                headers: getAuthHeaders()
+            });
             const txs = await res.json();
 
             tbody.innerHTML = '';

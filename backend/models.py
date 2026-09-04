@@ -4,6 +4,7 @@ import datetime
 
 class Transaction(Base):
     __tablename__ = "transactions"
+    user_id = Column(Integer, nullable=True)
     id = Column(Integer, primary_key=True, index=True)
     type = Column(String, nullable=False)              
     amount = Column(Float, nullable=False)             
@@ -11,6 +12,13 @@ class Transaction(Base):
     description = Column(String, nullable=True)        
     date = Column(DateTime, default=datetime.datetime.utcnow)
 
+class User(Base):
+    __tablename__ = "users"
+    id = Column(Integer, primary_key=True, index=True)
+    full_name = Column(String, nullable=False)                        
+    email = Column(String, unique=True, index=True, nullable=False)    
+    hashed_password = Column(String, nullable=False)               
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
 
 class Category(Base):
     __tablename__ = "categories"
@@ -22,8 +30,9 @@ class Category(Base):
 
 
 class Budget(Base):
-    __tablename__ = "budgets"
+    __tablename__ = "user_budgets"
     id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, nullable=True)
     category = Column(String, nullable=False)
     monthly_limit = Column(Float, nullable=False)
     month = Column(String, nullable=True)

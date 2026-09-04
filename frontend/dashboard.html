@@ -246,7 +246,7 @@
             </a>
         </li>
         <li>
-            <a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-all" href="#">
+            <a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-all cursor-pointer" href="javascript:void(0)" onclick="handleLogout()">
                 <span class="material-symbols-outlined" data-icon="logout">logout</span>
                 <span class="font-label-md text-label-md">Çıkış Yap</span>
             </a>
@@ -273,16 +273,13 @@
 </div>
 </header>
 <!-- Desktop Minimal Header -->
-<header class="hidden md:flex justify-between items-center px-xxl py-lg bg-surface-bright sticky top-0 z-30">
+<header class="hidden md:flex justify-between items-center px-8 w-full h-20 bg-surface-bright sticky top-0 z-30 border-b border-surface-variant/40">
 <h2 class="font-headline-lg text-headline-lg font-bold text-on-background">Genel Bakış</h2>
-<div class="flex items-center gap-md">
-<button aria-label="Search" class="p-sm text-on-surface-variant hover:bg-surface-container transition-colors rounded-full">
-<span class="material-symbols-outlined" data-icon="search">search</span>
-</button>
-<button aria-label="Notifications" class="p-sm text-on-surface-variant hover:bg-surface-container transition-colors rounded-full">
+<div class="flex items-center gap-4">
+<button aria-label="Notifications" class="p-2 text-on-surface-variant hover:bg-surface-container transition-colors rounded-full">
 <span class="material-symbols-outlined" data-icon="notifications">notifications</span>
 </button>
-<div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden shadow-sm cursor-pointer ml-sm">
+<div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden shadow-sm cursor-pointer border-2 border-surface-container-lowest shrink-0">
 <img alt="User profile avatar" class="w-full h-full object-cover" src="/Users/macbook/paraasistan/frontend/profile_picture.jpg"/>
 </div>
 </div>
@@ -461,14 +458,33 @@
     }
 
 
+    // 🔐 GİRİŞ KONTROLÜ (Auth Guard)
+    const token = localStorage.getItem("paraasistan_token");
+    if (!token) {
+        window.location.href = "login.html";
+    }
+
+    function handleLogout() {
+        localStorage.removeItem("paraasistan_token");
+        localStorage.removeItem("paraasistan_user");
+        window.location.href = "login.html";
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
         const dateInput = document.getElementById("dash-tx-date");
         if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
         loadDashSummary();
         initCashFlowChart();
-        });
+    });
 
     let cashFlowChartInstance = null;
+
+    function getAuthHeaders() {
+        return {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${localStorage.getItem("paraasistan_token")}`
+        };
+    }
 
     async function initCashFlowChart() {
         const canvas = document.getElementById('cashFlowChart');
@@ -477,7 +493,9 @@
 
         try {
             // 1. Backend API'sinden son 6 ayın gerçek veritabanı verilerini çekiyoruz:
-            const res = await fetch(`${API_BASE}/analytics/monthly-cashflow`);
+            const res = await fetch(`${API_BASE}/analytics/monthly-cashflow`, {
+                headers: getAuthHeaders()
+            });
             const monthsData = await res.json();
 
             const labels = monthsData.map(d => d.month);
@@ -597,7 +615,9 @@
 
     async function loadDashSummary() {
         try {
-            const res = await fetch(`${API_BASE}/analytics/summary`);
+            const res = await fetch(`${API_BASE}/analytics/summary`, {
+                headers: getAuthHeaders()
+            });
             const data = await res.json();
 
             const incEl = document.getElementById("dash-summary-income");
@@ -632,7 +652,7 @@
         try {
             const res = await fetch(`${API_BASE}/transactions`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: getAuthHeaders(),
                 body: JSON.stringify(payload)
             });
 

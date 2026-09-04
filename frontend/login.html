@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html class="light" lang="tr">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>ParaAsistan - Giriş Yap & Kayıt Ol</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=block" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#000666",
+                        "primary-container": "#1a237e",
+                        secondary: "#1b6d24",
+                        "secondary-container": "#a0f399",
+                        surface: "#f7f9fc",
+                        "surface-container-low": "#f2f4f7",
+                        "surface-container-lowest": "#ffffff",
+                        "on-surface": "#191c1e",
+                        "on-surface-variant": "#454652",
+                        outline: "#767683",
+                        "outline-variant": "#c6c5d4",
+                        error: "#ba1a1a"
+                    },
+                    fontFamily: {
+                        display: ["Hanken Grotesk"],
+                        body: ["Manrope"]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-surface font-body text-on-surface min-h-screen flex items-center justify-center p-4">
+
+    <!-- Ana Kart Kutusu -->
+    <div class="w-full max-w-md bg-surface-container-lowest rounded-3xl shadow-xl border border-outline-variant/30 overflow-hidden p-8">
+        
+        <!-- Logo & Başlık -->
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary-container text-white mb-3 shadow-md">
+                <span class="material-symbols-outlined text-3xl">account_balance_wallet</span>
+            </div>
+            <h1 class="font-display text-3xl font-bold text-primary">ParaAsistan</h1>
+            <p class="text-sm text-on-surface-variant mt-1">Akıllı Finans ve Bütçe Yönetimi</p>
+        </div>
+
+        <!-- Sekmeler (Tab Switcher) -->
+        <div class="flex bg-surface-container-low p-1.5 rounded-2xl mb-6">
+            <button id="tab-login-btn" onclick="switchTab('login')" class="flex-1 py-2.5 rounded-xl font-display font-semibold text-sm transition-all bg-white text-primary shadow-sm">
+                Giriş Yap
+            </button>
+            <button id="tab-register-btn" onclick="switchTab('register')" class="flex-1 py-2.5 rounded-xl font-display font-semibold text-sm transition-all text-on-surface-variant hover:text-on-surface">
+                Kayıt Ol
+            </button>
+        </div>
+
+        <!-- Bildirim Mesaj Kutusu -->
+        <div id="alert-box" class="hidden mb-4 p-3 rounded-xl text-sm font-medium text-center"></div>
+
+        <!-- 1. GİRİŞ YAP FORMU -->
+        <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
+            <div>
+                <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">E-posta Adresi</label>
+                <div class="relative">
+                    <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-xl">mail</span>
+                    <input type="email" id="login-email" required placeholder="ornek@mail.com" class="w-full pl-11 pr-4 py-3 rounded-xl bg-surface border border-outline-variant focus:border-primary focus:ring-0 text-sm outline-none transition-all">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Şifre</label>
+                <div class="relative">
+                    <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-xl">lock</span>
+                    <input type="password" id="login-password" required placeholder="••••••••" class="w-full pl-11 pr-4 py-3 rounded-xl bg-surface border border-outline-variant focus:border-primary focus:ring-0 text-sm outline-none transition-all">
+                </div>
+            </div>
+
+            <button type="submit" id="login-btn" class="w-full py-3.5 mt-2 bg-primary text-white rounded-xl font-display font-semibold hover:bg-primary-container transition-all shadow-md flex items-center justify-center gap-2">
+                <span>Giriş Yap</span>
+                <span class="material-symbols-outlined text-lg">arrow_forward</span>
+            </button>
+        </form>
+
+        <!-- 2. KAYIT OL FORMU -->
+        <form id="register-form" onsubmit="handleRegister(event)" class="space-y-4 hidden">
+            <div>
+                <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Ad Soyad</label>
+                <div class="relative">
+                    <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-xl">person</span>
+                    <input type="text" id="reg-name" required placeholder="Ahmet Yılmaz" class="w-full pl-11 pr-4 py-3 rounded-xl bg-surface border border-outline-variant focus:border-primary focus:ring-0 text-sm outline-none transition-all">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">E-posta Adresi</label>
+                <div class="relative">
+                    <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-xl">mail</span>
+                    <input type="email" id="reg-email" required placeholder="ornek@mail.com" class="w-full pl-11 pr-4 py-3 rounded-xl bg-surface border border-outline-variant focus:border-primary focus:ring-0 text-sm outline-none transition-all">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">Şifre Oluştur</label>
+                <div class="relative">
+                    <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-xl">lock</span>
+                    <input type="password" id="reg-password" required minlength="6" placeholder="En az 6 karakter" class="w-full pl-11 pr-4 py-3 rounded-xl bg-surface border border-outline-variant focus:border-primary focus:ring-0 text-sm outline-none transition-all">
+                </div>
+            </div>
+
+            <button type="submit" id="reg-btn" class="w-full py-3.5 mt-2 bg-secondary text-white rounded-xl font-display font-semibold hover:opacity-95 transition-all shadow-md flex items-center justify-center gap-2">
+                <span>Hesap Oluştur</span>
+                <span class="material-symbols-outlined text-lg">check_circle</span>
+            </button>
+        </form>
+
+        <p class="text-xs text-center text-outline mt-6">
+            ParaAsistan Bulut Güvenliği • Supabase & JWT 256-bit Korumalı
+        </p>
+    </div>
+
+    <!-- Frontend İletişim Scripti -->
+    <script>
+        const API_BASE = "http://127.0.0.1:8000/api";
+
+        function switchTab(tab) {
+            const loginForm = document.getElementById("login-form");
+            const regForm = document.getElementById("register-form");
+            const loginTabBtn = document.getElementById("tab-login-btn");
+            const regTabBtn = document.getElementById("tab-register-btn");
+            const alertBox = document.getElementById("alert-box");
+            alertBox.classList.add("hidden");
+
+            if (tab === "login") {
+                loginForm.classList.remove("hidden");
+                regForm.classList.add("hidden");
+                loginTabBtn.className = "flex-1 py-2.5 rounded-xl font-display font-semibold text-sm transition-all bg-white text-primary shadow-sm";
+                regTabBtn.className = "flex-1 py-2.5 rounded-xl font-display font-semibold text-sm transition-all text-on-surface-variant hover:text-on-surface";
+            } else {
+                loginForm.classList.add("hidden");
+                regForm.classList.remove("hidden");
+                regTabBtn.className = "flex-1 py-2.5 rounded-xl font-display font-semibold text-sm transition-all bg-white text-secondary shadow-sm";
+                loginTabBtn.className = "flex-1 py-2.5 rounded-xl font-display font-semibold text-sm transition-all text-on-surface-variant hover:text-on-surface";
+            }
+        }
+
+        function showAlert(msg, type) {
+            const alertBox = document.getElementById("alert-box");
+            alertBox.innerText = msg;
+            alertBox.classList.remove("hidden");
+            if (type === "success") {
+                alertBox.className = "mb-4 p-3 rounded-xl text-sm font-medium text-center bg-secondary-container/30 text-secondary border border-secondary/20";
+            } else {
+                alertBox.className = "mb-4 p-3 rounded-xl text-sm font-medium text-center bg-error/10 text-error border border-error/20";
+            }
+        }
+
+        // GİRİŞ YAPMA İŞLEMİ
+        async function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById("login-email").value.trim();
+            const password = document.getElementById("login-password").value;
+            const btn = document.getElementById("login-btn");
+
+            btn.disabled = true;
+            btn.innerHTML = '<span>Kontrol ediliyor...</span>';
+
+            try {
+                const res = await fetch(`${API_BASE}/auth/login`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    throw new Error(data.detail || "Giriş başarısız!");
+                }
+
+                // 1. JWT Biletini ve Kullanıcı Bilgisini Tarayıcı Hafızasına (localStorage) Kaydet:
+                localStorage.setItem("paraasistan_token", data.access_token);
+                localStorage.setItem("paraasistan_user", JSON.stringify(data.user));
+
+                showAlert(`Hoş geldiniz, ${data.user.full_name}! Yönlendiriliyorsunuz...`, "success");
+
+                // 2. 1 saniye sonra Dashboard'a uçur:
+                setTimeout(() => {
+                    window.location.href = "dashboard.html";
+                }, 1000);
+
+            } catch (err) {
+                showAlert(err.message, "error");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<span>Giriş Yap</span><span class="material-symbols-outlined text-lg">arrow_forward</span>';
+            }
+        }
+
+        // KAYIT OLMA İŞLEMİ
+        async function handleRegister(e) {
+            e.preventDefault();
+            const full_name = document.getElementById("reg-name").value.trim();
+            const email = document.getElementById("reg-email").value.trim();
+            const password = document.getElementById("reg-password").value;
+            const btn = document.getElementById("reg-btn");
+
+            btn.disabled = true;
+            btn.innerHTML = '<span>Kaydediliyor...</span>';
+
+            try {
+                const res = await fetch(`${API_BASE}/auth/register`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ full_name, email, password })
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    throw new Error(data.detail || "Kayıt başarısız!");
+                }
+
+                showAlert("Hesabınız başarıyla oluşturuldu! Şimdi giriş yapabilirsiniz.", "success");
+
+                // Giriş sekmesine otomatik geçir
+                setTimeout(() => {
+                    switchTab("login");
+                    document.getElementById("login-email").value = email;
+                }, 1500);
+
+            } catch (err) {
+                showAlert(err.message, "error");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<span>Hesap Oluştur</span><span class="material-symbols-outlined text-lg">check_circle</span>';
+            }
+        }
+    </script>
+</body>
+</html>

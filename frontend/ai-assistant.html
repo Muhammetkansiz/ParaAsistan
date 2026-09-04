@@ -156,19 +156,25 @@
             </a>
         </li>
         <li>
-            <a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-all" href="#">
+            <a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-all cursor-pointer" href="javascript:void(0)" onclick="handleLogout()">
                 <span class="material-symbols-outlined" data-icon="logout">logout</span>
                 <span class="font-label-md text-label-md">Çıkış Yap</span>
             </a>
         </li>
     </ul>
 </nav>
-<!-- TopNavBar (Mobile) -->
-<header class="w-full h-16 bg-surface-bright dark:bg-surface-container-low shadow-sm flex justify-between items-center px-lg w-full sticky top-0 z-50 md:hidden flex justify-between items-center px-lg w-full sticky top-0 z-50">
-<h1 class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary">ParaAsistan</h1>
-<div class="flex gap-md">
-<button class="text-primary hover:bg-surface-container p-2 rounded-full transition-colors"><span class="material-symbols-outlined" data-icon="notifications">notifications</span></button>
-<button class="text-primary hover:bg-surface-container p-2 rounded-full transition-colors"><span class="material-symbols-outlined" data-icon="settings">settings</span></button>
+<!-- TopNavBar (Mobile Only) -->
+<header class="bg-surface-bright text-primary w-full h-16 flex justify-between items-center px-lg w-full sticky top-0 z-30 md:hidden shadow-sm">
+<div class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary">
+    ParaAsistan
+</div>
+<div class="flex items-center gap-sm">
+<button aria-label="Bildirimler" class="p-sm text-on-surface-variant hover:bg-surface-container transition-colors rounded-full">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-surface-container-high overflow-hidden shadow-sm cursor-pointer ml-xs">
+<img alt="User profile avatar" class="w-full h-full object-cover" src="/Users/macbook/paraasistan/frontend/profile_picture.jpg"/>
+</div>
 </div>
 </header>
 <!-- Main Canvas -->
@@ -176,66 +182,31 @@
 <!-- Left Panel: Chat UI -->
 <section class="flex-1 flex flex-col bg-surface-container-lowest h-full relative z-10 ambient-shadow md:border-r border-surface-container-high">
 <!-- Chat Header -->
-<div class="px-lg py-md border-b border-surface-container-high bg-surface-bright/80 backdrop-blur-md sticky top-0 z-20 flex justify-between items-center">
+<div class="px-8 w-full h-20 border-b border-surface-container-high bg-surface-bright sticky top-0 z-20 flex justify-between items-center">
 <div>
-<h2 class="font-headline-md text-headline-md text-on-surface">Finans & Satın Alma Danışmanı</h2>
-<p class="font-body-md text-body-md text-on-surface-variant">Bir şey satın almadan önce bana danışın.</p>
+<h2 class="font-headline-lg text-headline-lg font-bold text-on-background">Yapay Zeka Asistanı</h2>
 </div>
-<div class="flex items-center gap-md">
-<button aria-label="Bildirimler" class="p-sm text-on-surface-variant hover:bg-surface-container transition-colors rounded-full">
+<div class="flex items-center gap-4">
+<button aria-label="Bildirimler" class="p-2 text-on-surface-variant hover:bg-surface-container transition-colors rounded-full">
 <span class="material-symbols-outlined">notifications</span>
 </button>
-<div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden shadow-sm cursor-pointer border-2 border-surface-container-lowest">
+<div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden shadow-sm cursor-pointer border-2 border-surface-container-lowest shrink-0">
 <img alt="User profile avatar" class="w-full h-full object-cover" src="/Users/macbook/paraasistan/frontend/profile_picture.jpg"/>
 </div>
 </div>
 </div>
 <!-- Chat Messages Area -->
 <div id="chat-messages" class="flex-1 overflow-y-auto p-lg flex flex-col gap-lg space-y-4">
-<!-- AI Greeting -->
-<div class="flex items-start gap-md max-w-[85%]">
-<div class="w-10 h-10 rounded-full bg-surface-tint flex items-center justify-center text-on-primary shrink-0">
-<span class="material-symbols-outlined text-sm" data-icon="smart_toy">smart_toy</span>
-</div>
-<div class="bg-surface-container-low p-md rounded-2xl rounded-tl-sm text-on-surface font-body-md text-body-md shadow-sm">
-                        Merhaba! Ben ParaAsistan. Yeni bir harcama mı planlıyorsun? Bana ne almak istediğini ve fiyatını söyle, bütçene uygunluğunu birlikte değerlendirelim.
-                    </div>
-</div>
-<!-- User Message -->
-<div class="flex items-start gap-md max-w-[85%] self-end flex-row-reverse">
-<div class="w-10 h-10 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center shrink-0">
-<span class="material-symbols-outlined text-sm" data-icon="person">person</span>
-</div>
-<div class="bg-primary-container text-on-primary-container p-md rounded-2xl rounded-tr-sm font-body-md text-body-md shadow-sm">
-                        Bu yeni dizüstü bilgisayarı almalı mıyım? Fiyatı 45.000 ₺.
-                    </div>
-</div>
-<!-- AI Analysis Response -->
-<div class="flex items-start gap-md max-w-[95%]">
-<div class="w-10 h-10 rounded-full bg-surface-tint flex items-center justify-center text-on-primary shrink-0">
-<span class="material-symbols-outlined text-sm" data-icon="smart_toy">smart_toy</span>
-</div>
-<div class="bg-surface-container-low p-md rounded-2xl rounded-tl-sm text-on-surface font-body-md text-body-md shadow-sm w-full">
-<p class="mb-sm">Rakamlara birlikte bakalım. 45.000 ₺ önemli bir harcama tutarı.</p>
-<div class="bg-surface-bright p-sm rounded-lg border border-surface-variant mt-sm">
-<div class="flex items-center gap-sm text-secondary-container-dark font-label-md text-label-md">
-<span class="material-symbols-outlined text-secondary" data-icon="check_circle">check_circle</span>
-<span class="text-secondary">Acil Durum Fonunuz güvende.</span>
-</div>
-<div class="flex items-center gap-sm text-error font-label-md text-label-md mt-xs">
-<span class="material-symbols-outlined" data-icon="warning">warning</span>
-<span>Bu harcama kalan "Teknoloji" bütçenizin %80'ini tüketecektir.</span>
-</div>
-</div>
-<p class="mt-sm">Sağ taraftaki Bütçe Etki panelini güncelledim. Eğer iş için acil bir ihtiyaçsa değerlendirilebilir, ancak indirim dönemlerini beklemek daha karlı olabilir.</p>
-</div>
-</div>
-<!-- AI Typing Indicator (Simulated) -->
-<div class="flex items-start gap-md max-w-[85%] opacity-50">
-<div class="w-10 h-10 rounded-full bg-surface-tint flex items-center justify-center text-on-primary shrink-0">
-<span class="material-symbols-outlined text-sm" data-icon="more_horiz">more_horiz</span>
-</div>
-</div>
+    <!-- AI Greeting (Tek ve Temiz) -->
+    <div class="flex items-start gap-md max-w-[85%]">
+        <div class="w-10 h-10 rounded-full bg-surface-tint flex items-center justify-center text-on-primary shrink-0 shadow-sm">
+            <span class="material-symbols-outlined text-sm" data-icon="smart_toy">smart_toy</span>
+        </div>
+        <div class="bg-surface-container-low p-md rounded-2xl rounded-tl-sm text-on-surface font-body-md text-body-md shadow-sm">
+            Merhaba! Ben <strong>ParaAsistan</strong> Yapay Zeka Finans Danışmanınızım.<br><br>
+            Size bugün nasıl yardımcı olabilirim? Yeni bir satın alma planlıyorsanız bana ne almak istediğinizi ve tutarını sorabilirsiniz <em>(Örn: "5000 TL mont almalı mıyım?")</em>.
+        </div>
+    </div>
 </div>
 <!-- Chat Input -->
 <form id="chat-form" onsubmit="handleSendChatMessage(event)" class="p-lg bg-surface-bright border-t border-surface-container-high sticky bottom-0">
@@ -261,18 +232,18 @@
 <div class="flex justify-between items-start mb-md">
 <div>
 <h3 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider mb-xs">Planlanan Alışveriş</h3>
-<p id="impact-product-name" class="font-headline-md text-headline-md text-on-surface">Dizüstü Bilgisayar</p>
+<p id="impact-product-name" class="font-headline-md text-headline-md text-on-surface text-outline">Henüz bir ürün sorulmadı</p>
 </div>
-<span id="impact-price" class="font-display text-display text-primary">45.000 ₺</span>
+<span id="impact-price" class="font-display text-display text-outline">0 ₺</span>
 </div>
 <div class="mt-lg">
-<h4 id="impact-category-title" class="font-label-md text-label-md text-on-surface-variant mb-sm">'Teknoloji' Bütçesine Etkisi</h4>
+<h4 id="impact-category-title" class="font-label-md text-label-md text-on-surface-variant mb-sm">Bütçe Etki Durumu</h4>
 <div class="w-full bg-surface-container-high h-2 rounded-full overflow-hidden">
-<div id="impact-progress-bar" class="bg-error h-full rounded-full transition-all duration-1000" style="width: 85%;"></div>
+<div id="impact-progress-bar" class="bg-error h-full rounded-full transition-all duration-1000" style="width: 0%;"></div>
 </div>
 <div class="flex justify-between mt-sm font-label-sm text-label-sm text-on-surface-variant">
-<span>Mevcut: 3.500 ₺ harcandı</span>
-<span>Yeni Toplam: 48.500 ₺ / 50.000 ₺ Limit</span>
+<span>Mevcut: 0 ₺ harcandı</span>
+<span>Yeni Toplam: 0 ₺</span>
 </div>
 </div>
 </div>
@@ -292,7 +263,7 @@
 <div class="bg-surface-container-lowest rounded-DEFAULT p-md ambient-shadow flex flex-col justify-between items-center text-center">
 <span class="material-symbols-outlined text-4xl text-outline-variant mb-sm" data-icon="hourglass_empty">hourglass_empty</span>
 <p class="font-label-md text-label-md text-on-surface">Yapay Zeka Tavsiyesi</p>
-<p id="impact-suggestion" class="font-body-sm text-body-sm text-on-surface-variant mt-xs">Yaklaşan indirim fırsatlarını bekleyin.</p>
+<p id="impact-suggestion" class="font-body-sm text-body-sm text-on-surface-variant mt-xs">Soru sorduğunuzda yapay zeka tavsiyesi burada görünecektir.</p>
 </div>
 </div>
 <!-- Historical Context -->
@@ -325,6 +296,18 @@
 
 <script>
     const API_BASE = "http://127.0.0.1:8000/api";
+
+    // 🔐 GİRİŞ KONTROLÜ (Auth Guard)
+    const token = localStorage.getItem("paraasistan_token");
+    if (!token) {
+        window.location.href = "login.html";
+    }
+
+    function handleLogout() {
+        localStorage.removeItem("paraasistan_token");
+        localStorage.removeItem("paraasistan_user");
+        window.location.href = "login.html";
+    }
 
     async function handleSendChatMessage(event) {
         event.preventDefault();
