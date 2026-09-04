@@ -1,0 +1,677 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>ParaAsistan - Analytics</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&amp;family=Manrope:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-surface-variant": "#454652",
+                      "secondary-fixed-dim": "#88d982",
+                      "surface-bright": "#f7f9fc",
+                      "on-background": "#191c1e",
+                      "primary-fixed-dim": "#bdc2ff",
+                      "tertiary-container": "#67000a",
+                      "error": "#ba1a1a",
+                      "on-primary-fixed-variant": "#343d96",
+                      "inverse-surface": "#2d3133",
+                      "on-tertiary-fixed": "#410004",
+                      "surface-container": "#eceef1",
+                      "inverse-on-surface": "#eff1f4",
+                      "primary-container": "#1a237e",
+                      "primary": "#000666",
+                      "secondary": "#1b6d24",
+                      "on-secondary-fixed": "#002204",
+                      "surface-dim": "#d8dadd",
+                      "on-surface": "#191c1e",
+                      "on-tertiary": "#ffffff",
+                      "surface-container-highest": "#e0e3e6",
+                      "on-secondary": "#ffffff",
+                      "outline": "#767683",
+                      "secondary-fixed": "#a3f69c",
+                      "on-tertiary-fixed-variant": "#910816",
+                      "surface-tint": "#4c56af",
+                      "primary-fixed": "#e0e0ff",
+                      "error-container": "#ffdad6",
+                      "surface-container-lowest": "#ffffff",
+                      "outline-variant": "#c6c5d4",
+                      "tertiary": "#400004",
+                      "on-secondary-container": "#217128",
+                      "surface-container-low": "#f2f4f7",
+                      "surface": "#f7f9fc",
+                      "on-tertiary-container": "#ff635f",
+                      "tertiary-fixed-dim": "#ffb3ae",
+                      "on-primary": "#ffffff",
+                      "on-error-container": "#93000a",
+                      "on-primary-fixed": "#000767",
+                      "on-error": "#ffffff",
+                      "tertiary-fixed": "#ffdad7",
+                      "on-secondary-fixed-variant": "#005312",
+                      "surface-variant": "#e0e3e6",
+                      "inverse-primary": "#bdc2ff",
+                      "background": "#f7f9fc",
+                      "secondary-container": "#a0f399",
+                      "surface-container-high": "#e6e8eb",
+                      "on-primary-container": "#8690ee"
+              },
+              "borderRadius": {
+                      "DEFAULT": "1rem",
+                      "lg": "2rem",
+                      "xl": "3rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xxl": "48px",
+                      "margin-mobile": "20px",
+                      "gutter-mobile": "16px",
+                      "lg": "24px",
+                      "unit": "4px",
+                      "md": "16px",
+                      "xl": "32px",
+                      "xs": "4px",
+                      "sm": "8px"
+              },
+              "fontFamily": {
+                      "headline-md": [
+                              "Hanken Grotesk"
+                      ],
+                      "label-md": [
+                              "Manrope"
+                      ],
+                      "body-md": [
+                              "Manrope"
+                      ],
+                      "headline-lg": [
+                              "Hanken Grotesk"
+                      ],
+                      "body-lg": [
+                              "Manrope"
+                      ],
+                      "display": [
+                              "Hanken Grotesk"
+                      ],
+                      "headline-lg-mobile": [
+                              "Hanken Grotesk"
+                      ],
+                      "label-sm": [
+                              "Manrope"
+                      ]
+              },
+              "fontSize": {
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "letterSpacing": "0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display": [
+                              "40px",
+                              {
+                                      "lineHeight": "48px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "28px",
+                              {
+                                      "lineHeight": "36px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "500"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        body { background-color: #f7f9fc; }
+        .ambient-shadow { box-shadow: 16px 0 24px rgba(26, 35, 126, 0.05); }
+        .card-shadow { box-shadow: 0 4px 24px rgba(26, 35, 126, 0.05); }
+        .squircle { border-radius: 40%; }
+        
+        /* Custom scrollbar for table */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #e0e3e6;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #c6c5d4;
+        }
+    </style>
+</head>
+<body class="text-on-background font-body-md bg-background flex">
+<!-- SideNavBar (Ortak Standart Sidebar) -->
+<nav aria-label="Sidebar Navigation" class="bg-surface-container-lowest text-primary shadow-[16px_0_24px_rgba(26,35,126,0.05)] h-screen w-64 fixed left-0 top-0 flex flex-col h-full py-xl z-40 hidden md:flex">
+    <div class="px-lg mb-xl">
+        <h1 class="font-display text-display font-bold text-primary">ParaAsistan</h1>
+        <p class="font-label-md text-label-md text-on-surface-variant mt-xs">Akıllı Finans Yönetimi</p>
+    </div>
+    <ul class="flex-1 px-sm space-y-sm">
+        <li>
+            <a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-all" href="dashboard.html">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">dashboard</span>
+                <span class="font-label-md text-label-md">Genel Bakış</span>
+            </a>
+        </li>
+        <li>
+            <a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-all" href="islemler.html">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">receipt_long</span>
+                <span class="font-label-md text-label-md">İşlemler</span>
+            </a>
+        </li>
+        <li>
+            <a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-all" href="ai-assistant.html">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">smart_toy</span>
+                <span class="font-label-md text-label-md">Yapay Zeka Asistanı</span>
+            </a>
+        </li>
+        <li>
+            <a aria-current="page" class="flex items-center gap-md px-md py-sm rounded-lg text-primary font-bold border-r-4 border-primary bg-surface-container-low transition-all" href="analiz.html">
+                <span class="material-symbols-outlined filled-icon" style="font-variation-settings: 'FILL' 1;">query_stats</span>
+                <span class="font-label-md text-label-md">Raporlar & Analiz</span>
+            </a>
+        </li>
+        <li>
+            <a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-all" href="bt.html">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">account_balance_wallet</span>
+                <span class="font-label-md text-label-md">Bütçeler</span>
+            </a>
+        </li>
+    </ul>
+    <ul class="px-sm mt-auto space-y-sm border-t border-surface-variant pt-lg">
+        <li>
+            <a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-all" href="#">
+                <span class="material-symbols-outlined" data-icon="help">help</span>
+                <span class="font-label-md text-label-md">Yardım Merkezi</span>
+            </a>
+        </li>
+        <li>
+            <a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-all" href="#">
+                <span class="material-symbols-outlined" data-icon="logout">logout</span>
+                <span class="font-label-md text-label-md">Çıkış Yap</span>
+            </a>
+        </li>
+    </ul>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 w-full md:ml-64 flex flex-col min-h-screen">
+<!-- TopNavBar (Desktop & Mobile header) -->
+<header class="flex justify-between items-center px-lg w-full h-16 sticky top-0 z-30 bg-surface-bright shadow-sm">
+<div class="flex items-center gap-md md:hidden">
+
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary">ParaAsistan</h1>
+</div>
+<div class="hidden md:flex items-center bg-surface-container-lowest rounded-full px-md py-xs border border-surface-variant focus-within:border-primary transition-colors">
+<span class="material-symbols-outlined text-outline mr-sm">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-body-md font-body-md text-on-surface outline-none w-64 placeholder-outline-variant" placeholder="Analizlerde ara..." type="text">
+</div>
+<div class="flex items-center gap-md">
+<button class="p-sm text-on-surface-variant hover:bg-surface-container rounded-full transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-1 right-1 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<button class="p-sm text-on-surface-variant hover:bg-surface-container rounded-full transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<img alt="User profile avatar" class="w-10 h-10 rounded-full object-cover border-2 border-surface-container-lowest shadow-sm cursor-pointer ml-sm" data-alt="A professional headshot of a young professional in a sharp, modern navy blazer, smiling confidently. The lighting is soft and cinematic, set against a pristine, light-mode architectural interior. The image exudes trust, premium quality, and effortless control." src="/Users/macbook/paraasistan/frontend/profile_picture.jpg">
+</div>
+</header>
+<!-- Analytics Canvas -->
+<div class="flex-1 p-margin-mobile md:p-xl overflow-y-auto">
+<!-- Page Header -->
+<div class="mb-xl flex flex-col md:flex-row md:items-end justify-between gap-md">
+<div>
+<h2 class="font-headline-lg text-headline-lg md:text-display md:font-display text-primary mb-xs">Finansal Genel Bakış</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Aylık harcama alışkanlıklarınız ve birikim büyümeniz.</p>
+</div>
+<div class="flex gap-sm">
+<button class="px-md py-sm rounded-full border-1.5 border-primary text-primary font-label-md text-label-md hover:bg-primary-fixed transition-colors">Raporu İndir</button>
+<select class="bg-surface-container-lowest border-none shadow-sm rounded-full px-md py-sm font-label-md text-label-md text-on-surface focus:ring-2 focus:ring-primary outline-none">
+<option>Bu Ay</option>
+<option>Son 3 Ay</option>
+<option>Yıl Başından Bugüne</option>
+</select>
+</div>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-lg mb-xl">
+<!-- Hero Metric: Birikim Büyümesi (Spans 2 columns on lg) -->
+<div class="lg:col-span-2 bg-surface-container-lowest rounded-lg p-lg card-shadow">
+<div class="flex justify-between items-start mb-md">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Birikim Büyümesi</h3>
+<p class="font-label-sm text-label-sm text-outline mt-xs">Son 6 aydaki toplam birikim artışı</p>
+</div>
+<div class="flex items-center gap-xs text-secondary bg-secondary-container bg-opacity-20 px-sm py-xs rounded-full">
+<span class="material-symbols-outlined text-sm">trending_up</span>
+<span class="font-label-sm text-label-sm font-bold">+12.4%</span>
+</div>
+</div>
+<div class="h-64 w-full relative">
+<!-- Chart Placeholder - we'll initialize Chart.js here -->
+<canvas id="savingsChart"></canvas>
+</div>
+</div>
+<!-- Spending Breakdown (Pie Chart) -->
+<div class="bg-surface-container-lowest rounded-lg p-lg card-shadow flex flex-col">
+<div class="mb-md">
+<h3 class="font-headline-md text-headline-md text-on-surface">Kategoriye Göre Harcamalar</h3>
+<p class="font-label-sm text-label-sm text-outline mt-xs">Bu ayki harcama dağılımı</p>
+</div>
+<div class="flex-1 flex justify-center items-center relative min-h-[200px]">
+<canvas id="spendingPieChart" height="400" width="512" style="height: 200px; width: 256px;"></canvas>
+<!-- Center text for donut hole -->
+<div class="absolute inset-0 flex flex-col justify-center items-center pointer-events-none">
+<span class="font-label-sm text-label-sm text-outline">Toplam</span>
+<span id="pie-total-spent" class="font-headline-md text-headline-md text-primary font-bold">0,00 ₺</span>
+</div>
+</div>
+<!-- Legend/List -->
+<div id="pie-legend-container" class="mt-md space-y-sm">
+    <!-- Dinamik kategori listesi buraya gelecek -->
+</div>
+</div>
+</div>
+<!-- Son İşlemler Table -->
+<div class="bg-surface-container-lowest rounded-lg p-lg card-shadow">
+<div class="flex justify-between items-center mb-lg">
+<h3 class="font-headline-md text-headline-md text-on-surface">Son İşlemler</h3>
+<div class="flex gap-sm">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-sm top-1/2 transform -translate-y-1/2 text-outline-variant text-sm">search</span>
+<input class="pl-xl pr-sm py-xs rounded-full bg-surface-bright border-none outline-none font-body-md text-body-md text-sm focus:ring-1 focus:ring-primary w-48 transition-all" placeholder="İşlem ara..." type="text">
+</div>
+<button class="p-xs rounded-full bg-surface-bright text-on-surface-variant hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined">filter_list</span>
+</button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-surface-variant">
+<th class="pb-sm font-label-md text-label-md text-outline font-medium w-1/2">İşlem</th>
+<th class="pb-sm font-label-md text-label-md text-outline font-medium">Tarih</th>
+<th class="pb-sm font-label-md text-label-md text-outline font-medium">Kategori</th>
+<th class="pb-sm font-label-md text-label-md text-outline font-medium text-right">Tutar</th>
+</tr>
+</thead>
+<tbody id="analytics-recent-tbody">
+<!-- Item 1 -->
+<tr class="border-b border-surface-variant hover:bg-surface-bright transition-colors group">
+<td class="py-md">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 squircle bg-surface-container flex justify-center items-center text-on-surface-variant">
+<span class="material-symbols-outlined">shopping_cart</span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface font-semibold">Whole Foods Market</p>
+<p class="font-label-sm text-label-sm text-outline">Banka Kartı •••• 4210</p>
+</div>
+</div>
+</td>
+<td class="py-md font-body-md text-body-md text-on-surface-variant text-sm">24 Eki 2026</td>
+<td class="py-md">
+<span class="px-sm py-xs rounded-full bg-secondary-container bg-opacity-20 text-on-secondary-container font-label-sm text-label-sm">Market</span>
+</td>
+<td class="py-md font-label-md text-label-md text-on-surface font-bold text-right">-1.425,00 ₺</td>
+</tr>
+<!-- Item 2 -->
+<tr class="border-b border-surface-variant hover:bg-surface-bright transition-colors group">
+<td class="py-md">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 squircle bg-surface-container flex justify-center items-center text-on-surface-variant">
+<span class="material-symbols-outlined">home</span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface font-semibold">Uptown Apartments</p>
+<p class="font-label-sm text-label-sm text-outline">Havale / EFT</p>
+</div>
+</div>
+</td>
+<td class="py-md font-body-md text-body-md text-on-surface-variant text-sm">01 Eki 2026</td>
+<td class="py-md">
+<span class="px-sm py-xs rounded-full bg-primary-container bg-opacity-10 text-primary font-label-sm text-label-sm">Kira & Konut</span>
+</td>
+<td class="py-md font-label-md text-label-md text-on-surface font-bold text-right">-18.000 ₺.00</td>
+</tr>
+<!-- Item 3 -->
+<tr class="hover:bg-surface-bright transition-colors group">
+<td class="py-md">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 squircle bg-surface-container flex justify-center items-center text-secondary">
+<span class="material-symbols-outlined">payments</span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface font-semibold">Tech Corp Inc. Salary</p>
+<p class="font-label-sm text-label-sm text-outline">Maaş Hesabı</p>
+</div>
+</div>
+</td>
+<td class="py-md font-body-md text-body-md text-on-surface-variant text-sm">30 Eyl 2026</td>
+<td class="py-md">
+<span class="px-sm py-xs rounded-full bg-secondary-fixed bg-opacity-20 text-on-secondary-container font-label-sm text-label-sm">Income</span>
+</td>
+<td class="py-md font-label-md text-label-md text-secondary font-bold text-right">+52.400,00 ₺</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="mt-md text-center">
+<button class="font-label-sm text-label-sm text-primary hover:text-primary-container transition-colors font-medium">Tüm İşlemleri Gör</button>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 w-full bg-surface-bright pb-safe shadow-[0_-4px_16px_rgba(26,35,126,0.05)] z-40 border-t border-surface-variant">
+<ul class="flex justify-around items-center h-16">
+<li class="flex-1 flex justify-center">
+<a class="flex flex-col items-center p-xs text-on-surface-variant" href="dashboard.html">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-sm text-[10px]">Home</span>
+</a>
+</li>
+<li class="flex-1 flex justify-center">
+<a class="flex flex-col items-center p-xs text-on-surface-variant" href="islemler.html">
+<span class="material-symbols-outlined">receipt_long</span>
+<span class="font-label-sm text-[10px]">Transact</span>
+</a>
+</li>
+<li class="flex-1 flex justify-center">
+<!-- Active State -->
+<a class="flex flex-col items-center p-xs text-primary font-bold" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">query_stats</span>
+<span class="font-label-sm text-[10px]">Raporlar & Analiz</span>
+</a>
+</li>
+<li class="flex-1 flex justify-center">
+<a class="flex flex-col items-center p-xs text-on-surface-variant" href="ai-assistant.html">
+<span class="material-symbols-outlined">smart_toy</span>
+<span class="font-label-sm text-[10px]">AI</span>
+</a>
+</li>
+</ul>
+</nav>
+<!-- Chart.js Initialization Script -->
+<script>
+    const API_BASE = "http://127.0.0.1:8000/api";
+
+    document.addEventListener("DOMContentLoaded", function() {
+        initSavingsLineChart();
+        initSpendingPieChart();
+        loadAnalyticsRecentTransactions();
+    });
+
+    const primaryColor = '#000666';
+    const secondaryColor = '#1b6d24';
+    const gridColor = '#e0e3e6';
+    const textColor = '#767683';
+    const chartColors = [
+        '#1a237e', '#1b6d24', '#4c56af', '#8690ee', '#a0f399',
+        '#d97706', '#dc2626', '#0891b2', '#9333ea', '#65a30d'
+    ];
+
+    // 1. Çizgi Grafik: Son 6 Ayın Birikim / Net Nakit Akışı
+    async function initSavingsLineChart() {
+        const ctxLine = document.getElementById('savingsChart').getContext('2d');
+        const gradient = ctxLine.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(0, 6, 102, 0.2)');
+        gradient.addColorStop(1, 'rgba(0, 6, 102, 0)');
+
+        try {
+            const res = await fetch(`${API_BASE}/analytics/monthly-cashflow`);
+            const data = await res.json();
+
+            const labels = data.map(d => d.month);
+            // Kümülatif birikim veya aylık net bakiye (Gelir - Gider)
+            const netSavings = data.map(d => Math.max(0, d.income - d.expense));
+
+            new Chart(ctxLine, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Net Birikim',
+                        data: netSavings,
+                        borderColor: primaryColor,
+                        backgroundColor: gradient,
+                        borderWidth: 3,
+                        pointBackgroundColor: '#ffffff',
+                        pointBorderColor: primaryColor,
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#191c1e',
+                            titleFont: { family: 'Manrope', size: 12 },
+                            bodyFont: { family: 'Manrope', size: 14, weight: 'bold' },
+                            padding: 12,
+                            displayColors: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.parsed.y.toLocaleString('tr-TR', { minimumFractionDigits: 2 }) + ' ₺';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: textColor, font: { family: 'Manrope', size: 12 } }
+                        },
+                        y: {
+                            grid: { color: gridColor, borderDash: [5, 5] },
+                            ticks: { 
+                                color: textColor, 
+                                font: { family: 'Manrope', size: 12 },
+                                callback: function(value) { 
+                                    return value >= 1000 ? (value/1000).toLocaleString('tr-TR') + ' bin ₺' : value + ' ₺'; 
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        } catch (err) {
+            console.error("Çizgi grafik yüklenemedi:", err);
+        }
+    }
+
+    // 2. Pasta / Donut Grafik: Bu Ayki Kategori Dağılımı
+    async function initSpendingPieChart() {
+        const ctxPie = document.getElementById('spendingPieChart').getContext('2d');
+        const legendContainer = document.getElementById('pie-legend-container');
+        const totalSpentEl = document.getElementById('pie-total-spent');
+
+        try {
+            const res = await fetch(`${API_BASE}/analytics/category-spending`);
+            const data = await res.json();
+
+            totalSpentEl.innerText = `₺${data.total_spent.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}`;
+
+            if (data.categories.length === 0) {
+                legendContainer.innerHTML = '<p class="font-body-sm text-outline text-center py-md">Bu ay henüz kayıtlı harcama yok.</p>';
+                return;
+            }
+
+            const labels = data.categories.map(c => c.category);
+            const amounts = data.categories.map(c => c.amount);
+            const colors = chartColors.slice(0, labels.length);
+
+            // Legend oluştur
+            legendContainer.innerHTML = '';
+            data.categories.forEach((cat, idx) => {
+                const color = colors[idx] || '#767683';
+                const row = document.createElement('div');
+                row.className = 'flex justify-between items-center';
+                row.innerHTML = `
+                    <div class="flex items-center gap-sm">
+                        <span class="w-3 h-3 rounded-full" style="background-color: ${color}"></span>
+                        <span class="font-label-sm text-label-sm text-on-surface font-medium">${cat.category} (%${cat.percentage})</span>
+                    </div>
+                    <span class="font-label-sm text-label-sm font-bold text-on-surface">₺${cat.amount.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</span>
+                `;
+                legendContainer.appendChild(row);
+            });
+
+            new Chart(ctxPie, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: amounts,
+                        backgroundColor: colors,
+                        borderWidth: 0,
+                        hoverOffset: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '72%',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#191c1e',
+                            titleFont: { family: 'Manrope', size: 12 },
+                            bodyFont: { family: 'Manrope', size: 14, weight: 'bold' },
+                            padding: 10,
+                            callbacks: {
+                                label: function(context) {
+                                    return ' ' + context.parsed.toLocaleString('tr-TR', { minimumFractionDigits: 2 }) + ' ₺';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        } catch (err) {
+            console.error("Pasta grafik yüklenemedi:", err);
+        }
+    }
+
+    // 3. Tablo: Son İşlemler
+    async function loadAnalyticsRecentTransactions() {
+        const tbody = document.getElementById('analytics-recent-tbody');
+        if (!tbody) return;
+
+        try {
+            const res = await fetch(`${API_BASE}/transactions?limit=5`);
+            const txs = await res.json();
+
+            tbody.innerHTML = '';
+
+            const icons = {
+                "Market": "shopping_cart", "Maaş": "payments", "Kira": "home",
+                "Ulaşım": "directions_car", "Fatura": "bolt", "Teknoloji": "laptop",
+                "Eğlence": "movie", "Ek Gelir": "savings", "Yatırım": "trending_up",
+                "Sağlık": "medical_services", "Eğitim": "school", "Diğer": "receipt"
+            };
+
+            txs.forEach(tx => {
+                const isIncome = tx.type === "income";
+                const amountText = isIncome 
+                    ? `+₺${tx.amount.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}` 
+                    : `-₺${tx.amount.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}`;
+                const amountColor = isIncome ? 'text-secondary font-bold' : 'text-on-surface font-bold';
+                const iconBg = isIncome ? 'bg-secondary-container bg-opacity-20 text-secondary' : 'bg-surface-container text-on-surface-variant';
+                const iconName = icons[tx.category] || 'receipt';
+                const dateFormatted = new Date(tx.date).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', year: 'numeric' });
+
+                const tr = document.createElement('tr');
+                tr.className = 'border-b border-surface-variant hover:bg-surface-bright transition-colors group';
+                tr.innerHTML = `
+                    <td class="py-md">
+                        <div class="flex items-center gap-md">
+                            <div class="w-10 h-10 squircle ${iconBg} flex justify-center items-center">
+                                <span class="material-symbols-outlined">${iconName}</span>
+                            </div>
+                            <div>
+                                <p class="font-label-md text-label-md text-on-surface font-semibold">${tx.description || tx.category}</p>
+                                <p class="font-label-sm text-label-sm text-outline">${tx.category}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="py-md font-body-md text-body-md text-on-surface-variant text-sm">${dateFormatted}</td>
+                    <td class="py-md">
+                        <span class="px-sm py-xs rounded-full bg-surface-container-high text-on-surface font-label-sm text-label-sm">
+                            ${tx.category}
+                        </span>
+                    </td>
+                    <td class="py-md font-label-md text-label-md ${amountColor} text-right">${amountText}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } catch (err) {
+            console.error("Son işlemler tablosu yüklenemedi:", err);
+        }
+    }
+</script>
+
+</body></html>

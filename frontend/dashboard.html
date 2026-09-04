@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ParaAsistan - Main Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&amp;family=Manrope:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-surface-variant": "#454652",
+                      "secondary-fixed-dim": "#88d982",
+                      "surface-bright": "#f7f9fc",
+                      "on-background": "#191c1e",
+                      "primary-fixed-dim": "#bdc2ff",
+                      "tertiary-container": "#67000a",
+                      "error": "#ba1a1a",
+                      "on-primary-fixed-variant": "#343d96",
+                      "inverse-surface": "#2d3133",
+                      "on-tertiary-fixed": "#410004",
+                      "surface-container": "#eceef1",
+                      "inverse-on-surface": "#eff1f4",
+                      "primary-container": "#1a237e",
+                      "primary": "#000666",
+                      "secondary": "#1b6d24",
+                      "on-secondary-fixed": "#002204",
+                      "surface-dim": "#d8dadd",
+                      "on-surface": "#191c1e",
+                      "on-tertiary": "#ffffff",
+                      "surface-container-highest": "#e0e3e6",
+                      "on-secondary": "#ffffff",
+                      "outline": "#767683",
+                      "secondary-fixed": "#a3f69c",
+                      "on-tertiary-fixed-variant": "#910816",
+                      "surface-tint": "#4c56af",
+                      "primary-fixed": "#e0e0ff",
+                      "error-container": "#ffdad6",
+                      "surface-container-lowest": "#ffffff",
+                      "outline-variant": "#c6c5d4",
+                      "tertiary": "#400004",
+                      "on-secondary-container": "#217128",
+                      "surface-container-low": "#f2f4f7",
+                      "surface": "#f7f9fc",
+                      "on-tertiary-container": "#ff635f",
+                      "tertiary-fixed-dim": "#ffb3ae",
+                      "on-primary": "#ffffff",
+                      "on-error-container": "#93000a",
+                      "on-primary-fixed": "#000767",
+                      "on-error": "#ffffff",
+                      "tertiary-fixed": "#ffdad7",
+                      "on-secondary-fixed-variant": "#005312",
+                      "surface-variant": "#e0e3e6",
+                      "inverse-primary": "#bdc2ff",
+                      "background": "#f7f9fc",
+                      "secondary-container": "#a0f399",
+                      "surface-container-high": "#e6e8eb",
+                      "on-primary-container": "#8690ee"
+              },
+              "borderRadius": {
+                      "DEFAULT": "1rem",
+                      "lg": "2rem",
+                      "xl": "3rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xxl": "48px",
+                      "margin-mobile": "20px",
+                      "gutter-mobile": "16px",
+                      "lg": "24px",
+                      "unit": "4px",
+                      "md": "16px",
+                      "xl": "32px",
+                      "xs": "4px",
+                      "sm": "8px"
+              },
+              "fontFamily": {
+                      "headline-md": [
+                              "Hanken Grotesk"
+                      ],
+                      "label-md": [
+                              "Manrope"
+                      ],
+                      "body-md": [
+                              "Manrope"
+                      ],
+                      "headline-lg": [
+                              "Hanken Grotesk"
+                      ],
+                      "body-lg": [
+                              "Manrope"
+                      ],
+                      "display": [
+                              "Hanken Grotesk"
+                      ],
+                      "headline-lg-mobile": [
+                              "Hanken Grotesk"
+                      ],
+                      "label-sm": [
+                              "Manrope"
+                      ]
+              },
+              "fontSize": {
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "letterSpacing": "0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display": [
+                              "40px",
+                              {
+                                      "lineHeight": "48px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "28px",
+                              {
+                                      "lineHeight": "36px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "500"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .filled-icon {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .ambient-shadow {
+            box-shadow: 0 16px 24px rgba(26, 35, 126, 0.05);
+        }
+        body {
+            background-color: #F5F7FA;
+        }
+        /* Custom scrollbar for panel */
+        .panel-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        .panel-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .panel-scroll::-webkit-scrollbar-thumb {
+            background-color: #e0e3e6;
+            border-radius: 20px;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-background text-on-background font-body-md h-screen overflow-hidden flex">
+<!-- SideNavBar (Ortak Standart Sidebar) -->
+<nav aria-label="Sidebar Navigation" class="bg-surface-container-lowest text-primary shadow-[16px_0_24px_rgba(26,35,126,0.05)] h-screen w-64 fixed left-0 top-0 flex flex-col h-full py-xl z-40 hidden md:flex">
+    <div class="px-lg mb-xl">
+        <h1 class="font-display text-display font-bold text-primary">ParaAsistan</h1>
+        <p class="font-label-md text-label-md text-on-surface-variant mt-xs">Akıllı Finans Yönetimi</p>
+    </div>
+    <ul class="flex-1 px-sm space-y-sm">
+        <li>
+            <a aria-current="page" class="flex items-center gap-md px-md py-sm rounded-lg text-primary font-bold border-r-4 border-primary bg-surface-container-low transition-all" href="dashboard.html">
+                <span class="material-symbols-outlined filled-icon" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+                <span class="font-label-md text-label-md">Genel Bakış</span>
+            </a>
+        </li>
+        <li>
+            <a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-all" href="islemler.html">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">receipt_long</span>
+                <span class="font-label-md text-label-md">İşlemler</span>
+            </a>
+        </li>
+        <li>
+            <a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-all" href="ai-assistant.html">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">smart_toy</span>
+                <span class="font-label-md text-label-md">Yapay Zeka Asistanı</span>
+            </a>
+        </li>
+        <li>
+            <a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-all" href="analiz.html">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">query_stats</span>
+                <span class="font-label-md text-label-md">Raporlar & Analiz</span>
+            </a>
+        </li>
+        <li>
+            <a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-all" href="bt.html">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">account_balance_wallet</span>
+                <span class="font-label-md text-label-md">Bütçeler</span>
+            </a>
+        </li>
+    </ul>
+    <ul class="px-sm mt-auto space-y-sm border-t border-surface-variant pt-lg">
+        <li>
+            <a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-all" href="#">
+                <span class="material-symbols-outlined" data-icon="help">help</span>
+                <span class="font-label-md text-label-md">Yardım Merkezi</span>
+            </a>
+        </li>
+        <li>
+            <a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-all" href="#">
+                <span class="material-symbols-outlined" data-icon="logout">logout</span>
+                <span class="font-label-md text-label-md">Çıkış Yap</span>
+            </a>
+        </li>
+    </ul>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 md:ml-64 h-full overflow-y-auto bg-surface-bright flex flex-col relative">
+<!-- TopNavBar (Mobile Only) -->
+<header class="bg-surface-bright text-primary w-full h-16 flex justify-between items-center px-lg w-full sticky top-0 z-30 md:hidden shadow-sm">
+<div class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary">
+                 ParaAsistan
+             </div>
+<div class="flex items-center gap-sm">
+<button class="p-sm text-primary hover:bg-surface-container transition-colors rounded-full" onclick="document.getElementById('slide-over-panel').classList.remove('translate-x-full'); document.getElementById('slide-over-backdrop').classList.remove('opacity-0', 'pointer-events-none');">
+<span class="material-symbols-outlined" data-icon="add_circle">add_circle</span>
+</button>
+<button aria-label="Notifications" class="p-sm text-on-surface-variant hover:bg-surface-container transition-colors rounded-full">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-surface-container-high overflow-hidden shadow-sm cursor-pointer ml-xs">
+<img alt="User profile avatar" class="w-full h-full object-cover" src="/Users/macbook/paraasistan/frontend/profile_picture.jpg"/>
+</div>
+</div>
+</header>
+<!-- Desktop Minimal Header -->
+<header class="hidden md:flex justify-between items-center px-xxl py-lg bg-surface-bright sticky top-0 z-30">
+<h2 class="font-headline-lg text-headline-lg font-bold text-on-background">Genel Bakış</h2>
+<div class="flex items-center gap-md">
+<button aria-label="Search" class="p-sm text-on-surface-variant hover:bg-surface-container transition-colors rounded-full">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+</button>
+<button aria-label="Notifications" class="p-sm text-on-surface-variant hover:bg-surface-container transition-colors rounded-full">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden shadow-sm cursor-pointer ml-sm">
+<img alt="User profile avatar" class="w-full h-full object-cover" src="/Users/macbook/paraasistan/frontend/profile_picture.jpg"/>
+</div>
+</div>
+</header>
+<div class="p-margin-mobile md:p-xxl flex-1 space-y-xl max-w-[1440px] mx-auto w-full">
+<!-- Summary Cards -->
+<section aria-label="Financial Summary" class="grid grid-cols-1 gap-lg lg:grid-cols-3 md:grid-cols-3">
+<!-- Toplam Bakiye -->
+<div class="bg-surface-container-lowest rounded-xl p-xl ambient-shadow flex flex-col justify-between h-full aspect-[4/3] md:aspect-auto">
+<div class="flex justify-between items-start mb-lg">
+<div class="bg-primary-container bg-opacity-10 p-md rounded-xl text-primary">
+<span class="material-symbols-outlined text-[28px]" data-icon="account_balance">account_balance</span>
+</div>
+<span class="font-label-sm text-label-sm text-secondary flex items-center gap-xs bg-secondary-container bg-opacity-20 px-sm py-xs rounded-full">
+<span class="material-symbols-outlined text-[14px]" data-icon="trending_up">trending_up</span> +2.4%
+        </span>
+</div>
+<div class="mt-auto">
+<p class="font-label-md text-label-md text-on-surface-variant mb-xs">Toplam Bakiye</p>
+<h3 id="dash-summary-balance" class="font-headline-lg text-[32px] md:text-display text-on-background font-bold truncate tracking-tight">0,00 ₺</h3>
+</div>
+</div>
+<!-- Aylık Gelir -->
+<div class="bg-surface-container-lowest rounded-xl p-xl ambient-shadow flex flex-col justify-between h-full aspect-[4/3] md:aspect-auto">
+<div class="flex justify-between items-start mb-lg">
+<div class="bg-secondary-container bg-opacity-20 p-md rounded-xl text-secondary">
+<span class="material-symbols-outlined text-[28px]" data-icon="arrow_downward">arrow_downward</span>
+</div>
+<span class="font-label-sm text-label-sm text-secondary flex items-center gap-xs bg-secondary-container bg-opacity-20 px-sm py-xs rounded-full">
+<span class="material-symbols-outlined text-[14px]" data-icon="trending_up">trending_up</span> +12%
+        </span>
+</div>
+<div class="mt-auto">
+<p class="font-label-md text-label-md text-on-surface-variant mb-xs">Aylık Gelir</p>
+<h3 id="dash-summary-income" class="font-headline-lg text-[28px] md:text-[32px] text-on-background font-bold truncate tracking-tight">0,00 ₺</h3>
+</div>
+</div>
+<!-- Aylık Gider -->
+<div class="bg-surface-container-lowest rounded-xl p-xl ambient-shadow flex flex-col justify-between h-full aspect-[4/3] md:aspect-auto">
+<div class="flex justify-between items-start mb-lg">
+<div class="bg-error-container bg-opacity-20 p-md rounded-xl text-error">
+<span class="material-symbols-outlined text-[28px]" data-icon="arrow_upward">arrow_upward</span>
+</div>
+<span class="font-label-sm text-label-sm text-error flex items-center gap-xs bg-error-container bg-opacity-20 px-sm py-xs rounded-full">
+<span class="material-symbols-outlined text-[14px]" data-icon="trending_down">trending_down</span> -5%
+        </span>
+</div>
+<div class="mt-auto">
+<p class="font-label-md text-label-md text-on-surface-variant mb-xs">Aylık Gider</p>
+<h3 id="dash-summary-expense" class="font-headline-lg text-[28px] md:text-[32px] text-on-background font-bold truncate tracking-tight">0,00 ₺</h3>
+</div>
+</div>
+</section>
+<!-- Chart Area -->
+<section class="bg-surface-container-lowest rounded-xl p-lg ambient-shadow h-[400px] flex flex-col">
+<div class="flex justify-between items-center mb-lg">
+<h3 class="font-headline-md text-headline-md text-on-background">Nakit Akışı Özeti</h3>
+<select class="bg-surface-container-low border-none rounded-md font-label-md text-label-md text-on-surface-variant py-sm px-md focus:ring-primary focus:ring-2 outline-none cursor-pointer">
+<option>Son 6 Ay</option>
+<option>Bu Yıl</option>
+<option>Tüm Zamanlar</option>
+</select>
+</div>
+<div class="flex-1 relative w-full min-h-[260px] pb-sm">
+    <canvas id="cashFlowChart"></canvas>
+</div>
+</section>
+
+        
+
+</div>
+</main>
+<!-- Slide-over Panel -->
+<div class="fixed inset-0 z-50 flex justify-end pointer-events-none">
+    <div class="absolute inset-0 bg-on-background/30 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300" id="slide-over-backdrop" onclick="closeDashSlideOver()"></div>
+    <div class="relative w-full max-w-md h-full bg-surface-container-lowest shadow-2xl flex flex-col pointer-events-auto transform translate-x-full transition-transform duration-300 ease-in-out" id="slide-over-panel">
+        <div class="flex items-center justify-between p-lg border-b border-surface-variant">
+            <h2 class="font-headline-md text-headline-md text-on-background">Yeni İşlem Ekle</h2>
+            <button class="p-sm text-on-surface-variant hover:bg-surface-container rounded-full transition-colors" onclick="closeDashSlideOver()">
+                <span class="material-symbols-outlined" data-icon="close">close</span>
+            </button>
+        </div>
+        <div class="p-lg flex-1 overflow-y-auto">
+            <form id="dash-transaction-form" class="space-y-lg flex-1 flex flex-col h-full" onsubmit="handleDashCreateTransaction(event)">
+                <input type="hidden" id="dash-tx-type" value="expense">
+                
+                <div class="flex p-xs bg-surface-container-low rounded-full mb-md">
+                    <button id="dash-btn-type-expense" class="flex-1 py-sm px-md rounded-full bg-primary text-on-primary font-label-md transition-all" type="button" onclick="setDashType('expense')">Gider</button>
+                    <button id="dash-btn-type-income" class="flex-1 py-sm px-md rounded-full text-on-surface-variant font-label-md hover:bg-surface-container transition-all" type="button" onclick="setDashType('income')">Gelir</button>
+                </div>
+
+                <div class="space-y-xs">
+                    <label class="font-label-sm text-label-sm text-on-surface-variant">Tutar (₺) *</label>
+                    <div class="relative">
+                        <span class="absolute left-md top-1/2 -translate-y-1/2 text-on-surface-variant font-body-md">₺</span>
+                        <input id="dash-tx-amount" required step="0.01" min="0.01" class="w-full pl-xl pr-md py-md bg-surface-container-low border border-surface-variant rounded-xl font-body-md text-on-background focus:ring-2 focus:ring-primary outline-none transition-all" placeholder="0,00" type="number"/>
+                    </div>
+                </div>
+
+                <div class="space-y-xs">
+                    <label class="font-label-sm text-label-sm text-on-surface-variant">Kategori *</label>
+                    <select id="dash-tx-category" required class="w-full px-md py-md bg-surface-container-low border border-surface-variant rounded-xl font-body-md text-on-background focus:ring-2 focus:ring-primary outline-none appearance-none transition-all">
+                        <option value="Market">Market</option>
+                        <option value="Kira">Kira</option>
+                        <option value="Fatura">Fatura</option>
+                        <option value="Ulaşım">Ulaşım</option>
+                        <option value="Teknoloji">Teknoloji</option>
+                        <option value="Eğlence">Eğlence</option>
+                        <option value="Diğer">Diğer</option>
+                    </select>
+                </div>
+
+                <div class="space-y-xs">
+                    <label class="font-label-sm text-label-sm text-on-surface-variant">Açıklama</label>
+                    <input id="dash-tx-description" class="w-full px-md py-md bg-surface-container-low border border-surface-variant rounded-xl font-body-md text-on-background focus:ring-2 focus:ring-primary outline-none transition-all" placeholder="Örn: Market alışverişi, Maaş..." type="text"/>
+                </div>
+
+                <div class="space-y-xs">
+                    <label class="font-label-sm text-label-sm text-on-surface-variant">İşlem Tarihi</label>
+                    <input id="dash-tx-date" class="w-full px-md py-md bg-surface-container-low border border-surface-variant rounded-xl font-body-md text-on-background focus:ring-2 focus:ring-primary outline-none transition-all" type="date"/>
+                </div>
+
+                <div class="mt-auto pt-lg">
+                    <button class="w-full py-md bg-primary text-on-primary font-label-md rounded-full hover:opacity-90 transition-opacity shadow-sm" type="submit">
+                        İşlemi Kaydet
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API_BASE = "http://127.0.0.1:8000/api";
+
+    function getCategoryIcon(category) {
+        const icons = {
+            "Market": "shopping_cart",
+            "Maaş": "payments",
+            "Kira": "home",
+            "Ulaşım": "directions_car",
+            "Fatura": "bolt",
+            "Teknoloji": "laptop",
+            "Eğlence": "movie",
+            "Ek Gelir": "savings",
+            "Yatırım": "trending_up",
+            "Sağlık": "medical_services",
+            "Eğitim": "school",
+            "Diğer": "receipt"
+        };
+        return icons[category] || "receipt";
+    }
+
+    
+
+
+    function showToast(message, type = "success") {
+        const toast = document.getElementById("toast");
+        const toastMsg = document.getElementById("toast-message");
+        const toastIcon = document.getElementById("toast-icon");
+
+        toastMsg.innerText = message;
+
+        if (type === "success") {
+            toast.className = "fixed top-6 right-6 z-50 transform translate-x-0 opacity-100 transition-all duration-300 pointer-events-auto flex items-center gap-3 px-lg py-md rounded-2xl shadow-xl bg-secondary text-on-secondary font-label-md";
+            toastIcon.innerText = "check_circle";
+        } else {
+            toast.className = "fixed top-6 right-6 z-50 transform translate-x-0 opacity-100 transition-all duration-300 pointer-events-auto flex items-center gap-3 px-lg py-md rounded-2xl shadow-xl bg-error text-on-error font-label-md";
+            toastIcon.innerText = "error";
+        }
+
+        setTimeout(() => {
+            toast.classList.remove("translate-x-0", "opacity-100");
+            toast.classList.add("translate-x-full", "opacity-0");
+        }, 3000);
+    }
+
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const dateInput = document.getElementById("dash-tx-date");
+        if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
+        loadDashSummary();
+        initCashFlowChart();
+        });
+
+    let cashFlowChartInstance = null;
+
+    async function initCashFlowChart() {
+        const canvas = document.getElementById('cashFlowChart');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+
+        try {
+            // 1. Backend API'sinden son 6 ayın gerçek veritabanı verilerini çekiyoruz:
+            const res = await fetch(`${API_BASE}/analytics/monthly-cashflow`);
+            const monthsData = await res.json();
+
+            const labels = monthsData.map(d => d.month);
+            const incomeData = monthsData.map(d => d.income);
+            const expenseData = monthsData.map(d => d.expense);
+
+            // Eğer daha önce çizilmişse yok et ve yenisini çiz
+            if (cashFlowChartInstance) {
+                cashFlowChartInstance.destroy();
+            }
+            
+            cashFlowChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Gelir (₺)',
+                            data: incomeData,
+                            backgroundColor: '#10b981', // Zümrüt Yeşili
+                            borderRadius: 8,
+                            barPercentage: 0.6,
+                        },
+                        {
+                            label: 'Gider (₺)',
+                            data: expenseData,
+                            backgroundColor: '#f43f5e', // Gül Kurusu / Kırmızı
+                            borderRadius: 8,
+                            barPercentage: 0.6,
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                font: { size: 12, weight: '600' },
+                                usePointStyle: true,
+                                boxWidth: 8
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: '#1e293b',
+                            padding: 12,
+                            cornerRadius: 8,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.parsed.y.toLocaleString('tr-TR', { minimumFractionDigits: 2 }) + ' ₺';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(0, 0, 0, 0.05)' },
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toLocaleString('tr-TR') + ' ₺';
+                                }
+                            }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        } catch (error) {
+            console.error("Nakit akışı grafiği yüklenemedi:", error);
+        }
+    }
+
+
+    function openDashSlideOver() {
+        document.getElementById('slide-over-panel').classList.remove('translate-x-full');
+        document.getElementById('slide-over-backdrop').classList.remove('opacity-0', 'pointer-events-none');
+    }
+
+    function closeDashSlideOver() {
+        document.getElementById('slide-over-panel').classList.add('translate-x-full');
+        document.getElementById('slide-over-backdrop').classList.add('opacity-0', 'pointer-events-none');
+    }
+
+    function setDashType(type) {
+        document.getElementById("dash-tx-type").value = type;
+        const btnExp = document.getElementById("dash-btn-type-expense");
+        const btnInc = document.getElementById("dash-btn-type-income");
+        const catSelect = document.getElementById("dash-tx-category");
+
+        if (type === "expense") {
+            btnExp.className = "flex-1 py-sm px-md rounded-full bg-primary text-on-primary font-label-md transition-all";
+            btnInc.className = "flex-1 py-sm px-md rounded-full text-on-surface-variant font-label-md hover:bg-surface-container transition-all";
+            catSelect.innerHTML = `
+                <option value="Market">Market</option>
+                <option value="Kira">Kira</option>
+                <option value="Fatura">Fatura</option>
+                <option value="Ulaşım">Ulaşım</option>
+                <option value="Teknoloji">Teknoloji</option>
+                <option value="Eğlence">Eğlence</option>
+                <option value="Diğer">Diğer</option>
+            `;
+        } else {
+            btnInc.className = "flex-1 py-sm px-md rounded-full bg-primary text-on-primary font-label-md transition-all";
+            btnExp.className = "flex-1 py-sm px-md rounded-full text-on-surface-variant font-label-md hover:bg-surface-container transition-all";
+            catSelect.innerHTML = `
+                <option value="Maaş">Maaş</option>
+                <option value="Ek Gelir">Ek Gelir</option>
+                <option value="Yatırım">Yatırım</option>
+                <option value="Diğer">Diğer</option>
+            `;
+        }
+    }
+
+    async function loadDashSummary() {
+        try {
+            const res = await fetch(`${API_BASE}/analytics/summary`);
+            const data = await res.json();
+
+            const incEl = document.getElementById("dash-summary-income");
+            const expEl = document.getElementById("dash-summary-expense");
+            const balEl = document.getElementById("dash-summary-balance");
+
+            if (incEl) incEl.innerText = `+₺${data.total_income.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}`;
+            if (expEl) expEl.innerText = `-₺${data.total_expense.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}`;
+            if (balEl) balEl.innerText = `₺${data.net_balance.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}`;
+        } catch (err) {
+            console.error("Özet yüklenemedi:", err);
+        }
+    }
+
+    async function handleDashCreateTransaction(event) {
+        event.preventDefault();
+        
+        const type = document.getElementById("dash-tx-type").value;
+        const amount = parseFloat(document.getElementById("dash-tx-amount").value);
+        const category = document.getElementById("dash-tx-category").value;
+        const description = document.getElementById("dash-tx-description").value;
+        const date = document.getElementById("dash-tx-date").value || new Date().toISOString().split('T')[0];
+
+        const payload = {
+            type: type,
+            amount: amount,
+            category: category,
+            description: description,
+            date: date
+        };
+
+        try {
+            const res = await fetch(`${API_BASE}/transactions`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                document.getElementById("dash-transaction-form").reset();
+                setDashType("expense");
+                closeDashSlideOver();
+                loadDashSummary();
+                initCashFlowChart();
+                showToast("İşlem başarıyla kaydedildi! 🎉", "success");
+            } else {
+                const errData = await res.json();
+                alert("İşlem eklenirken hata: " + JSON.stringify(errData));
+            }
+        } catch (err) {
+            alert("Sunucuya bağlanılamadı: " + err.message);
+        }
+    }
+</script>
+
+
+<!-- Şık Toast Bildirim Kutusu -->
+<div id="toast" class="fixed top-6 right-6 z-50 transform translate-x-full opacity-0 transition-all duration-300 pointer-events-none flex items-center gap-3 px-lg py-md rounded-2xl shadow-xl text-on-primary font-label-md">
+    <span id="toast-icon" class="material-symbols-outlined text-xl">check_circle</span>
+    <span id="toast-message">İşlem başarılı!</span>
+</div>
+
+</body></html>
