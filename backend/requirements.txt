@@ -5,3 +5,7 @@ pydantic
 python-multipart
 google-generativeai
 pillow
+psycopg2-binary
+python-dotenv
+PyJWT
+bcrypt

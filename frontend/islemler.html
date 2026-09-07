@@ -237,6 +237,12 @@
                 <span class="font-label-md text-label-md">Bütçeler</span>
             </a>
         </li>
+        <li>
+            <a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-all" href="hedefler.html">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">flag</span>
+                <span class="font-label-md text-label-md">Hedeflerim</span>
+            </a>
+        </li>
     </ul>
     <ul class="px-sm mt-auto space-y-sm border-t border-surface-variant pt-lg">
         <li>
@@ -266,8 +272,45 @@
 <span class="material-symbols-outlined">notifications</span>
 <span class="absolute top-1 right-1 w-2 h-2 bg-error rounded-full"></span>
 </button>
-<div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden shadow-sm cursor-pointer border-2 border-surface-container-lowest shrink-0">
-<img alt="User profile avatar" class="w-full h-full object-cover" src="/Users/macbook/paraasistan/frontend/profile_picture.jpg"/>
+<div class="relative">
+    <div onclick="toggleProfileDropdown(event, this)" class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden shadow-sm cursor-pointer border-2 border-surface-container-lowest shrink-0 hover:ring-2 hover:ring-primary/40 transition-all">
+        <img alt="User profile avatar" class="w-full h-full object-cover" src="/Users/macbook/paraasistan/frontend/profile_picture.jpg"/>
+    </div>
+    <!-- Profile Dropdown -->
+    <div class="profile-dropdown-menu hidden absolute right-0 top-12 w-64 bg-surface-container-lowest rounded-2xl shadow-2xl border border-surface-variant/50 py-2 z-50 animate-in fade-in">
+        <!-- 1. PROFİL (En Üstte) -->
+        <div class="px-4 py-3 border-b border-surface-variant/40">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full overflow-hidden shrink-0 border border-surface-variant">
+                    <img src="/Users/macbook/paraasistan/frontend/profile_picture.jpg" class="w-full h-full object-cover"/>
+                </div>
+                <div class="overflow-hidden">
+                    <p class="menu-user-name font-bold text-sm text-on-surface truncate">Kullanıcı</p>
+                    <p class="menu-user-email text-xs text-on-surface-variant truncate">user@email.com</p>
+                </div>
+            </div>
+        </div>
+        <!-- 2. KURU DEĞİŞTİR (Ortada) -->
+        <div class="px-3 py-3 border-b border-surface-variant/40">
+            <div class="flex items-center justify-between mb-2 px-1">
+                <span class="text-[11px] font-bold tracking-wider text-on-surface-variant uppercase">Kuru Değiştir</span>
+                <span class="current-currency-tag text-xs font-bold px-2 py-0.5 rounded-md bg-primary/10 text-primary">USD ($)</span>
+            </div>
+            <div class="grid grid-cols-4 gap-1 p-1 bg-surface-container-low rounded-xl">
+                <button type="button" onclick="setAppCurrency('USD')" class="btn-curr-USD py-1.5 text-xs font-bold rounded-lg transition-all text-on-surface hover:bg-surface-container-high">$ USD</button>
+                <button type="button" onclick="setAppCurrency('EUR')" class="btn-curr-EUR py-1.5 text-xs font-bold rounded-lg transition-all text-on-surface hover:bg-surface-container-high">€ EUR</button>
+                <button type="button" onclick="setAppCurrency('GBP')" class="btn-curr-GBP py-1.5 text-xs font-bold rounded-lg transition-all text-on-surface hover:bg-surface-container-high">£ GBP</button>
+                <button type="button" onclick="setAppCurrency('TRY')" class="btn-curr-TRY py-1.5 text-xs font-bold rounded-lg transition-all text-on-surface hover:bg-surface-container-high">₺ TRY</button>
+            </div>
+        </div>
+        <!-- 3. PROFİLDEN ÇIK (En Altta) -->
+        <div class="pt-1 px-2">
+            <button type="button" onclick="handleLogout()" class="w-full flex items-center gap-2.5 px-3 py-2 text-sm font-semibold text-error hover:bg-error-container/20 rounded-xl transition-colors text-left">
+                <span class="material-symbols-outlined text-[20px]">logout</span>
+                <span>Profilden Çık</span>
+            </button>
+        </div>
+    </div>
 </div>
 </div>
 </header>
@@ -277,13 +320,10 @@
 <div class="mb-xl flex flex-col md:flex-row md:items-end justify-between gap-md">
 <div>
 <h2 class="font-headline-lg text-headline-lg md:text-display md:font-display text-primary mb-xs">Tüm İşlemler</h2>
-<p class="font-body-md text-body-md text-on-surface-variant">Ekim 2023 için gelir ve giderleriniz.</p>
+<p id="current-month-text" class="font-body-md text-body-md text-on-surface-variant">Gelir ve giderleriniz yükleniyor...</p>
 </div>
 <div class="flex gap-sm">
-<select class="bg-surface-container-lowest border-none shadow-sm rounded-full px-md py-sm font-label-md text-label-md text-on-surface focus:ring-2 focus:ring-primary outline-none">
-<option>Ekim 2023</option>
-<option>Eylül 2023</option>
-<option>Ağustos 2023</option>
+<select id="month-filter-select" onchange="filterMonth(this.value)" class="bg-surface-container-lowest border-none shadow-sm rounded-full px-md py-sm font-label-md text-label-md text-on-surface focus:ring-2 focus:ring-primary outline-none cursor-pointer">
 </select>
 <button onclick="openSlideOver()" class="px-md py-sm rounded-full bg-primary text-on-primary font-label-md text-label-md hover:bg-primary-container transition-colors shadow-sm flex items-center gap-2">
 <span class="material-symbols-outlined text-[18px]">add</span>
@@ -324,9 +364,6 @@
 <p class="font-label-sm text-label-sm text-outline uppercase tracking-wider mb-2">Net Bakiye</p>
 <div class="mt-auto">
 <h3 id="summary-balance" class="font-display text-[32px] md:text-display text-primary font-bold truncate tracking-tight">₺0.00</h3>
-<span class="inline-flex items-center gap-1 mt-2 px-3 py-1 rounded-full bg-secondary/10 text-secondary font-label-sm text-label-sm w-fit">
-<span class="material-symbols-outlined text-[14px]">trending_up</span> Pozitif Trend
-</span>
 </div>
 </div>
 </div>
@@ -428,10 +465,10 @@
                 </div>
 
                 <div class="space-y-xs">
-                    <label class="font-label-sm text-label-sm text-on-surface-variant">Tutar (₺) *</label>
+                    <label class="font-label-sm text-label-sm text-on-surface-variant">Tutar (<span class="app-currency-sym">$</span>) *</label>
                     <div class="relative">
-                        <span class="absolute left-md top-1/2 -translate-y-1/2 text-on-surface-variant font-body-md">₺</span>
-                        <input id="tx-amount" required step="0.01" min="0.01" class="w-full pl-xl pr-md py-md bg-surface-container-low border border-surface-variant rounded-xl font-body-md text-on-background focus:ring-2 focus:ring-primary outline-none transition-all" placeholder="0,00" type="number"/>
+                        <span class="absolute left-md top-1/2 -translate-y-1/2 text-on-surface-variant font-body-md app-currency-sym">$</span>
+                        <input id="tx-amount" required step="0.01" min="0.01" class="w-full pl-xl pr-md py-md bg-surface-container-low border border-surface-variant rounded-xl font-body-md text-on-background focus:ring-2 focus:ring-primary outline-none transition-all" placeholder="0.00" type="number"/>
                     </div>
                 </div>
 
@@ -456,6 +493,23 @@
                 <div class="space-y-xs">
                     <label class="font-label-sm text-label-sm text-on-surface-variant">İşlem Tarihi</label>
                     <input id="tx-date" class="w-full px-md py-md bg-surface-container-low border border-surface-variant rounded-xl font-body-md text-on-background focus:ring-2 focus:ring-primary outline-none transition-all" type="date"/>
+                </div>
+
+                <!-- 🔄 Düzenli / Tekrarlayan İşlem Seçeneği -->
+                <div class="space-y-sm pt-xs">
+                    <label class="flex items-center gap-sm cursor-pointer select-none">
+                        <input type="checkbox" id="tx-is-recurring" onchange="toggleRecurringOptions()" class="w-4 h-4 rounded text-primary focus:ring-primary border-surface-variant accent-primary cursor-pointer"/>
+                        <span class="font-label-md text-on-surface">Düzenli / Tekrarlayan İşlem</span>
+                    </label>
+
+                    <div id="recurring-options" class="hidden p-md bg-surface-container-low rounded-xl border border-surface-variant/60 space-y-xs transition-all">
+                        <label class="font-label-sm text-label-sm text-on-surface-variant">Kaç ay tekrarlansın? (1-36 ay)</label>
+                        <div class="flex items-center gap-2">
+                            <input id="tx-repeat-months" type="number" min="1" max="36" value="6" class="w-full px-md py-sm bg-surface-container-lowest border border-surface-variant rounded-lg font-body-md text-on-background focus:ring-2 focus:ring-primary outline-none transition-all"/>
+                            <span class="font-label-sm text-on-surface-variant shrink-0">Ay</span>
+                        </div>
+                        <p class="text-[11px] text-outline">Seçilen tarihten itibaren her ay için ayrı işlem kaydı oluşturulacaktır.</p>
+                    </div>
                 </div>
 
                 <div class="mt-auto pt-lg">
@@ -494,6 +548,7 @@
 
     let currentTypeFilter = "all";
     let currentCategoryFilter = "all";
+    let currentMonthFilter = "all";
 
     // 🔐 GİRİŞ KONTROLÜ (Auth Guard)
     const token = localStorage.getItem("paraasistan_token");
@@ -505,6 +560,120 @@
         localStorage.removeItem("paraasistan_token");
         localStorage.removeItem("paraasistan_user");
         window.location.href = "login.html";
+    }
+
+    // 💱 PARA BİRİMİ YÖNETİMİ
+    function getAppCurrency() {
+        return localStorage.getItem('paraasistan_currency') || 'USD';
+    }
+
+    function getCurrencySymbol(curr) {
+        const symbols = {
+            'USD': '$',
+            'EUR': '€',
+            'GBP': '£',
+            'TRY': '₺'
+        };
+        return symbols[curr] || '$';
+    }
+
+    let liveExchangeRates = {
+        'TRY': 1.0,
+        'USD': 38.5,
+        'EUR': 41.2,
+        'GBP': 48.0
+    };
+
+    async function loadLiveRates() {
+        try {
+            const res = await fetch(`${API_BASE}/currency/rates`, { headers: getAuthHeaders() });
+            if (res.ok) {
+                const data = await res.json();
+                if (data && data.rates) {
+                    liveExchangeRates = { ...liveExchangeRates, ...data.rates, 'TRY': 1.0 };
+                }
+            }
+        } catch (e) {
+            console.warn("Canlı kurlar alınamadı, varsayılan kurlar kullanılıyor:", e);
+        }
+    }
+
+    function convertAmount(amountInTRY) {
+        const curr = getAppCurrency();
+        const rate = liveExchangeRates[curr] || 1.0;
+        return Number(amountInTRY || 0) / rate;
+    }
+
+    function formatMoney(amountInTRY) {
+        const curr = getAppCurrency();
+        const sym = getCurrencySymbol(curr);
+        const val = Number(amountInTRY || 0);
+        const converted = convertAmount(Math.abs(val));
+        const sign = val < 0 ? '-' : '';
+        return `${sign}${sym}${converted.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+
+    function updateCurrencyUI() {
+        const activeCurr = getAppCurrency();
+        const sym = getCurrencySymbol(activeCurr);
+
+        document.querySelectorAll(".current-currency-tag").forEach(el => {
+            el.textContent = `${activeCurr} (${sym})`;
+        });
+
+        document.querySelectorAll(".app-currency-sym").forEach(el => {
+            el.textContent = sym;
+        });
+
+        ['USD', 'EUR', 'GBP', 'TRY'].forEach(c => {
+            document.querySelectorAll(`.btn-curr-${c}`).forEach(btn => {
+                if (c === activeCurr) {
+                    btn.className = `btn-curr-${c} py-1.5 text-xs font-bold rounded-lg transition-all bg-primary text-on-primary shadow-sm`;
+                } else {
+                    btn.className = `btn-curr-${c} py-1.5 text-xs font-bold rounded-lg transition-all text-on-surface hover:bg-surface-container-high`;
+                }
+            });
+        });
+    }
+
+    async function setAppCurrency(curr) {
+        localStorage.setItem('paraasistan_currency', curr);
+        updateCurrencyUI();
+        await loadSummary();
+        await loadTransactions();
+        showToast(`Para birimi ${curr} (${getCurrencySymbol(curr)}) olarak ayarlandı`, "success");
+    }
+
+    // 👤 PROFİL MENÜSÜ AÇ/KAPA
+    function toggleProfileDropdown(e, target) {
+        e.stopPropagation();
+        const parent = target.closest('.relative');
+        const menu = parent ? parent.querySelector('.profile-dropdown-menu') : document.querySelector('.profile-dropdown-menu');
+        if (!menu) return;
+        const isHidden = menu.classList.contains('hidden');
+        document.querySelectorAll('.profile-dropdown-menu').forEach(m => m.classList.add('hidden'));
+        if (isHidden) {
+            menu.classList.remove('hidden');
+        }
+    }
+
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.profile-dropdown-menu')) {
+            document.querySelectorAll('.profile-dropdown-menu').forEach(m => m.classList.add('hidden'));
+        }
+    });
+
+    function populateProfileInfo() {
+        try {
+            const userStr = localStorage.getItem("paraasistan_user");
+            if (userStr) {
+                const user = JSON.parse(userStr);
+                document.querySelectorAll(".menu-user-name").forEach(el => el.textContent = user.full_name || "Kullanıcı");
+                document.querySelectorAll(".menu-user-email").forEach(el => el.textContent = user.email || "");
+            }
+        } catch (e) {
+            console.warn("Kullanıcı bilgisi okunamadı:", e);
+        }
     }
 
     function getAuthHeaders() {
@@ -547,10 +716,65 @@
         });
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
+    function updateDateHeader() {
+        const now = new Date();
+        const monthSelect = document.getElementById("month-filter-select");
+        if (monthSelect) {
+            monthSelect.innerHTML = "";
+
+            // 1. Tüm Zamanlar seçeneği
+            const optAll = document.createElement("option");
+            optAll.value = "all";
+            optAll.textContent = "Tüm Zamanlar";
+            monthSelect.appendChild(optAll);
+
+            // 2. Son 6 ayı listele
+            for (let i = 0; i < 6; i++) {
+                const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                const optTextRaw = d.toLocaleDateString('tr-TR', { month: 'long', year: 'numeric' });
+                const optText = optTextRaw.charAt(0).toUpperCase() + optTextRaw.slice(1);
+                
+                const opt = document.createElement("option");
+                const year = d.getFullYear();
+                const month = String(d.getMonth() + 1).padStart(2, '0');
+                opt.value = `${year}-${month}`;
+                opt.textContent = optText;
+                monthSelect.appendChild(opt);
+            }
+        }
+
+        const currentMonthEl = document.getElementById("current-month-text");
+        if (currentMonthEl) {
+            currentMonthEl.innerText = "Tüm zamanlar için gelir ve giderleriniz.";
+        }
+    }
+
+    function filterMonth(monthValue) {
+        currentMonthFilter = monthValue;
+
+        const monthSelect = document.getElementById("month-filter-select");
+        const selectedText = monthSelect ? monthSelect.options[monthSelect.selectedIndex].text : "";
+        const currentMonthEl = document.getElementById("current-month-text");
+
+        if (currentMonthEl) {
+            if (monthValue === "all") {
+                currentMonthEl.innerText = "Tüm zamanlar için gelir ve giderleriniz.";
+            } else {
+                currentMonthEl.innerText = `${selectedText} için gelir ve giderleriniz.`;
+            }
+        }
+
+        loadTransactions();
+    }
+
+    document.addEventListener("DOMContentLoaded", async () => {
         const dateInput = document.getElementById("tx-date");
         if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
+        populateProfileInfo();
+        updateCurrencyUI();
+        updateDateHeader();
         loadCategories();
+        await loadLiveRates();
         loadTransactions();
         loadSummary();
     });
@@ -563,6 +787,21 @@
     function closeSlideOver() {
         document.getElementById('slide-over-panel').classList.add('translate-x-full');
         document.getElementById('slide-over-backdrop').classList.add('opacity-0', 'pointer-events-none');
+        const recurringCheck = document.getElementById("tx-is-recurring");
+        if (recurringCheck) recurringCheck.checked = false;
+        toggleRecurringOptions();
+    }
+
+    function toggleRecurringOptions() {
+        const isRecurring = document.getElementById("tx-is-recurring")?.checked;
+        const optionsDiv = document.getElementById("recurring-options");
+        if (optionsDiv) {
+            if (isRecurring) {
+                optionsDiv.classList.remove("hidden");
+            } else {
+                optionsDiv.classList.add("hidden");
+            }
+        }
     }
 
     function setType(type) {
@@ -654,9 +893,9 @@
             const expEl = document.getElementById("summary-expense");
             const balEl = document.getElementById("summary-balance");
 
-            if (incEl) incEl.innerText = `+₺${data.total_income.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}`;
-            if (expEl) expEl.innerText = `-₺${data.total_expense.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}`;
-            if (balEl) balEl.innerText = `₺${data.net_balance.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}`;
+            if (incEl) incEl.innerText = `+${formatMoney(data.total_income || 0)}`;
+            if (expEl) expEl.innerText = `-${formatMoney(data.total_expense || 0)}`;
+            if (balEl) balEl.innerText = formatMoney(data.net_balance || 0);
         } catch (err) {
             console.error("Özet yüklenemedi:", err);
         }
@@ -669,6 +908,7 @@
             const params = new URLSearchParams();
             if (currentTypeFilter !== "all") params.append("type", currentTypeFilter);
             if (currentCategoryFilter !== "all") params.append("category", currentCategoryFilter);
+            if (currentMonthFilter !== "all") params.append("month", currentMonthFilter);
 
             const url = `${API_BASE}/transactions${params.toString() ? '?' + params.toString() : ''}`;
             const response = await fetch(url, {
@@ -681,11 +921,15 @@
                 return;
             }
 
+            if (!response.ok) {
+                throw new Error(`Sunucu yanıt vermedi (${response.status})`);
+            }
+
             const transactions = await response.json();
 
             tbody.innerHTML = "";
 
-            if (transactions.length === 0) {
+            if (!Array.isArray(transactions) || transactions.length === 0) {
                 tbody.innerHTML = `
                     <tr>
                         <td colspan="5" class="py-xl text-center text-on-surface-variant font-body-md">
@@ -696,11 +940,15 @@
                 return;
             }
 
+            const appCurr = getAppCurrency();
+            const appSym = getCurrencySymbol(appCurr);
+
             transactions.forEach(tx => {
                 const isIncome = tx.type === "income";
+                // tx.amount TRY bazında saklanır, seçili kura göre dönüştürülür:
                 const amountFormatted = isIncome 
-                    ? `+₺${tx.amount.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}` 
-                    : `-₺${tx.amount.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}`;
+                    ? `+${formatMoney(tx.amount)}` 
+                    : `-${formatMoney(tx.amount)}`;
                 
                 const amountColor = isIncome ? "text-secondary font-bold" : "text-on-surface font-bold";
                 const iconBg = isIncome ? "bg-secondary-container/30 text-secondary" : "bg-surface-container text-on-surface-variant";
@@ -759,14 +1007,30 @@
         const category = document.getElementById("tx-category").value;
         const description = document.getElementById("tx-description").value;
         const date = document.getElementById("tx-date").value || new Date().toISOString().split('T')[0];
+        const activeCurr = getAppCurrency();
+        const rate = liveExchangeRates[activeCurr] || 1.0;
+        const baseAmountInTRY = amount * rate;
+
+        const isRecurring = document.getElementById("tx-is-recurring")?.checked;
+        const repeatMonths = isRecurring ? parseInt(document.getElementById("tx-repeat-months")?.value || 1) : 1;
 
         const payload = {
             type: type,
-            amount: amount,
+            amount: baseAmountInTRY,
             category: category,
             description: description,
-            date: date
+            date: date,
+            currency: activeCurr,
+            original_amount: amount,
+            exchange_rate: rate,
+            repeat_months: repeatMonths
         };
+
+        const submitBtn = event.target.querySelector('button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.classList.add("opacity-50", "cursor-not-allowed");
+        }
 
         try {
             const res = await fetch(`${API_BASE}/transactions`, {
@@ -777,11 +1041,15 @@
 
             if (res.ok) {
                 document.getElementById("transaction-form").reset();
+                toggleRecurringOptions();
                 setType("expense");
                 closeSlideOver();
                 loadTransactions();
                 loadSummary();
-                showToast("İşlem başarıyla kaydedildi! 🎉", "success");
+                const successMsg = repeatMonths > 1 
+                    ? `Düzenli işlem planı oluşturuldu! İlk ay bakiyenizden düşüldü, sonraki aylar günü geldikçe düşecektir. 📅` 
+                    : "İşlem başarıyla kaydedildi! 🎉";
+                showToast(successMsg, "success");
             } else if (res.status === 401) {
                 localStorage.removeItem("paraasistan_token");
                 window.location.href = "login.html";
@@ -791,6 +1059,11 @@
             }
         } catch (err) {
             alert("Sunucuya bağlanılamadı: " + err.message);
+        } finally {
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.classList.remove("opacity-50", "cursor-not-allowed");
+            }
         }
     }
 

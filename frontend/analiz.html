@@ -233,6 +233,12 @@
                 <span class="font-label-md text-label-md">Bütçeler</span>
             </a>
         </li>
+        <li>
+            <a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-all" href="hedefler.html">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">flag</span>
+                <span class="font-label-md text-label-md">Hedeflerim</span>
+            </a>
+        </li>
     </ul>
     <ul class="px-sm mt-auto space-y-sm border-t border-surface-variant pt-lg">
         <li>
@@ -262,8 +268,45 @@
 <span class="material-symbols-outlined">notifications</span>
 <span class="absolute top-1 right-1 w-2 h-2 bg-error rounded-full"></span>
 </button>
-<div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden shadow-sm cursor-pointer border-2 border-surface-container-lowest shrink-0">
-<img alt="User profile avatar" class="w-full h-full object-cover" src="/Users/macbook/paraasistan/frontend/profile_picture.jpg">
+<div class="relative">
+    <div onclick="toggleProfileDropdown(event, this)" class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden shadow-sm cursor-pointer border-2 border-surface-container-lowest shrink-0 hover:ring-2 hover:ring-primary/40 transition-all">
+        <img alt="User profile avatar" class="w-full h-full object-cover" src="/Users/macbook/paraasistan/frontend/profile_picture.jpg">
+    </div>
+    <!-- Profile Dropdown -->
+    <div class="profile-dropdown-menu hidden absolute right-0 top-12 w-64 bg-surface-container-lowest rounded-2xl shadow-2xl border border-surface-variant/50 py-2 z-50 animate-in fade-in">
+        <!-- 1. PROFİL (En Üstte) -->
+        <div class="px-4 py-3 border-b border-surface-variant/40">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full overflow-hidden shrink-0 border border-surface-variant">
+                    <img src="/Users/macbook/paraasistan/frontend/profile_picture.jpg" class="w-full h-full object-cover"/>
+                </div>
+                <div class="overflow-hidden">
+                    <p class="menu-user-name font-bold text-sm text-on-surface truncate">Kullanıcı</p>
+                    <p class="menu-user-email text-xs text-on-surface-variant truncate">user@email.com</p>
+                </div>
+            </div>
+        </div>
+        <!-- 2. KURU DEĞİŞTİR (Ortada) -->
+        <div class="px-3 py-3 border-b border-surface-variant/40">
+            <div class="flex items-center justify-between mb-2 px-1">
+                <span class="text-[11px] font-bold tracking-wider text-on-surface-variant uppercase">Kuru Değiştir</span>
+                <span class="current-currency-tag text-xs font-bold px-2 py-0.5 rounded-md bg-primary/10 text-primary">USD ($)</span>
+            </div>
+            <div class="grid grid-cols-4 gap-1 p-1 bg-surface-container-low rounded-xl">
+                <button type="button" onclick="setAppCurrency('USD')" class="btn-curr-USD py-1.5 text-xs font-bold rounded-lg transition-all text-on-surface hover:bg-surface-container-high">$ USD</button>
+                <button type="button" onclick="setAppCurrency('EUR')" class="btn-curr-EUR py-1.5 text-xs font-bold rounded-lg transition-all text-on-surface hover:bg-surface-container-high">€ EUR</button>
+                <button type="button" onclick="setAppCurrency('GBP')" class="btn-curr-GBP py-1.5 text-xs font-bold rounded-lg transition-all text-on-surface hover:bg-surface-container-high">£ GBP</button>
+                <button type="button" onclick="setAppCurrency('TRY')" class="btn-curr-TRY py-1.5 text-xs font-bold rounded-lg transition-all text-on-surface hover:bg-surface-container-high">₺ TRY</button>
+            </div>
+        </div>
+        <!-- 3. PROFİLDEN ÇIK (En Altta) -->
+        <div class="pt-1 px-2">
+            <button type="button" onclick="handleLogout()" class="w-full flex items-center gap-2.5 px-3 py-2 text-sm font-semibold text-error hover:bg-error-container/20 rounded-xl transition-colors text-left">
+                <span class="material-symbols-outlined text-[20px]">logout</span>
+                <span>Profilden Çık</span>
+            </button>
+        </div>
+    </div>
 </div>
 </div>
 </header>
@@ -276,11 +319,13 @@
 <p class="font-body-md text-body-md text-on-surface-variant">Aylık harcama alışkanlıklarınız ve birikim büyümeniz.</p>
 </div>
 <div class="flex gap-sm">
-<button class="px-md py-sm rounded-full border-1.5 border-primary text-primary font-label-md text-label-md hover:bg-primary-fixed transition-colors">Raporu İndir</button>
-<select class="bg-surface-container-lowest border-none shadow-sm rounded-full px-md py-sm font-label-md text-label-md text-on-surface focus:ring-2 focus:ring-primary outline-none">
-<option>Bu Ay</option>
-<option>Son 3 Ay</option>
-<option>Yıl Başından Bugüne</option>
+<button onclick="handleDownloadReport()" class="px-md py-sm rounded-full border-1.5 border-primary text-primary font-label-md text-label-md hover:bg-primary-fixed transition-colors">Raporu İndir</button>
+<select id="analytics-period-select" onchange="handleAnalyticsPeriodChange(this.value)" class="bg-surface-container-lowest border-none shadow-sm rounded-full px-md py-sm font-label-md text-label-md text-on-surface focus:ring-2 focus:ring-primary outline-none cursor-pointer">
+<option value="month">Bu Ay</option>
+<option value="3months">Son 3 Ay</option>
+<option value="6months" selected>Son 6 Ay</option>
+<option value="year">Yıl Başından Bugüne</option>
+<option value="all">Son 1 Yıl</option>
 </select>
 </div>
 </div>
@@ -291,11 +336,11 @@
 <div class="flex justify-between items-start mb-md">
 <div>
 <h3 class="font-headline-md text-headline-md text-on-surface">Birikim Büyümesi</h3>
-<p class="font-label-sm text-label-sm text-outline mt-xs">Son 6 aydaki toplam birikim artışı</p>
+<p id="savings-period-desc" class="font-label-sm text-label-sm text-outline mt-xs">Son 6 aydaki toplam net birikim artışı</p>
 </div>
-<div class="flex items-center gap-xs text-secondary bg-secondary-container bg-opacity-20 px-sm py-xs rounded-full">
-<span class="material-symbols-outlined text-sm">trending_up</span>
-<span class="font-label-sm text-label-sm font-bold">+12.4%</span>
+<div id="savings-trend-badge" class="flex items-center gap-xs px-sm py-xs rounded-full transition-all opacity-0">
+<span id="savings-trend-icon" class="material-symbols-outlined text-sm"></span>
+<span id="savings-trend-text" class="font-label-sm text-label-sm font-bold"></span>
 </div>
 </div>
 <div class="h-64 w-full relative">
@@ -307,14 +352,14 @@
 <div class="bg-surface-container-lowest rounded-lg p-lg card-shadow flex flex-col">
 <div class="mb-md">
 <h3 class="font-headline-md text-headline-md text-on-surface">Kategoriye Göre Harcamalar</h3>
-<p class="font-label-sm text-label-sm text-outline mt-xs">Bu ayki harcama dağılımı</p>
+<p id="pie-period-desc" class="font-label-sm text-label-sm text-outline mt-xs">Son 6 ayın harcama dağılımı</p>
 </div>
 <div class="flex-1 flex justify-center items-center relative min-h-[200px]">
 <canvas id="spendingPieChart" height="400" width="512" style="height: 200px; width: 256px;"></canvas>
 <!-- Center text for donut hole -->
 <div class="absolute inset-0 flex flex-col justify-center items-center pointer-events-none">
 <span class="font-label-sm text-label-sm text-outline">Toplam</span>
-<span id="pie-total-spent" class="font-headline-md text-headline-md text-primary font-bold">0,00 ₺</span>
+<span id="pie-total-spent" class="font-headline-md text-headline-md text-primary font-bold animate-pulse">-- ₺</span>
 </div>
 </div>
 <!-- Legend/List -->
@@ -330,10 +375,10 @@
 <div class="flex gap-sm">
 <div class="relative">
 <span class="material-symbols-outlined absolute left-sm top-1/2 transform -translate-y-1/2 text-outline-variant text-sm">search</span>
-<input class="pl-xl pr-sm py-xs rounded-full bg-surface-bright border-none outline-none font-body-md text-body-md text-sm focus:ring-1 focus:ring-primary w-48 transition-all" placeholder="İşlem ara..." type="text">
+<input id="analytics-search-input" oninput="filterAnalyticsTransactions(this.value)" class="pl-xl pr-sm py-xs rounded-full bg-surface-bright border-none outline-none font-body-md text-body-md text-sm focus:ring-1 focus:ring-primary w-48 transition-all" placeholder="İşlem ara..." type="text">
 </div>
-<button class="p-xs rounded-full bg-surface-bright text-on-surface-variant hover:bg-surface-container transition-colors">
-<span class="material-symbols-outlined">filter_list</span>
+<button id="analytics-refresh-btn" onclick="handleRefreshRecentTransactions()" title="Yenile" class="p-xs rounded-full bg-surface-bright text-on-surface-variant hover:bg-surface-container hover:text-primary transition-all">
+<span id="analytics-refresh-icon" class="material-symbols-outlined transition-transform">refresh</span>
 </button>
 </div>
 </div>
@@ -348,68 +393,54 @@
 </tr>
 </thead>
 <tbody id="analytics-recent-tbody">
-<!-- Item 1 -->
-<tr class="border-b border-surface-variant hover:bg-surface-bright transition-colors group">
+<!-- Skeleton Loader (Veriler yüklenene kadar gerçekçi yükleme efekti) -->
+<tr class="border-b border-surface-variant animate-pulse">
 <td class="py-md">
-<div class="flex items-center gap-md">
-<div class="w-10 h-10 squircle bg-surface-container flex justify-center items-center text-on-surface-variant">
-<span class="material-symbols-outlined">shopping_cart</span>
-</div>
-<div>
-<p class="font-label-md text-label-md text-on-surface font-semibold">Whole Foods Market</p>
-<p class="font-label-sm text-label-sm text-outline">Banka Kartı •••• 4210</p>
-</div>
-</div>
+    <div class="flex items-center gap-md">
+        <div class="w-10 h-10 squircle bg-surface-container-high rounded-full"></div>
+        <div class="space-y-2">
+            <div class="w-32 h-3.5 bg-surface-container-high rounded"></div>
+            <div class="w-20 h-2.5 bg-surface-container rounded"></div>
+        </div>
+    </div>
 </td>
-<td class="py-md font-body-md text-body-md text-on-surface-variant text-sm">24 Eki 2026</td>
-<td class="py-md">
-<span class="px-sm py-xs rounded-full bg-secondary-container bg-opacity-20 text-on-secondary-container font-label-sm text-label-sm">Market</span>
-</td>
-<td class="py-md font-label-md text-label-md text-on-surface font-bold text-right">-1.425,00 ₺</td>
+<td class="py-md"><div class="w-20 h-3 bg-surface-container-high rounded"></div></td>
+<td class="py-md"><div class="w-16 h-5 bg-surface-container-high rounded-full"></div></td>
+<td class="py-md text-right"><div class="w-20 h-3.5 bg-surface-container-high rounded ml-auto"></div></td>
 </tr>
-<!-- Item 2 -->
-<tr class="border-b border-surface-variant hover:bg-surface-bright transition-colors group">
+<tr class="border-b border-surface-variant animate-pulse">
 <td class="py-md">
-<div class="flex items-center gap-md">
-<div class="w-10 h-10 squircle bg-surface-container flex justify-center items-center text-on-surface-variant">
-<span class="material-symbols-outlined">home</span>
-</div>
-<div>
-<p class="font-label-md text-label-md text-on-surface font-semibold">Uptown Apartments</p>
-<p class="font-label-sm text-label-sm text-outline">Havale / EFT</p>
-</div>
-</div>
+    <div class="flex items-center gap-md">
+        <div class="w-10 h-10 squircle bg-surface-container-high rounded-full"></div>
+        <div class="space-y-2">
+            <div class="w-28 h-3.5 bg-surface-container-high rounded"></div>
+            <div class="w-16 h-2.5 bg-surface-container rounded"></div>
+        </div>
+    </div>
 </td>
-<td class="py-md font-body-md text-body-md text-on-surface-variant text-sm">01 Eki 2026</td>
-<td class="py-md">
-<span class="px-sm py-xs rounded-full bg-primary-container bg-opacity-10 text-primary font-label-sm text-label-sm">Kira & Konut</span>
-</td>
-<td class="py-md font-label-md text-label-md text-on-surface font-bold text-right">-18.000 ₺.00</td>
+<td class="py-md"><div class="w-20 h-3 bg-surface-container-high rounded"></div></td>
+<td class="py-md"><div class="w-16 h-5 bg-surface-container-high rounded-full"></div></td>
+<td class="py-md text-right"><div class="w-20 h-3.5 bg-surface-container-high rounded ml-auto"></div></td>
 </tr>
-<!-- Item 3 -->
-<tr class="hover:bg-surface-bright transition-colors group">
+<tr class="animate-pulse">
 <td class="py-md">
-<div class="flex items-center gap-md">
-<div class="w-10 h-10 squircle bg-surface-container flex justify-center items-center text-secondary">
-<span class="material-symbols-outlined">payments</span>
-</div>
-<div>
-<p class="font-label-md text-label-md text-on-surface font-semibold">Tech Corp Inc. Salary</p>
-<p class="font-label-sm text-label-sm text-outline">Maaş Hesabı</p>
-</div>
-</div>
+    <div class="flex items-center gap-md">
+        <div class="w-10 h-10 squircle bg-surface-container-high rounded-full"></div>
+        <div class="space-y-2">
+            <div class="w-36 h-3.5 bg-surface-container-high rounded"></div>
+            <div class="w-24 h-2.5 bg-surface-container rounded"></div>
+        </div>
+    </div>
 </td>
-<td class="py-md font-body-md text-body-md text-on-surface-variant text-sm">30 Eyl 2026</td>
-<td class="py-md">
-<span class="px-sm py-xs rounded-full bg-secondary-fixed bg-opacity-20 text-on-secondary-container font-label-sm text-label-sm">Income</span>
-</td>
-<td class="py-md font-label-md text-label-md text-secondary font-bold text-right">+52.400,00 ₺</td>
+<td class="py-md"><div class="w-20 h-3 bg-surface-container-high rounded"></div></td>
+<td class="py-md"><div class="w-16 h-5 bg-surface-container-high rounded-full"></div></td>
+<td class="py-md text-right"><div class="w-20 h-3.5 bg-surface-container-high rounded ml-auto"></div></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="mt-md text-center">
-<button class="font-label-sm text-label-sm text-primary hover:text-primary-container transition-colors font-medium">Tüm İşlemleri Gör</button>
+<button onclick="window.location.href='islemler.html'" class="font-label-sm text-label-sm text-primary hover:text-primary-container transition-colors font-medium">Tüm İşlemleri Gör</button>
 </div>
 </div>
 </div>
@@ -460,11 +491,119 @@
         window.location.href = "login.html";
     }
 
-    document.addEventListener("DOMContentLoaded", function() {
-        initSavingsLineChart();
-        initSpendingPieChart();
-        loadAnalyticsRecentTransactions();
+    // 💱 PARA BİRİMİ YÖNETİMİ
+    function getAppCurrency() {
+        return localStorage.getItem('paraasistan_currency') || 'USD';
+    }
+
+    function getCurrencySymbol(curr) {
+        const symbols = {
+            'USD': '$',
+            'EUR': '€',
+            'GBP': '£',
+            'TRY': '₺'
+        };
+        return symbols[curr] || '$';
+    }
+
+    let liveExchangeRates = {
+        'TRY': 1.0,
+        'USD': 38.5,
+        'EUR': 41.2,
+        'GBP': 48.0
+    };
+
+    async function loadLiveRates() {
+        try {
+            const res = await fetch(`${API_BASE}/currency/rates`, { headers: getAuthHeaders() });
+            if (res.ok) {
+                const data = await res.json();
+                if (data && data.rates) {
+                    liveExchangeRates = { ...liveExchangeRates, ...data.rates, 'TRY': 1.0 };
+                }
+            }
+        } catch (e) {
+            console.warn("Canlı kurlar alınamadı, varsayılan kurlar kullanılıyor:", e);
+        }
+    }
+
+    function convertAmount(amountInTRY) {
+        const curr = getAppCurrency();
+        const rate = liveExchangeRates[curr] || 1.0;
+        return Number(amountInTRY || 0) / rate;
+    }
+
+    function formatMoney(amountInTRY) {
+        const curr = getAppCurrency();
+        const sym = getCurrencySymbol(curr);
+        const val = Number(amountInTRY || 0);
+        const converted = convertAmount(Math.abs(val));
+        const sign = val < 0 ? '-' : '';
+        return `${sign}${sym}${converted.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+
+    function updateCurrencyUI() {
+        const activeCurr = getAppCurrency();
+        const sym = getCurrencySymbol(activeCurr);
+
+        document.querySelectorAll(".current-currency-tag").forEach(el => {
+            el.textContent = `${activeCurr} (${sym})`;
+        });
+
+        ['USD', 'EUR', 'GBP', 'TRY'].forEach(c => {
+            document.querySelectorAll(`.btn-curr-${c}`).forEach(btn => {
+                if (c === activeCurr) {
+                    btn.className = `btn-curr-${c} py-1.5 text-xs font-bold rounded-lg transition-all bg-primary text-on-primary shadow-sm`;
+                } else {
+                    btn.className = `btn-curr-${c} py-1.5 text-xs font-bold rounded-lg transition-all text-on-surface hover:bg-surface-container-high`;
+                }
+            });
+        });
+    }
+
+    async function setAppCurrency(curr) {
+        localStorage.setItem('paraasistan_currency', curr);
+        updateCurrencyUI();
+        await handleAnalyticsPeriodChange(currentPeriod);
+        await loadAnalyticsRecentTransactions();
+    }
+
+    // 👤 PROFİL MENÜSÜ AÇ/KAPA
+    function toggleProfileDropdown(e, target) {
+        e.stopPropagation();
+        const parent = target.closest('.relative');
+        const menu = parent ? parent.querySelector('.profile-dropdown-menu') : document.querySelector('.profile-dropdown-menu');
+        if (!menu) return;
+        const isHidden = menu.classList.contains('hidden');
+        document.querySelectorAll('.profile-dropdown-menu').forEach(m => m.classList.add('hidden'));
+        if (isHidden) {
+            menu.classList.remove('hidden');
+        }
+    }
+
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.profile-dropdown-menu')) {
+            document.querySelectorAll('.profile-dropdown-menu').forEach(m => m.classList.add('hidden'));
+        }
     });
+
+    function populateProfileInfo() {
+        try {
+            const userStr = localStorage.getItem("paraasistan_user");
+            if (userStr) {
+                const user = JSON.parse(userStr);
+                document.querySelectorAll(".menu-user-name").forEach(el => el.textContent = user.full_name || "Kullanıcı");
+                document.querySelectorAll(".menu-user-email").forEach(el => el.textContent = user.email || "");
+            }
+        } catch (e) {
+            console.warn("Kullanıcı bilgisi okunamadı:", e);
+        }
+    }
+
+    let savingsChartInstance = null;
+    let spendingPieChartInstance = null;
+    let allRecentTransactions = [];
+    let currentPeriod = "6months";
 
     const primaryColor = '#000666';
     const secondaryColor = '#1b6d24';
@@ -482,24 +621,81 @@
         };
     }
 
-    // 1. Çizgi Grafik: Son 6 Ayın Birikim / Net Nakit Akışı
-    async function initSavingsLineChart() {
-        const ctxLine = document.getElementById('savingsChart').getContext('2d');
+    document.addEventListener("DOMContentLoaded", async function() {
+        populateProfileInfo();
+        updateCurrencyUI();
+        await loadLiveRates();
+        handleAnalyticsPeriodChange("6months");
+        loadAnalyticsRecentTransactions();
+    });
+
+    // Zaman filtresi değiştiğinde çalışan ana fonksiyon
+    function handleAnalyticsPeriodChange(period) {
+        currentPeriod = period;
+        updatePeriodDescriptions(period);
+        initSavingsLineChart(period);
+        initSpendingPieChart(period);
+    }
+
+    function updatePeriodDescriptions(period) {
+        const savingsDescEl = document.getElementById("savings-period-desc");
+        const pieDescEl = document.getElementById("pie-period-desc");
+        
+        const descriptions = {
+            "month": {
+                savings: "Bu ayki haftalık net nakit akışı ve birikim",
+                pie: "Bu ayki harcama dağılımı"
+            },
+            "3months": {
+                savings: "Son 3 aydaki toplam net birikim artışı",
+                pie: "Son 3 ayın harcama dağılımı"
+            },
+            "6months": {
+                savings: "Son 6 aydaki toplam net birikim artışı",
+                pie: "Son 6 ayın harcama dağılımı"
+            },
+            "year": {
+                savings: "Yıl başından bugüne net birikim artışı",
+                pie: "Bu yılın harcama dağılımı"
+            },
+            "all": {
+                savings: "Son 12 aydaki toplam net birikim artışı",
+                pie: "Son 12 ayın harcama dağılımı"
+            }
+        };
+
+        const current = descriptions[period] || descriptions["6months"];
+        if (savingsDescEl) savingsDescEl.innerText = current.savings;
+        if (pieDescEl) pieDescEl.innerText = current.pie;
+    }
+
+    // 1. Çizgi Grafik: Birikim / Net Nakit Akışı
+    async function initSavingsLineChart(period = "6months") {
+        const canvas = document.getElementById('savingsChart');
+        if (!canvas) return;
+        const ctxLine = canvas.getContext('2d');
         const gradient = ctxLine.createLinearGradient(0, 0, 0, 400);
-        gradient.addColorStop(0, 'rgba(0, 6, 102, 0.2)');
-        gradient.addColorStop(1, 'rgba(0, 6, 102, 0)');
+        gradient.addColorStop(0, 'rgba(0, 6, 102, 0.25)');
+        gradient.addColorStop(1, 'rgba(0, 6, 102, 0.0)');
 
         try {
-            const res = await fetch(`${API_BASE}/analytics/monthly-cashflow`, {
+            const res = await fetch(`${API_BASE}/analytics/monthly-cashflow?period=${period}`, {
                 headers: getAuthHeaders()
             });
+            if (res.status === 401) { handleLogout(); return; }
             const data = await res.json();
 
             const labels = data.map(d => d.month);
-            // Kümülatif birikim veya aylık net bakiye (Gelir - Gider)
-            const netSavings = data.map(d => Math.max(0, d.income - d.expense));
+            // Net tasarruf / birikim: Gelir - Gider (seçili para birimine dönüştürülüyor)
+            const netSavings = data.map(d => convertAmount(d.income - d.expense));
 
-            new Chart(ctxLine, {
+            updateSavingsTrendBadge(netSavings);
+
+            if (savingsChartInstance) {
+                savingsChartInstance.destroy();
+            }
+
+            savingsChartInstance = new Chart(ctxLine, {
                 type: 'line',
                 data: {
                     labels: labels,
@@ -515,7 +711,7 @@
                         pointRadius: 4,
                         pointHoverRadius: 6,
                         fill: true,
-                        tension: 0.4
+                        tension: 0.35
                     }]
                 },
                 options: {
@@ -531,7 +727,9 @@
                             displayColors: false,
                             callbacks: {
                                 label: function(context) {
-                                    return context.parsed.y.toLocaleString('tr-TR', { minimumFractionDigits: 2 }) + ' ₺';
+                                    const val = context.parsed.y;
+                                    const sym = getCurrencySymbol(getAppCurrency());
+                                    return (val >= 0 ? '+' : '') + sym + val.toLocaleString('en-US', { minimumFractionDigits: 2 });
                                 }
                             }
                         }
@@ -547,7 +745,8 @@
                                 color: textColor, 
                                 font: { family: 'Manrope', size: 12 },
                                 callback: function(value) { 
-                                    return value >= 1000 ? (value/1000).toLocaleString('tr-TR') + ' bin ₺' : value + ' ₺'; 
+                                    const sym = getCurrencySymbol(getAppCurrency());
+                                    return Math.abs(value) >= 1000 ? sym + (value/1000).toLocaleString('en-US') + 'k' : sym + value; 
                                 }
                             }
                         }
@@ -559,27 +758,97 @@
         }
     }
 
-    // 2. Pasta / Donut Grafik: Bu Ayki Kategori Dağılımı
-    async function initSpendingPieChart() {
-        const ctxPie = document.getElementById('spendingPieChart').getContext('2d');
+    function updateSavingsTrendBadge(netSavings) {
+        const badge = document.getElementById('savings-trend-badge');
+        const icon = document.getElementById('savings-trend-icon');
+        const text = document.getElementById('savings-trend-text');
+        if (!badge || !icon || !text || netSavings.length === 0) return;
+
+        // Dönem boyunca gerçekleşen kümülatif net bakiye / tasarruf:
+        const totalNet = netSavings.reduce((acc, val) => acc + val, 0);
+        const sym = getCurrencySymbol(getAppCurrency());
+
+        // Aktif veri noktalarını bul:
+        let activeIndices = [];
+        for (let i = 0; i < netSavings.length; i++) {
+            if (netSavings[i] !== 0) activeIndices.push(i);
+        }
+
+        if (totalNet > 0) {
+            // Net Artış / Birikim: Yeşil
+            badge.className = "flex items-center gap-xs text-secondary bg-secondary-container bg-opacity-20 px-sm py-xs rounded-full transition-all";
+            icon.innerText = "trending_up";
+
+            if (activeIndices.length >= 2) {
+                const curIdx = activeIndices[activeIndices.length - 1];
+                const prevIdx = activeIndices[activeIndices.length - 2];
+                const curVal = netSavings[curIdx];
+                const prevVal = netSavings[prevIdx];
+                if (prevVal > 0) {
+                    const pct = ((curVal - prevVal) / prevVal) * 100;
+                    text.innerText = (pct >= 0 ? "+" : "") + pct.toFixed(1) + "%";
+                    return;
+                }
+            }
+
+            // Önceki dönem sıfırsa veya tek dönem varsa doğrudan net tutarı yaz:
+            const formatted = totalNet >= 1000000
+                ? `+${sym}${(totalNet / 1000000).toLocaleString('en-US', { maximumFractionDigits: 1 })}M Net`
+                : (totalNet >= 1000 ? `+${sym}${(totalNet / 1000).toLocaleString('en-US', { maximumFractionDigits: 0 })}k Net` : `+${sym}${totalNet.toLocaleString('en-US', { minimumFractionDigits: 2 })} Net`);
+            text.innerText = formatted;
+
+        } else if (totalNet < 0) {
+            // Net Açık (Gider > Gelir): Kırmızı
+            badge.className = "flex items-center gap-xs text-error bg-error-container bg-opacity-20 px-sm py-xs rounded-full transition-all";
+            icon.innerText = "trending_down";
+
+            const absNet = Math.abs(totalNet);
+            const formatted = absNet >= 1000000
+                ? `-${sym}${(absNet / 1000000).toLocaleString('en-US', { maximumFractionDigits: 1 })}M Açık`
+                : (absNet >= 1000 ? `-${sym}${(absNet / 1000).toLocaleString('en-US', { maximumFractionDigits: 0 })}k Açık` : `-${sym}${absNet.toLocaleString('en-US', { minimumFractionDigits: 2 })} Açık`);
+            text.innerText = formatted;
+
+        } else {
+            // Tamamen 0: Nötr
+            badge.className = "flex items-center gap-xs text-on-surface-variant bg-surface-container px-sm py-xs rounded-full transition-all";
+            icon.innerText = "remove";
+            text.innerText = `0.00 ${sym} Net`;
+        }
+
+        // Rozeti yumuşakça görünür yap (FOUC önlemi)
+        badge.classList.remove('opacity-0');
+        badge.classList.add('opacity-100');
+    }
+
+    // 2. Pasta / Donut Grafik: Kategori Dağılımı
+    async function initSpendingPieChart(period = "6months") {
+        const canvas = document.getElementById('spendingPieChart');
+        if (!canvas) return;
+        const ctxPie = canvas.getContext('2d');
         const legendContainer = document.getElementById('pie-legend-container');
         const totalSpentEl = document.getElementById('pie-total-spent');
 
         try {
-            const res = await fetch(`${API_BASE}/analytics/category-spending`, {
+            const res = await fetch(`${API_BASE}/analytics/category-spending?period=${period}`, {
                 headers: getAuthHeaders()
             });
+            if (res.status === 401) { handleLogout(); return; }
             const data = await res.json();
 
-            totalSpentEl.innerText = `₺${data.total_spent.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}`;
+            totalSpentEl.classList.remove('animate-pulse');
+            totalSpentEl.innerText = formatMoney(data.total_spent || 0);
 
             if (data.categories.length === 0) {
-                legendContainer.innerHTML = '<p class="font-body-sm text-outline text-center py-md">Bu ay henüz kayıtlı harcama yok.</p>';
+                legendContainer.innerHTML = '<p class="font-body-sm text-outline text-center py-md">Seçili dönemde kayıtlı harcama yok.</p>';
+                if (spendingPieChartInstance) {
+                    spendingPieChartInstance.destroy();
+                    spendingPieChartInstance = null;
+                }
                 return;
             }
 
             const labels = data.categories.map(c => c.category);
-            const amounts = data.categories.map(c => c.amount);
+            const amounts = data.categories.map(c => convertAmount(c.amount));
             const colors = chartColors.slice(0, labels.length);
 
             // Legend oluştur
@@ -593,12 +862,16 @@
                         <span class="w-3 h-3 rounded-full" style="background-color: ${color}"></span>
                         <span class="font-label-sm text-label-sm text-on-surface font-medium">${cat.category} (%${cat.percentage})</span>
                     </div>
-                    <span class="font-label-sm text-label-sm font-bold text-on-surface">₺${cat.amount.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</span>
+                    <span class="font-label-sm text-label-sm font-bold text-on-surface">${formatMoney(cat.amount)}</span>
                 `;
                 legendContainer.appendChild(row);
             });
 
-            new Chart(ctxPie, {
+            if (spendingPieChartInstance) {
+                spendingPieChartInstance.destroy();
+            }
+
+            spendingPieChartInstance = new Chart(ctxPie, {
                 type: 'doughnut',
                 data: {
                     labels: labels,
@@ -622,7 +895,8 @@
                             padding: 10,
                             callbacks: {
                                 label: function(context) {
-                                    return ' ' + context.parsed.toLocaleString('tr-TR', { minimumFractionDigits: 2 }) + ' ₺';
+                                    const sym = getCurrencySymbol(getAppCurrency());
+                                    return ' ' + sym + context.parsed.toLocaleString('en-US', { minimumFractionDigits: 2 });
                                 }
                             }
                         }
@@ -640,57 +914,112 @@
         if (!tbody) return;
 
         try {
-            const res = await fetch(`${API_BASE}/transactions?limit=5`, {
+            const res = await fetch(`${API_BASE}/transactions?limit=10`, {
                 headers: getAuthHeaders()
             });
-            const txs = await res.json();
-
-            tbody.innerHTML = '';
-
-            const icons = {
-                "Market": "shopping_cart", "Maaş": "payments", "Kira": "home",
-                "Ulaşım": "directions_car", "Fatura": "bolt", "Teknoloji": "laptop",
-                "Eğlence": "movie", "Ek Gelir": "savings", "Yatırım": "trending_up",
-                "Sağlık": "medical_services", "Eğitim": "school", "Diğer": "receipt"
-            };
-
-            txs.forEach(tx => {
-                const isIncome = tx.type === "income";
-                const amountText = isIncome 
-                    ? `+₺${tx.amount.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}` 
-                    : `-₺${tx.amount.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}`;
-                const amountColor = isIncome ? 'text-secondary font-bold' : 'text-on-surface font-bold';
-                const iconBg = isIncome ? 'bg-secondary-container bg-opacity-20 text-secondary' : 'bg-surface-container text-on-surface-variant';
-                const iconName = icons[tx.category] || 'receipt';
-                const dateFormatted = new Date(tx.date).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', year: 'numeric' });
-
-                const tr = document.createElement('tr');
-                tr.className = 'border-b border-surface-variant hover:bg-surface-bright transition-colors group';
-                tr.innerHTML = `
-                    <td class="py-md">
-                        <div class="flex items-center gap-md">
-                            <div class="w-10 h-10 squircle ${iconBg} flex justify-center items-center">
-                                <span class="material-symbols-outlined">${iconName}</span>
-                            </div>
-                            <div>
-                                <p class="font-label-md text-label-md text-on-surface font-semibold">${tx.description || tx.category}</p>
-                                <p class="font-label-sm text-label-sm text-outline">${tx.category}</p>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="py-md font-body-md text-body-md text-on-surface-variant text-sm">${dateFormatted}</td>
-                    <td class="py-md">
-                        <span class="px-sm py-xs rounded-full bg-surface-container-high text-on-surface font-label-sm text-label-sm">
-                            ${tx.category}
-                        </span>
-                    </td>
-                    <td class="py-md font-label-md text-label-md ${amountColor} text-right">${amountText}</td>
-                `;
-                tbody.appendChild(tr);
-            });
+            if (res.status === 401) { handleLogout(); return; }
+            allRecentTransactions = await res.json();
+            
+            const searchInput = document.getElementById('analytics-search-input');
+            if (searchInput && searchInput.value.trim()) {
+                filterAnalyticsTransactions(searchInput.value);
+            } else {
+                renderRecentTransactions(allRecentTransactions);
+            }
         } catch (err) {
             console.error("Son işlemler tablosu yüklenemedi:", err);
         }
+    }
+
+    async function handleRefreshRecentTransactions() {
+        const icon = document.getElementById("analytics-refresh-icon");
+        const searchInput = document.getElementById("analytics-search-input");
+        if (icon) icon.classList.add("animate-spin");
+        
+        // Arama kutusunu sıfırla
+        if (searchInput) searchInput.value = "";
+
+        await loadAnalyticsRecentTransactions();
+
+        if (icon) {
+            setTimeout(() => {
+                icon.classList.remove("animate-spin");
+            }, 600);
+        }
+    }
+
+    function renderRecentTransactions(txs, isFiltered = false) {
+        const tbody = document.getElementById('analytics-recent-tbody');
+        if (!tbody) return;
+
+        tbody.innerHTML = '';
+
+        if (!txs || txs.length === 0) {
+            const msg = isFiltered ? "Aramanıza uygun işlem bulunamadı." : "Henüz kayıtlı bir işlem bulunmuyor.";
+            tbody.innerHTML = `<tr><td colspan="4" class="py-lg text-center text-outline font-body-md">${msg}</td></tr>`;
+            return;
+        }
+
+        const icons = {
+            "Market": "shopping_cart", "Maaş": "payments", "Kira": "home",
+            "Ulaşım": "directions_car", "Fatura": "bolt", "Teknoloji": "laptop",
+            "Eğlence": "movie", "Ek Gelir": "savings", "Yatırım": "trending_up",
+            "Sağlık": "medical_services", "Eğitim": "school", "Diğer": "receipt"
+        };
+
+        txs.forEach(tx => {
+            const isIncome = tx.type === "income";
+            const amountText = isIncome 
+                ? `+${formatMoney(tx.amount)}` 
+                : `-${formatMoney(tx.amount)}`;
+            const amountColor = isIncome ? 'text-secondary font-bold' : 'text-on-surface font-bold';
+            const iconBg = isIncome ? 'bg-secondary-container bg-opacity-20 text-secondary' : 'bg-surface-container text-on-surface-variant';
+            const iconName = icons[tx.category] || 'receipt';
+            const dateFormatted = new Date(tx.date).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', year: 'numeric' });
+
+            const tr = document.createElement('tr');
+            tr.className = 'border-b border-surface-variant hover:bg-surface-bright transition-colors group';
+            tr.innerHTML = `
+                <td class="py-md">
+                    <div class="flex items-center gap-md">
+                        <div class="w-10 h-10 squircle ${iconBg} flex justify-center items-center">
+                            <span class="material-symbols-outlined">${iconName}</span>
+                        </div>
+                        <div>
+                            <p class="font-label-md text-label-md text-on-surface font-semibold">${tx.description || tx.category}</p>
+                            <p class="font-label-sm text-label-sm text-outline">${tx.category}</p>
+                        </div>
+                    </div>
+                </td>
+                <td class="py-md font-body-md text-body-md text-on-surface-variant text-sm">${dateFormatted}</td>
+                <td class="py-md">
+                    <span class="px-sm py-xs rounded-full bg-surface-container-high text-on-surface font-label-sm text-label-sm">
+                        ${tx.category}
+                    </span>
+                </td>
+                <td class="py-md font-label-md text-label-md ${amountColor} text-right">${amountText}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function filterAnalyticsTransactions(query) {
+        const q = (query || "").toLocaleLowerCase('tr-TR').trim();
+        if (!q) {
+            renderRecentTransactions(allRecentTransactions, false);
+            return;
+        }
+        const filtered = allRecentTransactions.filter(tx => {
+            const desc = (tx.description || "").toLocaleLowerCase('tr-TR');
+            const cat = (tx.category || "").toLocaleLowerCase('tr-TR');
+            const amount = (tx.amount ? String(tx.amount) : "");
+            return desc.includes(q) || cat.includes(q) || amount.includes(q);
+        });
+        renderRecentTransactions(filtered, true);
+    }
+
+    function handleDownloadReport() {
+        window.print();
     }
 </script>
 

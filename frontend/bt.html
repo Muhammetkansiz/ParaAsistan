@@ -1,9 +1,9 @@
-<!DOCTYPE html><html class="light" lang="en"><head>
+<!DOCTYPE html><html class="light" lang="tr"><head>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <meta charset="utf-8">
 <meta content="width=device-width, initial-scale=1.0" name="viewport">
-<title>Budgets - ParaAsistan</title>
+<title>Bütçeler - ParaAsistan</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&amp;family=Hanken+Grotesk:wght@600;700&amp;display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block" rel="stylesheet">
@@ -150,6 +150,12 @@
                 <span class="font-label-md text-label-md">Bütçeler</span>
             </a>
         </li>
+        <li>
+            <a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-all" href="hedefler.html">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">flag</span>
+                <span class="font-label-md text-label-md">Hedeflerim</span>
+            </a>
+        </li>
     </ul>
     <ul class="px-sm mt-auto space-y-sm border-t border-surface-variant pt-lg">
         <li>
@@ -177,8 +183,45 @@
 <button aria-label="Bildirimler" class="p-sm text-on-surface-variant hover:bg-surface-container transition-colors rounded-full">
 <span class="material-symbols-outlined">notifications</span>
 </button>
-<div class="w-8 h-8 rounded-full bg-surface-container-high overflow-hidden shadow-sm cursor-pointer ml-xs">
-<img alt="User profile avatar" class="w-full h-full object-cover" src="/Users/macbook/paraasistan/frontend/profile_picture.jpg"/>
+<div class="relative">
+    <div onclick="toggleProfileDropdown(event, this)" class="w-8 h-8 rounded-full bg-surface-container-high overflow-hidden shadow-sm cursor-pointer ml-xs border border-surface-variant hover:ring-2 hover:ring-primary/40 transition-all">
+        <img alt="User profile avatar" class="w-full h-full object-cover" src="/Users/macbook/paraasistan/frontend/profile_picture.jpg"/>
+    </div>
+    <!-- Profile Dropdown (Mobile) -->
+    <div class="profile-dropdown-menu hidden absolute right-0 top-12 w-64 bg-surface-container-lowest rounded-2xl shadow-2xl border border-surface-variant/50 py-2 z-50 animate-in fade-in">
+        <!-- 1. PROFİL (En Üstte) -->
+        <div class="px-4 py-3 border-b border-surface-variant/40">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full overflow-hidden shrink-0 border border-surface-variant">
+                    <img src="/Users/macbook/paraasistan/frontend/profile_picture.jpg" class="w-full h-full object-cover"/>
+                </div>
+                <div class="overflow-hidden">
+                    <p class="menu-user-name font-bold text-sm text-on-surface truncate">Kullanıcı</p>
+                    <p class="menu-user-email text-xs text-on-surface-variant truncate">user@email.com</p>
+                </div>
+            </div>
+        </div>
+        <!-- 2. KURU DEĞİŞTİR (Ortada) -->
+        <div class="px-3 py-3 border-b border-surface-variant/40">
+            <div class="flex items-center justify-between mb-2 px-1">
+                <span class="text-[11px] font-bold tracking-wider text-on-surface-variant uppercase">Kuru Değiştir</span>
+                <span class="current-currency-tag text-xs font-bold px-2 py-0.5 rounded-md bg-primary/10 text-primary">USD ($)</span>
+            </div>
+            <div class="grid grid-cols-4 gap-1 p-1 bg-surface-container-low rounded-xl">
+                <button type="button" onclick="setAppCurrency('USD')" class="btn-curr-USD py-1.5 text-xs font-bold rounded-lg transition-all text-on-surface hover:bg-surface-container-high">$ USD</button>
+                <button type="button" onclick="setAppCurrency('EUR')" class="btn-curr-EUR py-1.5 text-xs font-bold rounded-lg transition-all text-on-surface hover:bg-surface-container-high">€ EUR</button>
+                <button type="button" onclick="setAppCurrency('GBP')" class="btn-curr-GBP py-1.5 text-xs font-bold rounded-lg transition-all text-on-surface hover:bg-surface-container-high">£ GBP</button>
+                <button type="button" onclick="setAppCurrency('TRY')" class="btn-curr-TRY py-1.5 text-xs font-bold rounded-lg transition-all text-on-surface hover:bg-surface-container-high">₺ TRY</button>
+            </div>
+        </div>
+        <!-- 3. PROFİLDEN ÇIK (En Altta) -->
+        <div class="pt-1 px-2">
+            <button type="button" onclick="handleLogout()" class="w-full flex items-center gap-2.5 px-3 py-2 text-sm font-semibold text-error hover:bg-error-container/20 rounded-xl transition-colors text-left">
+                <span class="material-symbols-outlined text-[20px]">logout</span>
+                <span>Profilden Çık</span>
+            </button>
+        </div>
+    </div>
 </div>
 </div>
 </header>
@@ -186,10 +229,6 @@
 <div class="hidden md:flex justify-between items-center px-8 w-full h-20 bg-surface-bright shrink-0 sticky top-0 z-30 border-b border-surface-variant/40">
 <h2 class="font-headline-lg text-headline-lg font-bold text-on-background">Bütçeler</h2>
 <div class="flex items-center gap-4">
-<button class="bg-surface-container-lowest border-2 border-outline-variant text-on-surface px-lg py-2 rounded-full font-label-md text-label-md hover:bg-surface-container-low transition-colors flex items-center gap-2">
-<span class="material-symbols-outlined text-[18px]">calendar_month</span>
-<span>Ekim 2026</span>
-</button>
 <button onclick="openBudgetModal()" class="bg-primary text-on-primary px-lg py-2 rounded-full font-label-md text-label-md hover:opacity-90 transition-opacity flex items-center gap-2">
 <span class="material-symbols-outlined text-[18px]">add</span>
 <span>Bütçe Ekle</span>
@@ -197,8 +236,45 @@
 <button aria-label="Bildirimler" class="p-2 text-on-surface-variant hover:bg-surface-container transition-colors rounded-full">
 <span class="material-symbols-outlined">notifications</span>
 </button>
-<div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden shadow-sm cursor-pointer border-2 border-surface-container-lowest shrink-0">
-<img alt="User profile avatar" class="w-full h-full object-cover" src="/Users/macbook/paraasistan/frontend/profile_picture.jpg"/>
+<div class="relative">
+    <div onclick="toggleProfileDropdown(event, this)" class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden shadow-sm cursor-pointer border-2 border-surface-container-lowest shrink-0 hover:ring-2 hover:ring-primary/40 transition-all">
+        <img alt="User profile avatar" class="w-full h-full object-cover" src="/Users/macbook/paraasistan/frontend/profile_picture.jpg"/>
+    </div>
+    <!-- Profile Dropdown (Desktop) -->
+    <div class="profile-dropdown-menu hidden absolute right-0 top-12 w-64 bg-surface-container-lowest rounded-2xl shadow-2xl border border-surface-variant/50 py-2 z-50 animate-in fade-in">
+        <!-- 1. PROFİL (En Üstte) -->
+        <div class="px-4 py-3 border-b border-surface-variant/40">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full overflow-hidden shrink-0 border border-surface-variant">
+                    <img src="/Users/macbook/paraasistan/frontend/profile_picture.jpg" class="w-full h-full object-cover"/>
+                </div>
+                <div class="overflow-hidden">
+                    <p class="menu-user-name font-bold text-sm text-on-surface truncate">Kullanıcı</p>
+                    <p class="menu-user-email text-xs text-on-surface-variant truncate">user@email.com</p>
+                </div>
+            </div>
+        </div>
+        <!-- 2. KURU DEĞİŞTİR (Ortada) -->
+        <div class="px-3 py-3 border-b border-surface-variant/40">
+            <div class="flex items-center justify-between mb-2 px-1">
+                <span class="text-[11px] font-bold tracking-wider text-on-surface-variant uppercase">Kuru Değiştir</span>
+                <span class="current-currency-tag text-xs font-bold px-2 py-0.5 rounded-md bg-primary/10 text-primary">USD ($)</span>
+            </div>
+            <div class="grid grid-cols-4 gap-1 p-1 bg-surface-container-low rounded-xl">
+                <button type="button" onclick="setAppCurrency('USD')" class="btn-curr-USD py-1.5 text-xs font-bold rounded-lg transition-all text-on-surface hover:bg-surface-container-high">$ USD</button>
+                <button type="button" onclick="setAppCurrency('EUR')" class="btn-curr-EUR py-1.5 text-xs font-bold rounded-lg transition-all text-on-surface hover:bg-surface-container-high">€ EUR</button>
+                <button type="button" onclick="setAppCurrency('GBP')" class="btn-curr-GBP py-1.5 text-xs font-bold rounded-lg transition-all text-on-surface hover:bg-surface-container-high">£ GBP</button>
+                <button type="button" onclick="setAppCurrency('TRY')" class="btn-curr-TRY py-1.5 text-xs font-bold rounded-lg transition-all text-on-surface hover:bg-surface-container-high">₺ TRY</button>
+            </div>
+        </div>
+        <!-- 3. PROFİLDEN ÇIK (En Altta) -->
+        <div class="pt-1 px-2">
+            <button type="button" onclick="handleLogout()" class="w-full flex items-center gap-2.5 px-3 py-2 text-sm font-semibold text-error hover:bg-error-container/20 rounded-xl transition-colors text-left">
+                <span class="material-symbols-outlined text-[20px]">logout</span>
+                <span>Profilden Çık</span>
+            </button>
+        </div>
+    </div>
 </div>
 </div>
 </div>
@@ -231,17 +307,17 @@
 </div>
 <!-- Quick Insight / Status -->
 <div class="col-span-1 bg-surface-container-lowest rounded-[2rem] p-lg soft-shadow flex flex-col justify-center items-center text-center">
-<div class="w-16 h-16 rounded-full bg-secondary-container flex items-center justify-center mb-md">
-<span class="material-symbols-outlined text-on-secondary-container text-3xl" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<div id="budget-status-icon-box" class="w-16 h-16 rounded-full bg-secondary-container flex items-center justify-center mb-md transition-colors">
+<span id="budget-status-icon" class="material-symbols-outlined text-on-secondary-container text-3xl" style="font-variation-settings: 'FILL' 1;">check_circle</span>
 </div>
-<h4 class="font-headline-md text-headline-md text-on-surface mb-2">Hedefte / Dengeli</h4>
-<p class="font-body-md text-body-md text-on-surface-variant">Bu ay çoğu kategoride planlanan bütçe limitleriniz dahilinde harcama yapıyorsunuz.</p>
+<h4 id="budget-status-title" class="font-headline-md text-headline-md text-on-surface mb-2">Hedefte / Dengeli</h4>
+<p id="budget-status-desc" class="font-body-md text-body-md text-on-surface-variant">Bu ay planlanan bütçe limitleriniz dahilinde harcama yapıyorsunuz.</p>
 </div>
 </section>
 <!-- Categories Grid -->
 <section>
 <div class="flex justify-between items-end mb-lg">
-<h3 class="font-headline-md text-headline-md text-on-surface">Kategori Budgets</h3>
+<h3 class="font-headline-md text-headline-md text-on-surface">Kategori Bütçeleri</h3>
 </div>
 <div id="budget-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md">
     <!-- Dinamik Bütçe Kartları JavaScript ile buraya basılacak -->
@@ -293,9 +369,9 @@
                 </div>
 
                 <div class="space-y-xs">
-                    <label class="font-label-sm text-label-sm text-on-surface-variant">Aylık Harcama Limiti (₺) *</label>
+                    <label class="font-label-sm text-label-sm text-on-surface-variant">Aylık Harcama Limiti (<span class="app-currency-sym">$</span>) *</label>
                     <div class="relative">
-                        <span class="absolute left-md top-1/2 -translate-y-1/2 text-on-surface-variant font-body-md">₺</span>
+                        <span class="absolute left-md top-1/2 -translate-y-1/2 text-on-surface-variant font-body-md app-currency-sym">$</span>
                         <input id="budget-limit" required step="0.01" min="1" class="w-full pl-xl pr-md py-md bg-surface-container-low border border-surface-variant rounded-xl font-body-md text-on-background focus:ring-2 focus:ring-primary outline-none transition-all" placeholder="Örn: 4000" type="number"/>
                     </div>
                 </div>
@@ -331,7 +407,124 @@
         window.location.href = "login.html";
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
+    // 💱 PARA BİRİMİ YÖNETİMİ
+    function getAppCurrency() {
+        return localStorage.getItem('paraasistan_currency') || 'USD';
+    }
+
+    function getCurrencySymbol(curr) {
+        const symbols = {
+            'USD': '$',
+            'EUR': '€',
+            'GBP': '£',
+            'TRY': '₺'
+        };
+        return symbols[curr] || '$';
+    }
+
+    let liveExchangeRates = {
+        'TRY': 1.0,
+        'USD': 38.5,
+        'EUR': 41.2,
+        'GBP': 48.0
+    };
+
+    async function loadLiveRates() {
+        try {
+            const res = await fetch(`${API_BASE}/currency/rates`, { headers: getAuthHeaders() });
+            if (res.ok) {
+                const data = await res.json();
+                if (data && data.rates) {
+                    liveExchangeRates = { ...liveExchangeRates, ...data.rates, 'TRY': 1.0 };
+                }
+            }
+        } catch (e) {
+            console.warn("Canlı kurlar alınamadı, varsayılan kurlar kullanılıyor:", e);
+        }
+    }
+
+    function convertAmount(amountInTRY) {
+        const curr = getAppCurrency();
+        const rate = liveExchangeRates[curr] || 1.0;
+        return Number(amountInTRY || 0) / rate;
+    }
+
+    function formatMoney(amountInTRY) {
+        const curr = getAppCurrency();
+        const sym = getCurrencySymbol(curr);
+        const val = Number(amountInTRY || 0);
+        const converted = convertAmount(Math.abs(val));
+        const sign = val < 0 ? '-' : '';
+        return `${sign}${sym}${converted.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+
+    function updateCurrencyUI() {
+        const activeCurr = getAppCurrency();
+        const sym = getCurrencySymbol(activeCurr);
+
+        document.querySelectorAll(".current-currency-tag").forEach(el => {
+            el.textContent = `${activeCurr} (${sym})`;
+        });
+
+        document.querySelectorAll(".app-currency-sym").forEach(el => {
+            el.textContent = sym;
+        });
+
+        ['USD', 'EUR', 'GBP', 'TRY'].forEach(c => {
+            document.querySelectorAll(`.btn-curr-${c}`).forEach(btn => {
+                if (c === activeCurr) {
+                    btn.className = `btn-curr-${c} py-1.5 text-xs font-bold rounded-lg transition-all bg-primary text-on-primary shadow-sm`;
+                } else {
+                    btn.className = `btn-curr-${c} py-1.5 text-xs font-bold rounded-lg transition-all text-on-surface hover:bg-surface-container-high`;
+                }
+            });
+        });
+    }
+
+    async function setAppCurrency(curr) {
+        localStorage.setItem('paraasistan_currency', curr);
+        updateCurrencyUI();
+        await loadBudgetsSummary();
+        await loadBudgets();
+        showToast(`Para birimi ${curr} (${getCurrencySymbol(curr)}) olarak ayarlandı`, "success");
+    }
+
+    // 👤 PROFİL MENÜSÜ AÇ/KAPA
+    function toggleProfileDropdown(e, target) {
+        e.stopPropagation();
+        const parent = target.closest('.relative');
+        const menu = parent ? parent.querySelector('.profile-dropdown-menu') : document.querySelector('.profile-dropdown-menu');
+        if (!menu) return;
+        const isHidden = menu.classList.contains('hidden');
+        document.querySelectorAll('.profile-dropdown-menu').forEach(m => m.classList.add('hidden'));
+        if (isHidden) {
+            menu.classList.remove('hidden');
+        }
+    }
+
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.profile-dropdown-menu')) {
+            document.querySelectorAll('.profile-dropdown-menu').forEach(m => m.classList.add('hidden'));
+        }
+    });
+
+    function populateProfileInfo() {
+        try {
+            const userStr = localStorage.getItem("paraasistan_user");
+            if (userStr) {
+                const user = JSON.parse(userStr);
+                document.querySelectorAll(".menu-user-name").forEach(el => el.textContent = user.full_name || "Kullanıcı");
+                document.querySelectorAll(".menu-user-email").forEach(el => el.textContent = user.email || "");
+            }
+        } catch (e) {
+            console.warn("Kullanıcı bilgisi okunamadı:", e);
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", async () => {
+        populateProfileInfo();
+        updateCurrencyUI();
+        await loadLiveRates();
         loadBudgetsSummary();
         loadBudgets();
     });
@@ -399,23 +592,51 @@
             });
             const data = await res.json();
 
-            document.getElementById("budget-total-spent").innerText = `₺${data.total_spent.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}`;
-            document.getElementById("budget-total-limit").innerText = `/ ₺${data.total_budget.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}`;
+            document.getElementById("budget-total-spent").innerText = formatMoney(data.total_spent || 0);
+            document.getElementById("budget-total-limit").innerText = `/ ${formatMoney(data.total_budget || 0)}`;
             document.getElementById("budget-total-percentage").innerText = `%${data.percentage} Harcandı`;
             
             const remEl = document.getElementById("budget-total-remaining");
             if (data.remaining >= 0) {
-                remEl.innerText = `${data.remaining.toLocaleString('tr-TR', { minimumFractionDigits: 2 })} ₺ Kalan`;
+                remEl.innerText = `${formatMoney(data.remaining || 0)} Kalan`;
                 remEl.className = "text-secondary font-medium";
             } else {
-                remEl.innerText = `${Math.abs(data.remaining).toLocaleString('tr-TR', { minimumFractionDigits: 2 })} ₺ Aşıldı!`;
+                remEl.innerText = `${formatMoney(Math.abs(data.remaining || 0))} Aşıldı!`;
                 remEl.className = "text-error font-medium";
             }
 
             const bar = document.getElementById("budget-total-progress");
             const visualPct = Math.min(data.percentage, 100);
             bar.style.width = `${visualPct}%`;
-            bar.className = data.percentage > 100 ? "h-full bg-error rounded-full" : "h-full bg-primary rounded-full";
+            bar.className = data.percentage > 100 ? "h-full bg-error rounded-full" : (data.percentage >= 85 ? "h-full bg-amber-500 rounded-full" : "h-full bg-primary rounded-full");
+
+            // Quick Insight kartını dinamik güncelle:
+            const statusBox = document.getElementById("budget-status-icon-box");
+            const statusIcon = document.getElementById("budget-status-icon");
+            const statusTitle = document.getElementById("budget-status-title");
+            const statusDesc = document.getElementById("budget-status-desc");
+
+            if (data.total_budget === 0) {
+                if (statusBox) statusBox.className = "w-16 h-16 rounded-full bg-surface-container-high flex items-center justify-center mb-md text-on-surface-variant";
+                if (statusIcon) statusIcon.innerText = "account_balance_wallet";
+                if (statusTitle) statusTitle.innerText = "Bütçe Belirlenmedi";
+                if (statusDesc) statusDesc.innerText = "Harcamalarınızı takip etmek için yeni bir kategori bütçesi ekleyin.";
+            } else if (data.percentage > 100) {
+                if (statusBox) statusBox.className = "w-16 h-16 rounded-full bg-error-container text-error flex items-center justify-center mb-md";
+                if (statusIcon) statusIcon.innerText = "warning";
+                if (statusTitle) statusTitle.innerText = "Bütçe Aşıldı!";
+                if (statusDesc) statusDesc.innerText = `Toplam bütçeniz %${(data.percentage - 100).toFixed(1)} oranında aşıldı. Lütfen harcamalarınızı gözden geçirin.`;
+            } else if (data.percentage >= 85) {
+                if (statusBox) statusBox.className = "w-16 h-16 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center mb-md";
+                if (statusIcon) statusIcon.innerText = "error";
+                if (statusTitle) statusTitle.innerText = "Limite Yaklaşıldı";
+                if (statusDesc) statusDesc.innerText = `Bütçenizin %${data.percentage}'si harcandı. Ay sonuna kadar tasarrufa dikkat edin.`;
+            } else {
+                if (statusBox) statusBox.className = "w-16 h-16 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center mb-md";
+                if (statusIcon) statusIcon.innerText = "check_circle";
+                if (statusTitle) statusTitle.innerText = "Hedefte / Dengeli";
+                if (statusDesc) statusDesc.innerText = `Bütçenizin sadece %${data.percentage}'si harcandı. Planlarınıza uygun ilerliyorsunuz.`;
+            }
 
         } catch (err) {
             console.error("Bütçe özeti yüklenemedi:", err);
@@ -452,22 +673,34 @@
 
             budgets.forEach(b => {
                 const isExceeded = b.status === "exceeded";
+                const isWarning = b.status === "warning";
                 const iconName = getCategoryIcon(b.category);
                 const visualPct = Math.min(b.percentage, 100);
 
-                const statusBadge = isExceeded
-                    ? `<span class="inline-block mt-1 px-2 py-1 rounded-full bg-error/10 text-error font-label-sm text-label-sm font-semibold">Bütçe Aşıldı</span>`
-                    : `<span class="inline-block mt-1 px-2 py-1 rounded-full bg-secondary/10 text-secondary font-label-sm text-label-sm font-semibold">Hedefte / Dengeli</span>`;
+                let statusBadge = "";
+                let progressBarColor = "bg-primary";
+                let iconBoxBg = "bg-surface-container-low text-on-surface-variant";
+
+                if (isExceeded) {
+                    statusBadge = `<span class="inline-block mt-1 px-2 py-1 rounded-full bg-error/10 text-error font-label-sm text-label-sm font-semibold">Bütçe Aşıldı</span>`;
+                    progressBarColor = "bg-error";
+                    iconBoxBg = "bg-error-container/50 text-error";
+                } else if (isWarning) {
+                    statusBadge = `<span class="inline-block mt-1 px-2 py-1 rounded-full bg-amber-500/10 text-amber-600 font-label-sm text-label-sm font-semibold">Limite Yaklaştı (%${b.percentage})</span>`;
+                    progressBarColor = "bg-amber-500";
+                    iconBoxBg = "bg-amber-100 text-amber-700";
+                } else {
+                    statusBadge = `<span class="inline-block mt-1 px-2 py-1 rounded-full bg-secondary/10 text-secondary font-label-sm text-label-sm font-semibold">Hedefte / Dengeli</span>`;
+                    progressBarColor = "bg-primary";
+                    iconBoxBg = "bg-surface-container-low text-on-surface-variant";
+                }
 
                 const remainingText = isExceeded
-                    ? `<p class="font-label-sm text-label-sm text-error font-semibold">${Math.abs(b.remaining).toLocaleString('tr-TR', { minimumFractionDigits: 2 })} ₺ aşıldı</p>`
-                    : `<p class="font-label-sm text-label-sm text-on-surface-variant">${b.remaining.toLocaleString('tr-TR', { minimumFractionDigits: 2 })} ₺ kaldı</p>`;
-
-                const progressBarColor = isExceeded ? "bg-error" : "bg-primary";
-                const iconBoxBg = isExceeded ? "bg-error-container/50 text-error" : "bg-surface-container-low text-on-surface-variant";
+                    ? `<p class="font-label-sm text-label-sm text-error font-semibold">${formatMoney(Math.abs(b.remaining || 0))} aşıldı</p>`
+                    : `<p class="font-label-sm text-label-sm text-on-surface-variant">${formatMoney(b.remaining || 0)} kaldı</p>`;
 
                 const card = document.createElement("div");
-                card.className = "bg-surface-container-lowest rounded-[1.5rem] p-md soft-shadow hover:-translate-y-1 transition-transform duration-300";
+                card.className = "bg-surface-container-lowest rounded-[1.5rem] p-md soft-shadow hover:-translate-y-1 transition-transform duration-300 relative group";
                 card.innerHTML = `
                     <div class="flex justify-between items-start mb-lg">
                         <div class="flex items-center gap-3">
@@ -479,11 +712,14 @@
                                 ${statusBadge}
                             </div>
                         </div>
+                        <button onclick="handleDeleteBudget(${b.id}, '${b.category}')" title="Bütçeyi Sil" class="opacity-0 group-hover:opacity-100 p-2 text-outline-variant hover:text-error hover:bg-error-container/20 rounded-full transition-all">
+                            <span class="material-symbols-outlined text-sm">delete</span>
+                        </button>
                     </div>
                     <div class="mb-4">
                         <div class="flex items-end gap-2 mb-1">
-                            <span class="font-headline-md text-headline-md text-on-surface font-bold">₺${b.spent.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</span>
-                            <span class="font-body-md text-body-md text-on-surface-variant">/ ₺${b.monthly_limit.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</span>
+                            <span class="font-headline-md text-headline-md text-on-surface font-bold">${formatMoney(b.spent || 0)}</span>
+                            <span class="font-body-md text-body-md text-on-surface-variant">/ ${formatMoney(b.monthly_limit || 0)}</span>
                         </div>
                         ${remainingText}
                     </div>
@@ -499,15 +735,40 @@
         }
     }
 
+    async function handleDeleteBudget(budgetId, categoryName) {
+        if (!confirm(`'${categoryName}' kategorisine ait bütçeyi silmek istediğinize emin misiniz?`)) return;
+
+        try {
+            const res = await fetch(`${API_BASE}/budgets/${budgetId}`, {
+                method: "DELETE",
+                headers: getAuthHeaders()
+            });
+
+            if (res.ok) {
+                showToast(`'${categoryName}' bütçesi silindi.`, "success");
+                loadBudgetsSummary();
+                loadBudgets();
+            } else {
+                showToast("Bütçe silinemedi!", "error");
+            }
+        } catch (err) {
+            console.error("Bütçe silme hatası:", err);
+            showToast("Bütçe silinirken bir hata oluştu.", "error");
+        }
+    }
+
     async function handleCreateBudget(event) {
         event.preventDefault();
 
         const category = document.getElementById("budget-category").value;
         const limit = parseFloat(document.getElementById("budget-limit").value);
+        const activeCurr = getAppCurrency();
+        const rate = liveExchangeRates[activeCurr] || 1.0;
+        const baseLimitInTRY = limit * rate;
 
         const payload = {
             category: category,
-            monthly_limit: limit
+            monthly_limit: baseLimitInTRY
         };
 
         try {

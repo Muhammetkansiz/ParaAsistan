@@ -147,6 +147,12 @@
                 <span class="font-label-md text-label-md">Bütçeler</span>
             </a>
         </li>
+        <li>
+            <a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-all" href="hedefler.html">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">flag</span>
+                <span class="font-label-md text-label-md">Hedeflerim</span>
+            </a>
+        </li>
     </ul>
     <ul class="px-sm mt-auto space-y-sm border-t border-surface-variant pt-lg">
         <li>
@@ -172,8 +178,45 @@
 <button aria-label="Bildirimler" class="p-sm text-on-surface-variant hover:bg-surface-container transition-colors rounded-full">
 <span class="material-symbols-outlined">notifications</span>
 </button>
-<div class="w-8 h-8 rounded-full bg-surface-container-high overflow-hidden shadow-sm cursor-pointer ml-xs">
-<img alt="User profile avatar" class="w-full h-full object-cover" src="/Users/macbook/paraasistan/frontend/profile_picture.jpg"/>
+<div class="relative">
+    <div onclick="toggleProfileDropdown(event, this)" class="w-8 h-8 rounded-full bg-surface-container-high overflow-hidden shadow-sm cursor-pointer ml-xs border border-surface-variant hover:ring-2 hover:ring-primary/40 transition-all">
+        <img alt="User profile avatar" class="w-full h-full object-cover" src="/Users/macbook/paraasistan/frontend/profile_picture.jpg"/>
+    </div>
+    <!-- Profile Dropdown (Mobile) -->
+    <div class="profile-dropdown-menu hidden absolute right-0 top-12 w-64 bg-surface-container-lowest rounded-2xl shadow-2xl border border-surface-variant/50 py-2 z-50 animate-in fade-in">
+        <!-- 1. PROFİL (En Üstte) -->
+        <div class="px-4 py-3 border-b border-surface-variant/40">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full overflow-hidden shrink-0 border border-surface-variant">
+                    <img src="/Users/macbook/paraasistan/frontend/profile_picture.jpg" class="w-full h-full object-cover"/>
+                </div>
+                <div class="overflow-hidden">
+                    <p class="menu-user-name font-bold text-sm text-on-surface truncate">Kullanıcı</p>
+                    <p class="menu-user-email text-xs text-on-surface-variant truncate">user@email.com</p>
+                </div>
+            </div>
+        </div>
+        <!-- 2. KURU DEĞİŞTİR (Ortada) -->
+        <div class="px-3 py-3 border-b border-surface-variant/40">
+            <div class="flex items-center justify-between mb-2 px-1">
+                <span class="text-[11px] font-bold tracking-wider text-on-surface-variant uppercase">Kuru Değiştir</span>
+                <span class="current-currency-tag text-xs font-bold px-2 py-0.5 rounded-md bg-primary/10 text-primary">USD ($)</span>
+            </div>
+            <div class="grid grid-cols-4 gap-1 p-1 bg-surface-container-low rounded-xl">
+                <button type="button" onclick="setAppCurrency('USD')" class="btn-curr-USD py-1.5 text-xs font-bold rounded-lg transition-all text-on-surface hover:bg-surface-container-high">$ USD</button>
+                <button type="button" onclick="setAppCurrency('EUR')" class="btn-curr-EUR py-1.5 text-xs font-bold rounded-lg transition-all text-on-surface hover:bg-surface-container-high">€ EUR</button>
+                <button type="button" onclick="setAppCurrency('GBP')" class="btn-curr-GBP py-1.5 text-xs font-bold rounded-lg transition-all text-on-surface hover:bg-surface-container-high">£ GBP</button>
+                <button type="button" onclick="setAppCurrency('TRY')" class="btn-curr-TRY py-1.5 text-xs font-bold rounded-lg transition-all text-on-surface hover:bg-surface-container-high">₺ TRY</button>
+            </div>
+        </div>
+        <!-- 3. PROFİLDEN ÇIK (En Altta) -->
+        <div class="pt-1 px-2">
+            <button type="button" onclick="handleLogout()" class="w-full flex items-center gap-2.5 px-3 py-2 text-sm font-semibold text-error hover:bg-error-container/20 rounded-xl transition-colors text-left">
+                <span class="material-symbols-outlined text-[20px]">logout</span>
+                <span>Profilden Çık</span>
+            </button>
+        </div>
+    </div>
 </div>
 </div>
 </header>
@@ -190,8 +233,45 @@
 <button aria-label="Bildirimler" class="p-2 text-on-surface-variant hover:bg-surface-container transition-colors rounded-full">
 <span class="material-symbols-outlined">notifications</span>
 </button>
-<div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden shadow-sm cursor-pointer border-2 border-surface-container-lowest shrink-0">
-<img alt="User profile avatar" class="w-full h-full object-cover" src="/Users/macbook/paraasistan/frontend/profile_picture.jpg"/>
+<div class="relative">
+    <div onclick="toggleProfileDropdown(event, this)" class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden shadow-sm cursor-pointer border-2 border-surface-container-lowest shrink-0 hover:ring-2 hover:ring-primary/40 transition-all">
+        <img alt="User profile avatar" class="w-full h-full object-cover" src="/Users/macbook/paraasistan/frontend/profile_picture.jpg"/>
+    </div>
+    <!-- Profile Dropdown (Desktop) -->
+    <div class="profile-dropdown-menu hidden absolute right-0 top-12 w-64 bg-surface-container-lowest rounded-2xl shadow-2xl border border-surface-variant/50 py-2 z-50 animate-in fade-in">
+        <!-- 1. PROFİL (En Üstte) -->
+        <div class="px-4 py-3 border-b border-surface-variant/40">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full overflow-hidden shrink-0 border border-surface-variant">
+                    <img src="/Users/macbook/paraasistan/frontend/profile_picture.jpg" class="w-full h-full object-cover"/>
+                </div>
+                <div class="overflow-hidden">
+                    <p class="menu-user-name font-bold text-sm text-on-surface truncate">Kullanıcı</p>
+                    <p class="menu-user-email text-xs text-on-surface-variant truncate">user@email.com</p>
+                </div>
+            </div>
+        </div>
+        <!-- 2. KURU DEĞİŞTİR (Ortada) -->
+        <div class="px-3 py-3 border-b border-surface-variant/40">
+            <div class="flex items-center justify-between mb-2 px-1">
+                <span class="text-[11px] font-bold tracking-wider text-on-surface-variant uppercase">Kuru Değiştir</span>
+                <span class="current-currency-tag text-xs font-bold px-2 py-0.5 rounded-md bg-primary/10 text-primary">USD ($)</span>
+            </div>
+            <div class="grid grid-cols-4 gap-1 p-1 bg-surface-container-low rounded-xl">
+                <button type="button" onclick="setAppCurrency('USD')" class="btn-curr-USD py-1.5 text-xs font-bold rounded-lg transition-all text-on-surface hover:bg-surface-container-high">$ USD</button>
+                <button type="button" onclick="setAppCurrency('EUR')" class="btn-curr-EUR py-1.5 text-xs font-bold rounded-lg transition-all text-on-surface hover:bg-surface-container-high">€ EUR</button>
+                <button type="button" onclick="setAppCurrency('GBP')" class="btn-curr-GBP py-1.5 text-xs font-bold rounded-lg transition-all text-on-surface hover:bg-surface-container-high">£ GBP</button>
+                <button type="button" onclick="setAppCurrency('TRY')" class="btn-curr-TRY py-1.5 text-xs font-bold rounded-lg transition-all text-on-surface hover:bg-surface-container-high">₺ TRY</button>
+            </div>
+        </div>
+        <!-- 3. PROFİLDEN ÇIK (En Altta) -->
+        <div class="pt-1 px-2">
+            <button type="button" onclick="handleLogout()" class="w-full flex items-center gap-2.5 px-3 py-2 text-sm font-semibold text-error hover:bg-error-container/20 rounded-xl transition-colors text-left">
+                <span class="material-symbols-outlined text-[20px]">logout</span>
+                <span>Profilden Çık</span>
+            </button>
+        </div>
+    </div>
 </div>
 </div>
 </div>
@@ -239,11 +319,11 @@
 <div class="mt-lg">
 <h4 id="impact-category-title" class="font-label-md text-label-md text-on-surface-variant mb-sm">Bütçe Etki Durumu</h4>
 <div class="w-full bg-surface-container-high h-2 rounded-full overflow-hidden">
-<div id="impact-progress-bar" class="bg-error h-full rounded-full transition-all duration-1000" style="width: 0%;"></div>
+<div id="impact-progress-bar" class="bg-primary h-full rounded-full transition-all duration-1000" style="width: 0%;"></div>
 </div>
 <div class="flex justify-between mt-sm font-label-sm text-label-sm text-on-surface-variant">
-<span>Mevcut: 0 ₺ harcandı</span>
-<span>Yeni Toplam: 0 ₺</span>
+<span id="impact-spent-text">Mevcut: 0 ₺ harcandı</span>
+<span id="impact-new-total">Yeni Toplam: 0 ₺</span>
 </div>
 </div>
 </div>
@@ -253,40 +333,25 @@
 <!-- Birikim Hedefi Impact -->
 <div class="bg-surface-container-lowest rounded-DEFAULT p-md ambient-shadow flex flex-col justify-between">
 <div class="flex items-center gap-sm mb-sm text-secondary">
-<span class="material-symbols-outlined" data-icon="trending_down">trending_down</span>
+<span class="material-symbols-outlined" data-icon="savings">savings</span>
 <span class="font-label-md text-label-md">Birikim Hedefi</span>
 </div>
-<p class="font-body-sm text-body-sm text-on-surface-variant">'Tatil Fonu' hedefini geciktirme:</p>
-<p class="font-headline-md text-headline-md text-error mt-xs">1.5 Ay</p>
+<p id="impact-goal-label" class="font-body-sm text-body-sm text-on-surface-variant">Hedefe etki:</p>
+<p id="impact-goal-delay" class="font-headline-md text-headline-md text-on-surface mt-xs">-</p>
 </div>
 <!-- Recommendation Chip -->
 <div class="bg-surface-container-lowest rounded-DEFAULT p-md ambient-shadow flex flex-col justify-between items-center text-center">
-<span class="material-symbols-outlined text-4xl text-outline-variant mb-sm" data-icon="hourglass_empty">hourglass_empty</span>
-<p class="font-label-md text-label-md text-on-surface">Yapay Zeka Tavsiyesi</p>
+<span id="impact-rec-icon" class="material-symbols-outlined text-4xl text-primary mb-sm" data-icon="psychology">psychology</span>
+<p class="font-label-md text-label-md text-on-surface font-semibold">Yapay Zeka Tavsiyesi</p>
 <p id="impact-suggestion" class="font-body-sm text-body-sm text-on-surface-variant mt-xs">Soru sorduğunuzda yapay zeka tavsiyesi burada görünecektir.</p>
 </div>
 </div>
 <!-- Historical Context -->
 <div class="bg-surface-container-lowest rounded-DEFAULT p-lg ambient-shadow">
-<h3 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider mb-md">Benzer Geçmiş Alışverişler</h3>
-<div class="flex flex-col gap-md">
-<div class="flex justify-between items-center pb-sm border-b border-surface-container-high">
-<div class="flex items-center gap-sm">
-<div class="w-8 h-8 rounded-full bg-surface-container-low flex items-center justify-center text-outline">
-<span class="material-symbols-outlined text-sm" data-icon="computer">computer</span>
-</div>
-<span class="font-body-md text-body-md text-on-surface">Tablet Pro</span>
-</div>
-<span class="font-body-md text-body-md text-on-surface-variant">-18.500 ₺</span>
-</div>
-<div class="flex justify-between items-center">
-<div class="flex items-center gap-sm">
-<div class="w-8 h-8 rounded-full bg-surface-container-low flex items-center justify-center text-outline">
-<span class="material-symbols-outlined text-sm" data-icon="headphones">headphones</span>
-</div>
-<span class="font-body-md text-body-md text-on-surface">Gürültü Engelleyici Kulaklık</span>
-</div>
-<span class="font-body-md text-body-md text-on-surface-variant">-6.500 ₺</span>
+<h3 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider mb-md">Son / Benzer Alışverişler</h3>
+<div id="impact-similar-list" class="flex flex-col gap-md">
+<div class="py-4 text-center text-outline text-body-sm">
+İşlem geçmişi yükleniyor...
 </div>
 </div>
 </div>
@@ -307,6 +372,92 @@
         localStorage.removeItem("paraasistan_token");
         localStorage.removeItem("paraasistan_user");
         window.location.href = "login.html";
+    }
+
+    // 💱 PARA BİRİMİ YÖNETİMİ
+    function getAppCurrency() {
+        return localStorage.getItem('paraasistan_currency') || 'USD';
+    }
+
+    function getCurrencySymbol(curr) {
+        const symbols = {
+            'USD': '$',
+            'EUR': '€',
+            'GBP': '£',
+            'TRY': '₺'
+        };
+        return symbols[curr] || '$';
+    }
+
+    function updateCurrencyUI() {
+        const activeCurr = getAppCurrency();
+        const sym = getCurrencySymbol(activeCurr);
+
+        document.querySelectorAll(".current-currency-tag").forEach(el => {
+            el.textContent = `${activeCurr} (${sym})`;
+        });
+
+        document.querySelectorAll(".app-currency-sym").forEach(el => {
+            el.textContent = sym;
+        });
+
+        ['USD', 'EUR', 'GBP', 'TRY'].forEach(c => {
+            document.querySelectorAll(`.btn-curr-${c}`).forEach(btn => {
+                if (c === activeCurr) {
+                    btn.className = `btn-curr-${c} py-1.5 text-xs font-bold rounded-lg transition-all bg-primary text-on-primary shadow-sm`;
+                } else {
+                    btn.className = `btn-curr-${c} py-1.5 text-xs font-bold rounded-lg transition-all text-on-surface hover:bg-surface-container-high`;
+                }
+            });
+        });
+    }
+
+    function setAppCurrency(curr) {
+        localStorage.setItem('paraasistan_currency', curr);
+        updateCurrencyUI();
+        if (typeof loadInitialPanelContext === 'function') {
+            loadInitialPanelContext();
+        }
+        showToast(`Para birimi ${curr} (${getCurrencySymbol(curr)}) olarak ayarlandı`, "success");
+    }
+
+    // 👤 PROFİL MENÜSÜ AÇ/KAPA
+    function toggleProfileDropdown(e, target) {
+        e.stopPropagation();
+        const parent = target.closest('.relative');
+        const menu = parent ? parent.querySelector('.profile-dropdown-menu') : document.querySelector('.profile-dropdown-menu');
+        if (!menu) return;
+        const isHidden = menu.classList.contains('hidden');
+        document.querySelectorAll('.profile-dropdown-menu').forEach(m => m.classList.add('hidden'));
+        if (isHidden) {
+            menu.classList.remove('hidden');
+        }
+    }
+
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.profile-dropdown-menu')) {
+            document.querySelectorAll('.profile-dropdown-menu').forEach(m => m.classList.add('hidden'));
+        }
+    });
+
+    function populateProfileInfo() {
+        try {
+            const userStr = localStorage.getItem("paraasistan_user");
+            if (userStr) {
+                const user = JSON.parse(userStr);
+                document.querySelectorAll(".menu-user-name").forEach(el => el.textContent = user.full_name || "Kullanıcı");
+                document.querySelectorAll(".menu-user-email").forEach(el => el.textContent = user.email || "");
+            }
+        } catch (e) {
+            console.warn("Kullanıcı bilgisi okunamadı:", e);
+        }
+    }
+
+    function getAuthHeaders() {
+        return {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${localStorage.getItem("paraasistan_token")}`
+        };
     }
 
     async function handleSendChatMessage(event) {
@@ -351,9 +502,19 @@
         try {
             const response = await fetch(`${API_BASE}/ai/chat`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: getAuthHeaders(),
                 body: JSON.stringify({ message: messageText })
             });
+
+            if (response.status === 401) {
+                handleLogout();
+                return;
+            }
+
+            if (!response.ok) {
+                const errData = await response.json().catch(() => ({}));
+                throw new Error(errData.detail || "Sunucudan yanıt alınamadı.");
+            }
 
             const data = await response.json();
             loadingBubble.remove();
@@ -380,33 +541,420 @@
         } catch (error) {
             loadingBubble.remove();
             console.error("Chat hatası:", error);
+            const errBubble = document.createElement("div");
+            errBubble.className = "flex items-start gap-md max-w-[95%]";
+            errBubble.innerHTML = `
+                <div class="w-10 h-10 rounded-full bg-error flex items-center justify-center text-white shrink-0">
+                    <span class="material-symbols-outlined text-sm">error</span>
+                </div>
+                <div class="bg-error-container text-on-error-container p-md rounded-2xl rounded-tl-sm font-body-md text-body-md shadow-sm">
+                    Üzgünüz, bir hata oluştu: ${error.message || 'Lütfen tekrar deneyin.'}
+                </div>
+            `;
+            messagesContainer.appendChild(errBubble);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        populateProfileInfo();
+        updateCurrencyUI();
+        loadInitialPanelContext();
+    });
+
+    async function loadInitialPanelContext() {
+        try {
+            const res = await fetch(`${API_BASE}/ai/panel-context`, {
+                headers: getAuthHeaders()
+            });
+            if (res.status === 401) {
+                handleLogout();
+                return;
+            }
+            if (!res.ok) return;
+            const data = await res.json();
+
+            // 1. Birikim Hedefi:
+            if (data.goal && data.goal.title && data.goal.title !== "Aktif Hedef Yok") {
+                const pct = data.goal.target_amount > 0 ? Math.round((data.goal.current_amount / data.goal.target_amount) * 100) : 0;
+                document.getElementById("impact-goal-label").innerText = `'${data.goal.title}' Hedefi:`;
+                const delayEl = document.getElementById("impact-goal-delay");
+                delayEl.innerText = `%${pct} Birikti`;
+                delayEl.className = "font-headline-md text-headline-md text-secondary mt-xs";
+            } else {
+                document.getElementById("impact-goal-label").innerText = "Birikim Hedefi:";
+                const delayEl = document.getElementById("impact-goal-delay");
+                delayEl.innerText = "Aktif hedef yok";
+                delayEl.className = "font-headline-md text-headline-md text-outline mt-xs";
+            }
+
+            // 2. Bu ayki harcama:
+            if (data.this_month_spent !== undefined) {
+                const sym = getCurrencySymbol(getAppCurrency());
+                document.getElementById("impact-spent-text").innerText = `Mevcut: ${sym}${data.this_month_spent.toLocaleString('en-US', { minimumFractionDigits: 2 })} harcandı`;
+            }
+
+            // 3. Son Alışverişler:
+            renderSimilarTransactions(data.recent_transactions);
+
+        } catch (err) {
+            console.error("Panel context yüklenemedi:", err);
+        }
+    }
+
+    function renderSimilarTransactions(txs) {
+        const listContainer = document.getElementById("impact-similar-list");
+        if (!listContainer) return;
+        if (!txs || txs.length === 0) {
+            listContainer.innerHTML = `<div class="py-4 text-center text-outline text-body-sm">Henüz kayıtlı harcama bulunmuyor.</div>`;
+            return;
+        }
+
+        listContainer.innerHTML = txs.map(tx => `
+            <div class="flex justify-between items-center pb-sm border-b border-surface-container-high last:border-0">
+                <div class="flex items-center gap-sm">
+                    <div class="w-8 h-8 rounded-full bg-surface-container-low flex items-center justify-center text-outline">
+                        <span class="material-symbols-outlined text-sm">shopping_bag</span>
+                    </div>
+                    <div>
+                        <span class="font-body-md text-body-md text-on-surface font-medium block">${tx.description}</span>
+                        <span class="text-[11px] text-outline">${tx.category || 'Gider'}</span>
+                    </div>
+                </div>
+                <span class="font-body-md text-body-md text-error font-semibold">-${getCurrencySymbol(tx.currency || getAppCurrency())}${Number(tx.original_amount !== undefined && tx.original_amount !== null ? tx.original_amount : tx.amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+            </div>
+        `).join('');
     }
 
     function updateImpactPanel(impact) {
-        if (impact.product_name) document.getElementById("impact-product-name").innerText = impact.product_name;
-        if (impact.price) document.getElementById("impact-price").innerText = `₺${impact.price.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}`;
-        if (impact.category) document.getElementById("impact-category-title").innerText = `'${impact.category}' Bütçesine Etkisi`;
-        if (impact.ai_suggestion) document.getElementById("impact-suggestion").innerText = impact.ai_suggestion;
+        if (!impact) return;
+
+        // 1. Ürün adı ve fiyat
+        if (impact.product_name) {
+            const nameEl = document.getElementById("impact-product-name");
+            nameEl.innerText = impact.product_name;
+            nameEl.classList.remove("text-outline");
+        }
+        if (impact.price !== undefined) {
+            const priceEl = document.getElementById("impact-price");
+            priceEl.innerText = `${Number(impact.price).toLocaleString('tr-TR')} ₺`;
+            priceEl.classList.remove("text-outline");
+        }
+        if (impact.category) {
+            document.getElementById("impact-category-title").innerText = `'${impact.category}' Bütçesine Etkisi`;
+        }
+
+        // 2. Mevcut & Yeni Toplam & İlerleme Çubuğu
+        const currentSpent = impact.current_spent || 0;
+        const newTotal = impact.new_total || (currentSpent + (Number(impact.price) || 0));
+        const limit = impact.budget_limit || 0;
+
+        document.getElementById("impact-spent-text").innerText = `Mevcut: ${currentSpent.toLocaleString('tr-TR')} ₺ harcandı`;
+        document.getElementById("impact-new-total").innerText = `Yeni Toplam: ${newTotal.toLocaleString('tr-TR')} ₺`;
 
         const bar = document.getElementById("impact-progress-bar");
-        if (impact.is_budget_exceeded) {
-            bar.className = "bg-error h-full rounded-full transition-all duration-1000";
-            bar.style.width = "100%";
+        let pct = 70;
+        if (limit > 0) {
+            pct = Math.min(100, Math.round((newTotal / limit) * 100));
+        } else if (impact.is_budget_exceeded) {
+            pct = 100;
+        }
+        bar.style.width = `${pct}%`;
+        bar.className = impact.is_budget_exceeded 
+            ? "bg-error h-full rounded-full transition-all duration-1000" 
+            : "bg-primary h-full rounded-full transition-all duration-1000";
+
+        // 3. Birikim Hedefi Etkisi (Dinamik)
+        if (impact.goal_title && impact.goal_title !== "Aktif Hedef Yok") {
+            document.getElementById("impact-goal-label").innerText = `'${impact.goal_title}' hedefini geciktirme:`;
+            const delayEl = document.getElementById("impact-goal-delay");
+            delayEl.innerText = impact.goal_delay_text || "-";
+            delayEl.className = "font-headline-md text-headline-md text-error mt-xs";
         } else {
-            bar.className = "bg-primary h-full rounded-full transition-all duration-1000";
-            bar.style.width = "70%";
+            document.getElementById("impact-goal-label").innerText = "Birikim Hedefi:";
+            const delayEl = document.getElementById("impact-goal-delay");
+            delayEl.innerText = "Aktif hedef yok";
+            delayEl.className = "font-headline-md text-headline-md text-outline mt-xs";
+        }
+
+        // 4. Yapay Zeka Tavsiyesi & İkonu
+        if (impact.ai_suggestion) {
+            document.getElementById("impact-suggestion").innerText = impact.ai_suggestion;
+        }
+        const recIcon = document.getElementById("impact-rec-icon");
+        if (recIcon) {
+            if (impact.is_budget_exceeded) {
+                recIcon.innerText = "warning";
+                recIcon.className = "material-symbols-outlined text-4xl text-error mb-sm";
+            } else {
+                recIcon.innerText = "check_circle";
+                recIcon.className = "material-symbols-outlined text-4xl text-secondary mb-sm";
+            }
+        }
+
+        // 5. Benzer Geçmiş Alışverişler
+        if (impact.similar_transactions && impact.similar_transactions.length > 0) {
+            renderSimilarTransactions(impact.similar_transactions);
         }
     }
 
-    function handleReceiptUpload(event) {
+    function showToast(message, type = "success") {
+        const toast = document.getElementById("toast");
+        const toastMsg = document.getElementById("toast-message");
+        const toastIcon = document.getElementById("toast-icon");
+        if (!toast || !toastMsg || !toastIcon) return;
+
+        toastMsg.innerText = message;
+        if (type === "success") {
+            toast.className = "fixed top-6 right-6 z-50 transform translate-x-0 opacity-100 transition-all duration-300 pointer-events-auto flex items-center gap-3 px-lg py-md rounded-2xl shadow-xl bg-secondary text-on-secondary font-label-md";
+            toastIcon.innerText = "check_circle";
+        } else {
+            toast.className = "fixed top-6 right-6 z-50 transform translate-x-0 opacity-100 transition-all duration-300 pointer-events-auto flex items-center gap-3 px-lg py-md rounded-2xl shadow-xl bg-error text-on-error font-label-md";
+            toastIcon.innerText = "error";
+        }
+
+        setTimeout(() => {
+            toast.classList.remove("translate-x-0", "opacity-100");
+            toast.classList.add("translate-x-full", "opacity-0");
+        }, 3500);
+    }
+
+    async function handleReceiptUpload(event) {
         const file = event.target.files[0];
         if (!file) return;
-        
-        const inputEl = document.getElementById("chat-input");
-        inputEl.value = `Fiş tarandı: ${file.name} (Tutar ve kategori analizi yapılıyor...)`;
-        document.getElementById("chat-form").dispatchEvent(new Event('submit'));
+        event.target.value = ""; // Aynı dosyayı tekrar seçebilmek için sıfırla
+
+        const messagesContainer = document.getElementById("chat-messages");
+
+        // 1. Kullanıcı mesajı (Önizleme resmi ile):
+        const reader = new FileReader();
+        reader.onload = async function(e) {
+            const previewUrl = e.target.result;
+
+            const userBubble = document.createElement("div");
+            userBubble.className = "flex items-start gap-md max-w-[85%] self-end flex-row-reverse";
+            userBubble.innerHTML = `
+                <div class="w-10 h-10 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center shrink-0">
+                    <span class="material-symbols-outlined text-sm">receipt</span>
+                </div>
+                <div class="bg-primary-container text-on-primary-container p-md rounded-2xl rounded-tr-sm font-body-md text-body-md shadow-sm space-y-2">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">photo</span>
+                        <span class="font-medium">Fiş Yüklendi: ${file.name}</span>
+                    </div>
+                    <img src="${previewUrl}" alt="Yüklenen Fiş" class="max-w-[220px] max-h-[160px] rounded-xl object-cover border border-white/20 shadow-sm" />
+                </div>
+            `;
+            messagesContainer.appendChild(userBubble);
+
+            // 2. OCR Yükleniyor Göstergesi:
+            const loadingBubble = document.createElement("div");
+            loadingBubble.id = "receipt-loading-indicator";
+            loadingBubble.className = "flex items-start gap-md max-w-[85%]";
+            loadingBubble.innerHTML = `
+                <div class="w-10 h-10 rounded-full bg-surface-tint flex items-center justify-center text-on-primary shrink-0">
+                    <span class="material-symbols-outlined text-sm">document_scanner</span>
+                </div>
+                <div class="bg-surface-container-low p-md rounded-2xl rounded-tl-sm text-on-surface-variant font-body-md text-body-md shadow-sm flex items-center gap-2">
+                    <span class="material-symbols-outlined animate-spin text-sm">progress_activity</span>
+                    ParaAsistan fişinizi Gemini Vision ile inceliyor ve analiz ediyor...
+                </div>
+            `;
+            messagesContainer.appendChild(loadingBubble);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+            // 3. Backend'e Gönderim:
+            try {
+                const formData = new FormData();
+                formData.append("file", file);
+
+                const response = await fetch(`${API_BASE}/ai/scan-receipt`, {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${localStorage.getItem("paraasistan_token")}`
+                    },
+                    body: formData
+                });
+
+                loadingBubble.remove();
+
+                if (response.status === 401) {
+                    handleLogout();
+                    return;
+                }
+
+                if (!response.ok) {
+                    const errData = await response.json().catch(() => ({}));
+                    throw new Error(errData.detail || "Fiş taranamadı.");
+                }
+
+                const receiptData = await response.json();
+                const uniqueId = "rec-" + Date.now();
+                const cardId = "receipt-btn-" + Date.now();
+
+                // 4. Okunan Fiş Kartı (Düzenlenebilir & Onaylanabilir):
+                const aiBubble = document.createElement("div");
+                aiBubble.className = "flex items-start gap-md max-w-[95%]";
+                aiBubble.innerHTML = `
+                    <div class="w-10 h-10 rounded-full bg-surface-tint flex items-center justify-center text-on-primary shrink-0 shadow-sm">
+                        <span class="material-symbols-outlined text-sm">document_scanner</span>
+                    </div>
+                    <div class="bg-surface-container-low p-lg rounded-2xl rounded-tl-sm text-on-surface font-body-md text-body-md shadow-sm w-full max-w-md space-y-3 border border-outline-variant/30">
+                        <div class="flex items-center justify-between border-b border-surface-variant pb-2">
+                            <span class="font-headline-md text-[16px] font-bold text-primary flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-lg">receipt_long</span>
+                                Fiş Okundu
+                            </span>
+                            <span class="text-[11px] text-outline font-medium">Gerekirse düzenleyin</span>
+                        </div>
+                        
+                        <div class="space-y-2 text-sm">
+                            <div>
+                                <label class="text-[11px] font-semibold text-outline uppercase block mb-1">İşyeri / Mağaza</label>
+                                <input id="rec-merchant-${uniqueId}" value="${receiptData.merchant || ''}" class="w-full px-3 py-1.5 bg-surface-container border border-surface-variant rounded-lg font-semibold text-on-surface text-sm outline-none focus:ring-1 focus:ring-primary" placeholder="İşletme Adı" />
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="text-[11px] font-semibold text-outline uppercase block mb-1">Toplam Tutar</label>
+                                    <input id="rec-amount-${uniqueId}" type="number" step="0.01" value="${receiptData.amount || 0}" oninput="handleReceiptAmountChange('${uniqueId}')" class="w-full px-3 py-1.5 bg-surface-container border border-surface-variant rounded-lg font-bold text-error text-base outline-none focus:ring-1 focus:ring-primary" />
+                                </div>
+                                <div>
+                                    <label class="text-[11px] font-semibold text-outline uppercase block mb-1">Kategori</label>
+                                    <select id="rec-category-${uniqueId}" onchange="handleReceiptCategoryChange('${uniqueId}')" class="w-full px-3 py-1.5 bg-surface-container border border-surface-variant rounded-lg font-medium text-on-surface text-sm outline-none focus:ring-1 focus:ring-primary">
+                                        <option value="Market" ${receiptData.category === 'Market' ? 'selected' : ''}>Market</option>
+                                        <option value="Ulaşım" ${receiptData.category === 'Ulaşım' ? 'selected' : ''}>Ulaşım</option>
+                                        <option value="Teknoloji" ${receiptData.category === 'Teknoloji' ? 'selected' : ''}>Teknoloji</option>
+                                        <option value="Eğlence" ${receiptData.category === 'Eğlence' ? 'selected' : ''}>Eğlence</option>
+                                        <option value="Fatura" ${receiptData.category === 'Fatura' ? 'selected' : ''}>Fatura</option>
+                                        <option value="Kira" ${receiptData.category === 'Kira' ? 'selected' : ''}>Kira</option>
+                                        <option value="Giyim" ${receiptData.category === 'Giyim' ? 'selected' : ''}>Giyim</option>
+                                        <option value="Sağlık" ${receiptData.category === 'Sağlık' ? 'selected' : ''}>Sağlık</option>
+                                        <option value="Eğitim" ${receiptData.category === 'Eğitim' ? 'selected' : ''}>Eğitim</option>
+                                        <option value="Diğer" ${(!receiptData.category || receiptData.category === 'Diğer') ? 'selected' : ''}>Diğer</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-[11px] font-semibold text-outline uppercase block mb-1">İşlem Tarihi</label>
+                                <input id="rec-date-${uniqueId}" type="date" value="${receiptData.date || new Date().toISOString().split('T')[0]}" class="w-full px-3 py-1.5 bg-surface-container border border-surface-variant rounded-lg font-medium text-on-surface text-sm outline-none focus:ring-1 focus:ring-primary" />
+                            </div>
+                        </div>
+
+                        <div class="pt-2">
+                            <button id="${cardId}" onclick="submitEditedReceipt('${uniqueId}', '${cardId}')" class="w-full py-2.5 px-4 bg-primary text-on-primary rounded-xl font-label-md font-semibold flex items-center justify-center gap-2 hover:opacity-90 shadow-sm transition-all">
+                                <span class="material-symbols-outlined text-sm">add_circle</span>
+                                <span>Harcamalarıma Kaydet</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                messagesContainer.appendChild(aiBubble);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+                // 5. Sağ Paneli Güncelle:
+                updateImpactPanel({
+                    product_name: receiptData.merchant,
+                    price: receiptData.amount,
+                    category: receiptData.category,
+                    ai_suggestion: `Fiş okundu: ${receiptData.merchant} (${Number(receiptData.amount).toLocaleString('tr-TR')} ₺). Tutarı gerekirse yukarıdan düzeltip 'Harcamalarıma Kaydet'e tıklayabilirsiniz.`
+                });
+
+            } catch (error) {
+                loadingBubble?.remove();
+                console.error("Receipt OCR hatası:", error);
+                const errBubble = document.createElement("div");
+                errBubble.className = "flex items-start gap-md max-w-[95%]";
+                errBubble.innerHTML = `
+                    <div class="w-10 h-10 rounded-full bg-error flex items-center justify-center text-white shrink-0">
+                        <span class="material-symbols-outlined text-sm">error</span>
+                    </div>
+                    <div class="bg-error-container text-on-error-container p-md rounded-2xl rounded-tl-sm font-body-md text-body-md shadow-sm">
+                        Fiş taranırken bir hata oluştu: ${error.message || 'Lütfen görselin net olduğundan emin olun.'}
+                    </div>
+                `;
+                messagesContainer.appendChild(errBubble);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function handleReceiptAmountChange(uniqueId) {
+        const amount = parseFloat(document.getElementById(`rec-amount-${uniqueId}`)?.value) || 0;
+        const merchant = document.getElementById(`rec-merchant-${uniqueId}`)?.value || "Alışveriş";
+        const category = document.getElementById(`rec-category-${uniqueId}`)?.value || "Diğer";
+        updateImpactPanel({
+            product_name: merchant,
+            price: amount,
+            category: category,
+            ai_suggestion: `Fiş tutarı güncellendi: ${amount.toLocaleString('tr-TR')} ₺.`
+        });
+    }
+
+    function handleReceiptCategoryChange(uniqueId) {
+        handleReceiptAmountChange(uniqueId);
+    }
+
+    async function submitEditedReceipt(uniqueId, btnId) {
+        const btn = document.getElementById(btnId);
+        const merchant = document.getElementById(`rec-merchant-${uniqueId}`)?.value.trim() || "Fiş";
+        const amountStr = document.getElementById(`rec-amount-${uniqueId}`)?.value;
+        const category = document.getElementById(`rec-category-${uniqueId}`)?.value || "Diğer";
+        const dateVal = document.getElementById(`rec-date-${uniqueId}`)?.value || new Date().toISOString().split('T')[0];
+
+        const amount = parseFloat(amountStr);
+        if (isNaN(amount) || amount <= 0) {
+            showToast("Lütfen geçerli bir tutar girin.", "error");
+            return;
+        }
+
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = `<span class="material-symbols-outlined animate-spin text-sm">progress_activity</span> Kaydediliyor...`;
+        }
+
+        try {
+            const payload = {
+                type: "expense",
+                amount: amount,
+                category: category,
+                description: `${merchant} Fişi`,
+                date: dateVal + "T12:00:00"
+            };
+
+            const res = await fetch(`${API_BASE}/transactions`, {
+                method: "POST",
+                headers: getAuthHeaders(),
+                body: JSON.stringify(payload)
+            });
+
+            if (!res.ok) {
+                throw new Error("İşlem kaydedilemedi.");
+            }
+
+            if (btn) {
+                btn.className = "w-full py-2.5 px-4 bg-secondary text-on-secondary rounded-xl font-label-md font-semibold flex items-center justify-center gap-2 cursor-default shadow-sm";
+                btn.innerHTML = `<span class="material-symbols-outlined text-sm">check_circle</span> Harcama Kaydedildi`;
+            }
+
+            showToast(`'${merchant}' (${amount.toLocaleString('tr-TR')} ₺) başarıyla kaydedildi!`, "success");
+            loadInitialPanelContext();
+
+        } catch (err) {
+            console.error("Harcama kaydetme hatası:", err);
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = `<span class="material-symbols-outlined text-sm">add_circle</span> Tekrar Dene`;
+            }
+            showToast("Harcama kaydedilirken hata oluştu.", "error");
+        }
     }
 </script>
+
+<!-- Şık Toast Bildirim Kutusu -->
+<div id="toast" class="fixed top-6 right-6 z-50 transform translate-x-full opacity-0 transition-all duration-300 pointer-events-none flex items-center gap-3 px-lg py-md rounded-2xl shadow-xl text-on-primary font-label-md">
+    <span id="toast-icon" class="material-symbols-outlined text-xl">check_circle</span>
+    <span id="toast-message">İşlem başarılı!</span>
+</div>
 
 </body></html>

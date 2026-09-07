@@ -237,6 +237,12 @@
                 <span class="font-label-md text-label-md">Bütçeler</span>
             </a>
         </li>
+        <li>
+            <a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-all" href="hedefler.html">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">flag</span>
+                <span class="font-label-md text-label-md">Hedeflerim</span>
+            </a>
+        </li>
     </ul>
     <ul class="px-sm mt-auto space-y-sm border-t border-surface-variant pt-lg">
         <li>
@@ -267,8 +273,45 @@
 <button aria-label="Notifications" class="p-sm text-on-surface-variant hover:bg-surface-container transition-colors rounded-full">
 <span class="material-symbols-outlined" data-icon="notifications">notifications</span>
 </button>
-<div class="w-8 h-8 rounded-full bg-surface-container-high overflow-hidden shadow-sm cursor-pointer ml-xs">
-<img alt="User profile avatar" class="w-full h-full object-cover" src="/Users/macbook/paraasistan/frontend/profile_picture.jpg"/>
+<div class="relative">
+    <div onclick="toggleProfileDropdown(event, this)" class="w-8 h-8 rounded-full bg-surface-container-high overflow-hidden shadow-sm cursor-pointer ml-xs border border-surface-variant hover:ring-2 hover:ring-primary/40 transition-all">
+        <img alt="User profile avatar" class="w-full h-full object-cover" src="/Users/macbook/paraasistan/frontend/profile_picture.jpg"/>
+    </div>
+    <!-- Profile Dropdown (Mobile) -->
+    <div class="profile-dropdown-menu hidden absolute right-0 top-12 w-64 bg-surface-container-lowest rounded-2xl shadow-2xl border border-surface-variant/50 py-2 z-50 animate-in fade-in">
+        <!-- 1. PROFİL (En Üstte) -->
+        <div class="px-4 py-3 border-b border-surface-variant/40">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full overflow-hidden shrink-0 border border-surface-variant">
+                    <img src="/Users/macbook/paraasistan/frontend/profile_picture.jpg" class="w-full h-full object-cover"/>
+                </div>
+                <div class="overflow-hidden">
+                    <p class="menu-user-name font-bold text-sm text-on-surface truncate">Kullanıcı</p>
+                    <p class="menu-user-email text-xs text-on-surface-variant truncate">user@email.com</p>
+                </div>
+            </div>
+        </div>
+        <!-- 2. KURU DEĞİŞTİR (Ortada) -->
+        <div class="px-3 py-3 border-b border-surface-variant/40">
+            <div class="flex items-center justify-between mb-2 px-1">
+                <span class="text-[11px] font-bold tracking-wider text-on-surface-variant uppercase">Kuru Değiştir</span>
+                <span class="current-currency-tag text-xs font-bold px-2 py-0.5 rounded-md bg-primary/10 text-primary">USD ($)</span>
+            </div>
+            <div class="grid grid-cols-4 gap-1 p-1 bg-surface-container-low rounded-xl">
+                <button type="button" onclick="setAppCurrency('USD')" class="btn-curr-USD py-1.5 text-xs font-bold rounded-lg transition-all">$ USD</button>
+                <button type="button" onclick="setAppCurrency('EUR')" class="btn-curr-EUR py-1.5 text-xs font-bold rounded-lg transition-all">€ EUR</button>
+                <button type="button" onclick="setAppCurrency('GBP')" class="btn-curr-GBP py-1.5 text-xs font-bold rounded-lg transition-all">£ GBP</button>
+                <button type="button" onclick="setAppCurrency('TRY')" class="btn-curr-TRY py-1.5 text-xs font-bold rounded-lg transition-all">₺ TRY</button>
+            </div>
+        </div>
+        <!-- 3. PROFİLDEN ÇIK (En Altta) -->
+        <div class="pt-1 px-2">
+            <button type="button" onclick="handleLogout()" class="w-full flex items-center gap-2.5 px-3 py-2 text-sm font-semibold text-error hover:bg-error-container/20 rounded-xl transition-colors text-left">
+                <span class="material-symbols-outlined text-[20px]">logout</span>
+                <span>Profilden Çık</span>
+            </button>
+        </div>
+    </div>
 </div>
 </div>
 </header>
@@ -279,8 +322,45 @@
 <button aria-label="Notifications" class="p-2 text-on-surface-variant hover:bg-surface-container transition-colors rounded-full">
 <span class="material-symbols-outlined" data-icon="notifications">notifications</span>
 </button>
-<div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden shadow-sm cursor-pointer border-2 border-surface-container-lowest shrink-0">
-<img alt="User profile avatar" class="w-full h-full object-cover" src="/Users/macbook/paraasistan/frontend/profile_picture.jpg"/>
+<div class="relative">
+    <div onclick="toggleProfileDropdown(event, this)" class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden shadow-sm cursor-pointer border-2 border-surface-container-lowest shrink-0 hover:ring-2 hover:ring-primary/40 transition-all">
+        <img alt="User profile avatar" class="w-full h-full object-cover" src="/Users/macbook/paraasistan/frontend/profile_picture.jpg"/>
+    </div>
+    <!-- Profile Dropdown (Desktop) -->
+    <div class="profile-dropdown-menu hidden absolute right-0 top-12 w-64 bg-surface-container-lowest rounded-2xl shadow-2xl border border-surface-variant/50 py-2 z-50 animate-in fade-in">
+        <!-- 1. PROFİL (En Üstte) -->
+        <div class="px-4 py-3 border-b border-surface-variant/40">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full overflow-hidden shrink-0 border border-surface-variant">
+                    <img src="/Users/macbook/paraasistan/frontend/profile_picture.jpg" class="w-full h-full object-cover"/>
+                </div>
+                <div class="overflow-hidden">
+                    <p class="menu-user-name font-bold text-sm text-on-surface truncate">Kullanıcı</p>
+                    <p class="menu-user-email text-xs text-on-surface-variant truncate">user@email.com</p>
+                </div>
+            </div>
+        </div>
+        <!-- 2. KURU DEĞİŞTİR (Ortada) -->
+        <div class="px-3 py-3 border-b border-surface-variant/40">
+            <div class="flex items-center justify-between mb-2 px-1">
+                <span class="text-[11px] font-bold tracking-wider text-on-surface-variant uppercase">Kuru Değiştir</span>
+                <span class="current-currency-tag text-xs font-bold px-2 py-0.5 rounded-md bg-primary/10 text-primary">USD ($)</span>
+            </div>
+            <div class="grid grid-cols-4 gap-1 p-1 bg-surface-container-low rounded-xl">
+                <button type="button" onclick="setAppCurrency('USD')" class="btn-curr-USD py-1.5 text-xs font-bold rounded-lg transition-all">$ USD</button>
+                <button type="button" onclick="setAppCurrency('EUR')" class="btn-curr-EUR py-1.5 text-xs font-bold rounded-lg transition-all">€ EUR</button>
+                <button type="button" onclick="setAppCurrency('GBP')" class="btn-curr-GBP py-1.5 text-xs font-bold rounded-lg transition-all">£ GBP</button>
+                <button type="button" onclick="setAppCurrency('TRY')" class="btn-curr-TRY py-1.5 text-xs font-bold rounded-lg transition-all">₺ TRY</button>
+            </div>
+        </div>
+        <!-- 3. PROFİLDEN ÇIK (En Altta) -->
+        <div class="pt-1 px-2">
+            <button type="button" onclick="handleLogout()" class="w-full flex items-center gap-2.5 px-3 py-2 text-sm font-semibold text-error hover:bg-error-container/20 rounded-xl transition-colors text-left">
+                <span class="material-symbols-outlined text-[20px]">logout</span>
+                <span>Profilden Çık</span>
+            </button>
+        </div>
+    </div>
 </div>
 </div>
 </header>
@@ -289,13 +369,10 @@
 <section aria-label="Financial Summary" class="grid grid-cols-1 gap-lg lg:grid-cols-3 md:grid-cols-3">
 <!-- Toplam Bakiye -->
 <div class="bg-surface-container-lowest rounded-xl p-xl ambient-shadow flex flex-col justify-between h-full aspect-[4/3] md:aspect-auto">
-<div class="flex justify-between items-start mb-lg">
-<div class="bg-primary-container bg-opacity-10 p-md rounded-xl text-primary">
+<div class="mb-lg">
+<div class="inline-block bg-primary-container bg-opacity-10 p-md rounded-xl text-primary">
 <span class="material-symbols-outlined text-[28px]" data-icon="account_balance">account_balance</span>
 </div>
-<span class="font-label-sm text-label-sm text-secondary flex items-center gap-xs bg-secondary-container bg-opacity-20 px-sm py-xs rounded-full">
-<span class="material-symbols-outlined text-[14px]" data-icon="trending_up">trending_up</span> +2.4%
-        </span>
 </div>
 <div class="mt-auto">
 <p class="font-label-md text-label-md text-on-surface-variant mb-xs">Toplam Bakiye</p>
@@ -304,13 +381,10 @@
 </div>
 <!-- Aylık Gelir -->
 <div class="bg-surface-container-lowest rounded-xl p-xl ambient-shadow flex flex-col justify-between h-full aspect-[4/3] md:aspect-auto">
-<div class="flex justify-between items-start mb-lg">
-<div class="bg-secondary-container bg-opacity-20 p-md rounded-xl text-secondary">
+<div class="mb-lg">
+<div class="inline-block bg-secondary-container bg-opacity-20 p-md rounded-xl text-secondary">
 <span class="material-symbols-outlined text-[28px]" data-icon="arrow_downward">arrow_downward</span>
 </div>
-<span class="font-label-sm text-label-sm text-secondary flex items-center gap-xs bg-secondary-container bg-opacity-20 px-sm py-xs rounded-full">
-<span class="material-symbols-outlined text-[14px]" data-icon="trending_up">trending_up</span> +12%
-        </span>
 </div>
 <div class="mt-auto">
 <p class="font-label-md text-label-md text-on-surface-variant mb-xs">Aylık Gelir</p>
@@ -319,13 +393,10 @@
 </div>
 <!-- Aylık Gider -->
 <div class="bg-surface-container-lowest rounded-xl p-xl ambient-shadow flex flex-col justify-between h-full aspect-[4/3] md:aspect-auto">
-<div class="flex justify-between items-start mb-lg">
-<div class="bg-error-container bg-opacity-20 p-md rounded-xl text-error">
+<div class="mb-lg">
+<div class="inline-block bg-error-container bg-opacity-20 p-md rounded-xl text-error">
 <span class="material-symbols-outlined text-[28px]" data-icon="arrow_upward">arrow_upward</span>
 </div>
-<span class="font-label-sm text-label-sm text-error flex items-center gap-xs bg-error-container bg-opacity-20 px-sm py-xs rounded-full">
-<span class="material-symbols-outlined text-[14px]" data-icon="trending_down">trending_down</span> -5%
-        </span>
 </div>
 <div class="mt-auto">
 <p class="font-label-md text-label-md text-on-surface-variant mb-xs">Aylık Gider</p>
@@ -337,10 +408,10 @@
 <section class="bg-surface-container-lowest rounded-xl p-lg ambient-shadow h-[400px] flex flex-col">
 <div class="flex justify-between items-center mb-lg">
 <h3 class="font-headline-md text-headline-md text-on-background">Nakit Akışı Özeti</h3>
-<select class="bg-surface-container-low border-none rounded-md font-label-md text-label-md text-on-surface-variant py-sm px-md focus:ring-primary focus:ring-2 outline-none cursor-pointer">
-<option>Son 6 Ay</option>
-<option>Bu Yıl</option>
-<option>Tüm Zamanlar</option>
+<select id="dash-cashflow-period" onchange="handlePeriodChange(this.value)" class="bg-surface-container-low border-none rounded-md font-label-md text-label-md text-on-surface-variant py-sm px-md focus:ring-primary focus:ring-2 outline-none cursor-pointer">
+<option value="6months" selected>Son 6 Ay</option>
+<option value="year">Bu Yıl</option>
+<option value="all">Son 12 Ay</option>
 </select>
 </div>
 <div class="flex-1 relative w-full min-h-[260px] pb-sm">
@@ -372,10 +443,10 @@
                 </div>
 
                 <div class="space-y-xs">
-                    <label class="font-label-sm text-label-sm text-on-surface-variant">Tutar (₺) *</label>
+                    <label class="font-label-sm text-label-sm text-on-surface-variant">Tutar (<span class="app-currency-sym">$</span>) *</label>
                     <div class="relative">
-                        <span class="absolute left-md top-1/2 -translate-y-1/2 text-on-surface-variant font-body-md">₺</span>
-                        <input id="dash-tx-amount" required step="0.01" min="0.01" class="w-full pl-xl pr-md py-md bg-surface-container-low border border-surface-variant rounded-xl font-body-md text-on-background focus:ring-2 focus:ring-primary outline-none transition-all" placeholder="0,00" type="number"/>
+                        <span class="absolute left-md top-1/2 -translate-y-1/2 text-on-surface-variant font-body-md app-currency-sym">$</span>
+                        <input id="dash-tx-amount" required step="0.01" min="0.01" class="w-full pl-xl pr-md py-md bg-surface-container-low border border-surface-variant rounded-xl font-body-md text-on-background focus:ring-2 focus:ring-primary outline-none transition-all" placeholder="0.00" type="number"/>
                     </div>
                 </div>
 
@@ -470,9 +541,129 @@
         window.location.href = "login.html";
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
+    // 💱 PARA BİRİMİ & CANLI KUR YÖNETİMİ
+    let liveExchangeRates = {
+        "TRY": 1.0,
+        "USD": 38.5,
+        "EUR": 41.2,
+        "GBP": 48.0
+    };
+
+    async function loadLiveRates() {
+        try {
+            const res = await fetch(`${API_BASE}/currency/rates`);
+            if (res.ok) {
+                const data = await res.json();
+                if (data.USD) liveExchangeRates.USD = Number(data.USD);
+                if (data.EUR) liveExchangeRates.EUR = Number(data.EUR);
+                if (data.GBP) liveExchangeRates.GBP = Number(data.GBP);
+                if (data.TRY) liveExchangeRates.TRY = 1.0;
+            }
+        } catch (e) {
+            console.warn("Canlı kurlar alınamadı, yedek kurlar devrede:", e);
+        }
+    }
+
+    function getAppCurrency() {
+        return localStorage.getItem('paraasistan_currency') || 'USD';
+    }
+
+    function getCurrencySymbol(curr) {
+        const symbols = {
+            'USD': '$',
+            'EUR': '€',
+            'GBP': '£',
+            'TRY': '₺'
+        };
+        return symbols[curr] || '$';
+    }
+
+    function convertAmount(amountInTRY) {
+        const curr = getAppCurrency();
+        const rate = liveExchangeRates[curr] || 1.0;
+        return Number(amountInTRY || 0) / rate;
+    }
+
+    function formatMoney(amountInTRY) {
+        const curr = getAppCurrency();
+        const sym = getCurrencySymbol(curr);
+        const val = Number(amountInTRY || 0);
+        const converted = convertAmount(Math.abs(val));
+        const sign = val < 0 ? '-' : '';
+        return `${sign}${sym}${converted.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+
+    function updateCurrencyUI() {
+        const activeCurr = getAppCurrency();
+        const sym = getCurrencySymbol(activeCurr);
+
+        document.querySelectorAll(".current-currency-tag").forEach(el => {
+            el.textContent = `${activeCurr} (${sym})`;
+        });
+
+        document.querySelectorAll(".app-currency-sym").forEach(el => {
+            el.textContent = sym;
+        });
+
+        ['USD', 'EUR', 'GBP', 'TRY'].forEach(c => {
+            document.querySelectorAll(`.btn-curr-${c}`).forEach(btn => {
+                if (c === activeCurr) {
+                    btn.className = `btn-curr-${c} py-1.5 text-xs font-bold rounded-lg transition-all bg-primary text-on-primary shadow-sm`;
+                } else {
+                    btn.className = `btn-curr-${c} py-1.5 text-xs font-bold rounded-lg transition-all text-on-surface hover:bg-surface-container-high`;
+                }
+            });
+        });
+    }
+
+    async function setAppCurrency(curr) {
+        localStorage.setItem('paraasistan_currency', curr);
+        updateCurrencyUI();
+        await loadDashSummary();
+        const currentPeriod = document.getElementById("dash-cashflow-period")?.value || "6months";
+        initCashFlowChart(currentPeriod);
+        showToast(`Para birimi ${curr} (${getCurrencySymbol(curr)}) olarak ayarlandı`, "success");
+    }
+
+    // 👤 PROFİL MENÜSÜ AÇ/KAPA
+    function toggleProfileDropdown(e, target) {
+        e.stopPropagation();
+        const parent = target.closest('.relative');
+        const menu = parent ? parent.querySelector('.profile-dropdown-menu') : document.querySelector('.profile-dropdown-menu');
+        if (!menu) return;
+        const isHidden = menu.classList.contains('hidden');
+        document.querySelectorAll('.profile-dropdown-menu').forEach(m => m.classList.add('hidden'));
+        if (isHidden) {
+            menu.classList.remove('hidden');
+        }
+    }
+
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.profile-dropdown-menu')) {
+            document.querySelectorAll('.profile-dropdown-menu').forEach(m => m.classList.add('hidden'));
+        }
+    });
+
+    function populateProfileInfo() {
+        try {
+            const userStr = localStorage.getItem("paraasistan_user");
+            if (userStr) {
+                const user = JSON.parse(userStr);
+                document.querySelectorAll(".menu-user-name").forEach(el => el.textContent = user.full_name || "Kullanıcı");
+                document.querySelectorAll(".menu-user-email").forEach(el => el.textContent = user.email || "");
+            }
+        } catch (e) {
+            console.warn("Kullanıcı bilgisi okunamadı:", e);
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", async () => {
         const dateInput = document.getElementById("dash-tx-date");
         if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
+        populateProfileInfo();
+        updateCurrencyUI();
+        await loadLiveRates();
+        updateCurrencyUI();
         loadDashSummary();
         initCashFlowChart();
     });
@@ -486,41 +677,49 @@
         };
     }
 
-    async function initCashFlowChart() {
+    function handlePeriodChange(period) {
+        initCashFlowChart(period);
+    }
+
+    async function initCashFlowChart(period = "6months") {
         const canvas = document.getElementById('cashFlowChart');
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
 
         try {
-            // 1. Backend API'sinden son 6 ayın gerçek veritabanı verilerini çekiyoruz:
-            const res = await fetch(`${API_BASE}/analytics/monthly-cashflow`, {
+            // Seçili periyoda göre veritabanından nakit akışı verilerini çek:
+            const res = await fetch(`${API_BASE}/analytics/monthly-cashflow?period=${period}`, {
                 headers: getAuthHeaders()
             });
             const monthsData = await res.json();
 
             const labels = monthsData.map(d => d.month);
-            const incomeData = monthsData.map(d => d.income);
-            const expenseData = monthsData.map(d => d.expense);
+            // Seçilen kura göre tutarları matematiksel olarak böl:
+            const incomeData = monthsData.map(d => convertAmount(d.income));
+            const expenseData = monthsData.map(d => convertAmount(d.expense));
 
             // Eğer daha önce çizilmişse yok et ve yenisini çiz
             if (cashFlowChartInstance) {
                 cashFlowChartInstance.destroy();
             }
             
+            const curr = getAppCurrency();
+            const sym = getCurrencySymbol(curr);
+
             cashFlowChartInstance = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: labels,
                     datasets: [
                         {
-                            label: 'Gelir (₺)',
+                            label: `Gelir (${sym})`,
                             data: incomeData,
                             backgroundColor: '#10b981', // Zümrüt Yeşili
                             borderRadius: 8,
                             barPercentage: 0.6,
                         },
                         {
-                            label: 'Gider (₺)',
+                            label: `Gider (${sym})`,
                             data: expenseData,
                             backgroundColor: '#f43f5e', // Gül Kurusu / Kırmızı
                             borderRadius: 8,
@@ -546,7 +745,7 @@
                             cornerRadius: 8,
                             callbacks: {
                                 label: function(context) {
-                                    return context.dataset.label + ': ' + context.parsed.y.toLocaleString('tr-TR', { minimumFractionDigits: 2 }) + ' ₺';
+                                    return context.dataset.label + ': ' + sym + context.parsed.y.toLocaleString('en-US', { minimumFractionDigits: 2 });
                                 }
                             }
                         }
@@ -557,7 +756,7 @@
                             grid: { color: 'rgba(0, 0, 0, 0.05)' },
                             ticks: {
                                 callback: function(value) {
-                                    return value.toLocaleString('tr-TR') + ' ₺';
+                                    return sym + value.toLocaleString('en-US');
                                 }
                             }
                         },
@@ -624,9 +823,9 @@
             const expEl = document.getElementById("dash-summary-expense");
             const balEl = document.getElementById("dash-summary-balance");
 
-            if (incEl) incEl.innerText = `+₺${data.total_income.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}`;
-            if (expEl) expEl.innerText = `-₺${data.total_expense.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}`;
-            if (balEl) balEl.innerText = `₺${data.net_balance.toLocaleString('tr-TR', { minimumFractionDigits: 2 })}`;
+            if (incEl) incEl.innerText = `+${formatMoney(data.total_income || 0)}`;
+            if (expEl) expEl.innerText = `-${formatMoney(data.total_expense || 0)}`;
+            if (balEl) balEl.innerText = formatMoney(data.net_balance || 0);
         } catch (err) {
             console.error("Özet yüklenemedi:", err);
         }
@@ -640,13 +839,19 @@
         const category = document.getElementById("dash-tx-category").value;
         const description = document.getElementById("dash-tx-description").value;
         const date = document.getElementById("dash-tx-date").value || new Date().toISOString().split('T')[0];
+        const activeCurr = getAppCurrency();
+        const rate = liveExchangeRates[activeCurr] || 1.0;
+        const baseAmountInTRY = amount * rate;
 
         const payload = {
             type: type,
-            amount: amount,
+            amount: baseAmountInTRY,
             category: category,
             description: description,
-            date: date
+            date: date,
+            currency: activeCurr,
+            original_amount: amount,
+            exchange_rate: rate
         };
 
         try {
@@ -661,7 +866,8 @@
                 setDashType("expense");
                 closeDashSlideOver();
                 loadDashSummary();
-                initCashFlowChart();
+                const currentPeriod = document.getElementById("dash-cashflow-period")?.value || "6months";
+                initCashFlowChart(currentPeriod);
                 showToast("İşlem başarıyla kaydedildi! 🎉", "success");
             } else {
                 const errData = await res.json();
