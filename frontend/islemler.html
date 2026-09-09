@@ -4,6 +4,20 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>ParaAsistan - Tüm İşlemler</title>
+<!-- Anti-flicker Script: Sayfa yüklenirken beyaz parlamayı engeller -->
+<script>
+    (function() {
+        const savedTheme = localStorage.getItem('paraasistan_theme') || 'light';
+        if (savedTheme === 'dark') {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+        if (localStorage.getItem('paraasistan_privacy') === 'true') {
+            document.documentElement.classList.add('privacy-mode');
+        }
+    })();
+</script>
 <!-- Material Symbols -->
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block" rel="stylesheet"/>
 <!-- Google Fonts -->
@@ -19,53 +33,31 @@
     theme: {
       extend: {
         "colors": {
-                "tertiary-container": "#67000a",
-                "surface": "#f7f9fc",
-                "tertiary-fixed": "#ffdad7",
-                "on-error-container": "#93000a",
-                "inverse-primary": "#bdc2ff",
-                "on-tertiary": "#ffffff",
-                "on-tertiary-container": "#ff635f",
-                "surface-bright": "#f7f9fc",
-                "on-primary-fixed-variant": "#343d96",
-                "surface-variant": "#e0e3e6",
-                "on-primary-fixed": "#000767",
-                "error-container": "#ffdad6",
-                "on-secondary-fixed-variant": "#005312",
-                "on-surface": "#191c1e",
-                "secondary-fixed": "#a3f69c",
-                "tertiary": "#400004",
-                "primary-fixed": "#e0e0ff",
-                "secondary": "#1b6d24",
-                "surface-dim": "#d8dadd",
-                "surface-container-low": "#f2f4f7",
-                "error": "#ba1a1a",
-                "on-secondary": "#ffffff",
-                "on-primary-container": "#8690ee",
-                "primary-container": "#1a237e",
-                "secondary-fixed-dim": "#88d982",
-                "on-secondary-container": "#217128",
-                "primary-fixed-dim": "#bdc2ff",
-                "surface-container": "#eceef1",
-                "surface-container-highest": "#e0e3e6",
-                "on-primary": "#ffffff",
-                "on-tertiary-fixed": "#410004",
-                "secondary-container": "#a0f399",
-                "outline-variant": "#c6c5d4",
-                "surface-container-lowest": "#ffffff",
-                "on-error": "#ffffff",
-                "background": "#f7f9fc",
-                "inverse-on-surface": "#eff1f4",
-                "outline": "#767683",
-                "inverse-surface": "#2d3133",
-                "surface-tint": "#4c56af",
-                "on-tertiary-fixed-variant": "#910816",
-                "surface-container-high": "#e6e8eb",
-                "on-secondary-fixed": "#002204",
-                "on-background": "#191c1e",
-                "tertiary-fixed-dim": "#ffb3ae",
-                "on-surface-variant": "#454652",
-                "primary": "#000666"
+            "background": "var(--color-background)",
+            "surface": "var(--color-surface)",
+            "surface-dim": "var(--color-surface-dim)",
+            "surface-bright": "var(--color-surface-bright)",
+            "surface-variant": "var(--color-surface-variant)",
+            "surface-container-lowest": "var(--color-surface-container-lowest)",
+            "surface-container-low": "var(--color-surface-container-low)",
+            "surface-container": "var(--color-surface-container)",
+            "surface-container-high": "var(--color-surface-container-high)",
+            "surface-container-highest": "var(--color-surface-container-highest)",
+            "primary": "var(--color-primary)",
+            "primary-container": "var(--color-primary-container)",
+            "secondary": "var(--color-secondary)",
+            "secondary-container": "var(--color-secondary-container)",
+            "error": "var(--color-error)",
+            "error-container": "var(--color-error-container)",
+            "on-background": "var(--color-on-background)",
+            "on-surface": "var(--color-on-surface)",
+            "on-surface-variant": "var(--color-on-surface-variant)",
+            "on-primary": "var(--color-on-primary)",
+            "on-primary-container": "var(--color-on-primary-container)",
+            "on-secondary": "var(--color-on-secondary)",
+            "on-secondary-container": "var(--color-on-secondary-container)",
+            "outline": "var(--color-outline)",
+            "outline-variant": "var(--color-outline-variant)"
         },
         "borderRadius": {
                 "DEFAULT": "1rem",
@@ -177,9 +169,98 @@
   }
 </script>
 <style>
-        body { background-color: #f7f9fc; }
-        .ambient-shadow { box-shadow: 16px 0 24px rgba(26, 35, 126, 0.05); }
-        .card-shadow { box-shadow: 0 4px 24px rgba(26, 35, 126, 0.05); }
+        :root {
+            --color-background: #f7f9fc;
+            --color-surface: #f7f9fc;
+            --color-surface-dim: #d8dadd;
+            --color-surface-bright: #f7f9fc;
+            --color-surface-variant: #e0e3e6;
+            --color-surface-container-lowest: #ffffff;
+            --color-surface-container-low: #f2f4f7;
+            --color-surface-container: #eceef1;
+            --color-surface-container-high: #e6e8eb;
+            --color-surface-container-highest: #e0e3e6;
+            --color-primary: #000666;
+            --color-primary-container: #1a237e;
+            --color-secondary: #1b6d24;
+            --color-secondary-container: #a0f399;
+            --color-error: #ba1a1a;
+            --color-error-container: #ffdad6;
+            --color-on-background: #191c1e;
+            --color-on-surface: #191c1e;
+            --color-on-surface-variant: #454652;
+            --color-on-primary: #ffffff;
+            --color-on-primary-container: #8690ee;
+            --color-on-secondary: #ffffff;
+            --color-on-secondary-container: #217128;
+            --color-outline: #767683;
+            --color-outline-variant: #c6c5d4;
+        }
+
+        html.dark {
+            --color-background: #000000;
+            --color-surface: #000000;
+            --color-surface-dim: #000000;
+            --color-surface-bright: #0a0a0c;
+            --color-surface-container-lowest: #0a0a0c;
+            --color-surface-container-low: #16181c;
+            --color-surface-container: #1a1d22;
+            --color-surface-container-high: #22262d;
+            --color-surface-container-highest: #2b3038;
+            --color-surface-variant: #16181c;
+            --color-on-background: #e7e9ea;
+            --color-on-surface: #e7e9ea;
+            --color-on-surface-variant: #71767b;
+            --color-outline: #2f3336;
+            --color-outline-variant: #202327;
+            --color-primary: #1d9bf0;
+            --color-on-primary: #ffffff;
+            --color-primary-container: #1a8cd8;
+            --color-on-primary-container: #e8f5fd;
+            --color-secondary: #00ba7c;
+            --color-on-secondary: #ffffff;
+            --color-secondary-container: #064e3b;
+            --color-on-secondary-container: #a7f3d0;
+            --color-error: #f4212e;
+            --color-error-container: #881337;
+            --color-on-error: #ffffff;
+        }
+
+        body { background-color: var(--color-background); }
+        .ambient-shadow { box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05); }
+        html.dark .ambient-shadow {
+            box-shadow: none;
+            border: 1px solid #202327;
+        }
+        .card-shadow { box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04); }
+        html.dark .card-shadow {
+            box-shadow: none;
+            border: 1px solid #202327;
+        }
+        /* 👁️ Gizlilik / Hayalet Modu */
+        html.privacy-mode .privacy-mask {
+            filter: blur(9px) !important;
+            user-select: none !important;
+            transition: filter 0.25s ease;
+        }
+        html.privacy-mode .privacy-mask:hover {
+            filter: blur(2px) !important;
+        }
+        html.dark h2.text-primary {
+            color: var(--color-on-background) !important;
+        }
+        html.dark nav[aria-label="Sidebar Navigation"] h1 {
+            color: #e7e9ea !important;
+        }
+        html.dark nav[aria-label="Sidebar Navigation"] a[aria-current="page"],
+        html.dark nav[aria-label="Sidebar Navigation"] a[aria-current="page"] span {
+            color: #e7e9ea !important;
+            border-color: #e7e9ea !important;
+        }
+        html.dark nav[aria-label="Sidebar Navigation"] a:hover,
+        html.dark nav[aria-label="Sidebar Navigation"] a:hover span {
+            color: #e7e9ea !important;
+        }
         .squircle { border-radius: 40%; }
         
         /* Custom scrollbar for table */
@@ -191,11 +272,11 @@
             background: transparent;
         }
         ::-webkit-scrollbar-thumb {
-            background: #e0e3e6;
+            background: var(--color-outline-variant);
             border-radius: 10px;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: #c6c5d4;
+            background: var(--color-outline);
         }
     </style>
 </head>
@@ -241,6 +322,13 @@
             <a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-all" href="hedefler.html">
                 <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">flag</span>
                 <span class="font-label-md text-label-md">Hedeflerim</span>
+            </a>
+        </li>
+        <!-- YÖNETİCİ PANELİ (Admin ise) -->
+        <li class="admin-sidebar-item hidden">
+            <a class="flex items-center gap-md px-md py-sm rounded-lg text-amber-500 hover:bg-amber-500/10 transition-all font-semibold" href="admin.html">
+                <span class="material-symbols-outlined text-[22px]">admin_panel_settings</span>
+                <span class="font-label-md text-label-md">Yönetici Paneli</span>
             </a>
         </li>
     </ul>
@@ -290,7 +378,24 @@
                 </div>
             </div>
         </div>
-        <!-- 2. KURU DEĞİŞTİR (Ortada) -->
+        <!-- 2. GÖRÜNÜM (Açık / Koyu) -->
+        <div class="px-3 py-2.5 border-b border-surface-variant/40">
+            <div class="flex items-center justify-between mb-1.5 px-1">
+                <span class="text-[11px] font-bold tracking-wider text-on-surface-variant uppercase">Görünüm</span>
+                <span class="current-theme-tag text-xs font-semibold text-outline">Açık</span>
+            </div>
+            <div class="grid grid-cols-2 gap-1 p-1 bg-surface-container-low rounded-xl">
+                <button type="button" onclick="setAppTheme('light')" class="btn-theme-light flex items-center justify-center gap-1.5 py-1.5 text-xs font-bold rounded-lg transition-all">
+                    <span class="material-symbols-outlined text-[16px]">light_mode</span>
+                    <span>Açık</span>
+                </button>
+                <button type="button" onclick="setAppTheme('dark')" class="btn-theme-dark flex items-center justify-center gap-1.5 py-1.5 text-xs font-bold rounded-lg transition-all">
+                    <span class="material-symbols-outlined text-[16px]">dark_mode</span>
+                    <span>Koyu</span>
+                </button>
+            </div>
+        </div>
+        <!-- 3. KURU DEĞİŞTİR (Ortada) -->
         <div class="px-3 py-3 border-b border-surface-variant/40">
             <div class="flex items-center justify-between mb-2 px-1">
                 <span class="text-[11px] font-bold tracking-wider text-on-surface-variant uppercase">Kuru Değiştir</span>
@@ -302,6 +407,13 @@
                 <button type="button" onclick="setAppCurrency('GBP')" class="btn-curr-GBP py-1.5 text-xs font-bold rounded-lg transition-all text-on-surface hover:bg-surface-container-high">£ GBP</button>
                 <button type="button" onclick="setAppCurrency('TRY')" class="btn-curr-TRY py-1.5 text-xs font-bold rounded-lg transition-all text-on-surface hover:bg-surface-container-high">₺ TRY</button>
             </div>
+        </div>
+        <!-- YÖNETİCİ KONSOLU (Admin ise) -->
+        <div class="admin-panel-link-container hidden pt-1 px-2 border-b border-surface-variant/40 pb-1">
+            <a href="admin.html" class="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-amber-400 hover:bg-amber-500/10 rounded-xl transition-colors">
+                <span class="material-symbols-outlined text-[18px]">admin_panel_settings</span>
+                <span>Yönetici Paneli</span>
+            </a>
         </div>
         <!-- 3. PROFİLDEN ÇIK (En Altta) -->
         <div class="pt-1 px-2">
@@ -334,36 +446,36 @@
 <!-- Summary Cards (Bento Style) -->
 <section class="grid grid-cols-1 gap-lg lg:grid-cols-3 md:grid-cols-3 mb-xl">
 <!-- Total Income -->
-<div class="bg-surface-container-lowest rounded-3xl p-lg card-shadow flex flex-col justify-between">
-<div class="flex justify-between items-start mb-md">
-<div class="bg-secondary-container bg-opacity-20 p-md rounded-xl text-secondary">
-<span class="material-symbols-outlined text-[28px]">arrow_downward</span>
+<div class="bg-surface-container-lowest rounded-3xl p-6 card-shadow flex flex-col justify-between">
+<div class="flex justify-between items-center mb-4">
+<div class="w-11 h-11 rounded-full bg-secondary-container/20 text-secondary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[24px] font-bold">arrow_upward</span>
 </div>
-<p class="font-label-sm text-label-sm text-outline uppercase tracking-wider mt-2">Toplam Gelir</p>
+<p class="font-label-sm text-label-sm text-outline uppercase tracking-wider font-semibold">Toplam Gelir</p>
 </div>
 <div class="mt-auto">
-<h3 id="summary-income" class="font-headline-lg text-[28px] md:text-[32px] text-on-background font-bold truncate tracking-tight">₺0.00</h3>
+<h3 id="summary-income" onclick="togglePrivacyMode()" class="privacy-mask font-headline-lg text-[28px] md:text-[32px] text-on-background font-bold truncate tracking-tight cursor-pointer select-none" title="Bakiyeleri gizlemek veya göstermek için tıklayın">₺0.00</h3>
 </div>
 </div>
 <!-- Total Expenses -->
-<div class="bg-surface-container-lowest rounded-3xl p-lg card-shadow flex flex-col justify-between">
-<div class="flex justify-between items-start mb-md">
-<div class="bg-error-container bg-opacity-20 p-md rounded-xl text-error">
-<span class="material-symbols-outlined text-[28px]">arrow_upward</span>
+<div class="bg-surface-container-lowest rounded-3xl p-6 card-shadow flex flex-col justify-between">
+<div class="flex justify-between items-center mb-4">
+<div class="w-11 h-11 rounded-full bg-error-container/20 text-error flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[24px] font-bold">arrow_downward</span>
 </div>
-<p class="font-label-sm text-label-sm text-outline uppercase tracking-wider mt-2">Toplam Gider</p>
+<p class="font-label-sm text-label-sm text-outline uppercase tracking-wider font-semibold">Toplam Gider</p>
 </div>
 <div class="mt-auto">
-<h3 id="summary-expense" class="font-headline-lg text-[28px] md:text-[32px] text-on-background font-bold truncate tracking-tight">₺0.00</h3>
+<h3 id="summary-expense" onclick="togglePrivacyMode()" class="privacy-mask font-headline-lg text-[28px] md:text-[32px] text-on-background font-bold truncate tracking-tight cursor-pointer select-none" title="Bakiyeleri gizlemek veya göstermek için tıklayın">₺0.00</h3>
 </div>
 </div>
 <!-- Net Balance -->
-<div class="bg-surface-container-lowest rounded-3xl p-lg card-shadow flex flex-col justify-between relative overflow-hidden">
+<div class="bg-surface-container-lowest rounded-3xl p-6 card-shadow flex flex-col justify-between relative overflow-hidden">
 <div class="absolute -right-12 -top-12 w-48 h-48 bg-primary/5 rounded-full blur-2xl"></div>
 <div class="z-10 flex flex-col h-full">
-<p class="font-label-sm text-label-sm text-outline uppercase tracking-wider mb-2">Net Bakiye</p>
+<p class="font-label-sm text-label-sm text-outline uppercase tracking-wider font-semibold mb-4">Net Bakiye</p>
 <div class="mt-auto">
-<h3 id="summary-balance" class="font-display text-[32px] md:text-display text-primary font-bold truncate tracking-tight">₺0.00</h3>
+<h3 id="summary-balance" onclick="togglePrivacyMode()" class="privacy-mask font-display text-[32px] md:text-display text-primary dark:text-on-background font-bold truncate tracking-tight cursor-pointer select-none" title="Bakiyeleri gizlemek veya göstermek için tıklayın">₺0.00</h3>
 </div>
 </div>
 </div>
@@ -564,7 +676,7 @@
 
     // 💱 PARA BİRİMİ YÖNETİMİ
     function getAppCurrency() {
-        return localStorage.getItem('paraasistan_currency') || 'USD';
+        return localStorage.getItem('paraasistan_currency') || 'TRY';
     }
 
     function getCurrencySymbol(curr) {
@@ -574,7 +686,7 @@
             'GBP': '£',
             'TRY': '₺'
         };
-        return symbols[curr] || '$';
+        return symbols[curr] || '₺';
     }
 
     let liveExchangeRates = {
@@ -636,6 +748,85 @@
         });
     }
 
+    // 🌓 TEMA YÖNETİMİ (AÇIK / KOYU)
+    function getAppTheme() {
+        return localStorage.getItem('paraasistan_theme') || 'light';
+    }
+
+    function setAppTheme(theme) {
+        localStorage.setItem('paraasistan_theme', theme);
+        if (theme === 'dark') {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+        updateThemeUI();
+        showToast(theme === 'dark' ? 'Karanlık tema aktif edildi 🌙' : 'Aydınlık tema aktif edildi ☀️', 'success');
+    }
+
+    function updateThemeUI() {
+        const theme = getAppTheme();
+        const isDark = theme === 'dark';
+        if (isDark) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+
+        document.querySelectorAll('.current-theme-tag').forEach(tag => {
+            tag.innerText = isDark ? 'Koyu 🌙' : 'Açık ☀️';
+        });
+
+        ['light', 'dark'].forEach(t => {
+            document.querySelectorAll(`.btn-theme-${t}`).forEach(btn => {
+                if (t === theme) {
+                    btn.className = `btn-theme-${t} flex items-center justify-center gap-1.5 py-1.5 text-xs font-bold rounded-lg transition-all bg-primary text-on-primary shadow-sm`;
+                } else {
+                    btn.className = `btn-theme-${t} flex items-center justify-center gap-1.5 py-1.5 text-xs font-bold rounded-lg transition-all text-on-surface hover:bg-surface-container-high`;
+                }
+            });
+        });
+    }
+
+    // 👁️ GİZLİLİK MODU (HAYALET MODU)
+    function isPrivacyMode() {
+        return localStorage.getItem('paraasistan_privacy') === 'true';
+    }
+
+    function togglePrivacyMode() {
+        const nextState = !isPrivacyMode();
+        localStorage.setItem('paraasistan_privacy', nextState ? 'true' : 'false');
+        updatePrivacyUI();
+    }
+
+    function updatePrivacyUI() {
+        const active = isPrivacyMode();
+        if (active) {
+            document.documentElement.classList.add('privacy-mode');
+        } else {
+            document.documentElement.classList.remove('privacy-mode');
+        }
+
+        document.querySelectorAll('.privacy-toggle-icon').forEach(icon => {
+            icon.innerText = active ? 'visibility_off' : 'visibility';
+            icon.className = active 
+                ? 'privacy-toggle-icon material-symbols-outlined text-[22px] text-amber-500' 
+                : 'privacy-toggle-icon material-symbols-outlined text-[22px] text-on-surface-variant';
+        });
+
+        document.querySelectorAll('.btn-privacy-toggle').forEach(btn => {
+            btn.title = active ? "Bakiyeleri Göster (Kısayol: H)" : "Bakiyeleri Gizle (Kısayol: H)";
+        });
+    }
+
+    // Klavye Kısayolu: H tuşuna basınca gizle/aç
+    document.addEventListener('keydown', (e) => {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        if (e.key === 'h' || e.key === 'H') {
+            togglePrivacyMode();
+        }
+    });
+
     async function setAppCurrency(curr) {
         localStorage.setItem('paraasistan_currency', curr);
         updateCurrencyUI();
@@ -663,13 +854,31 @@
         }
     });
 
-    function populateProfileInfo() {
+    async function populateProfileInfo() {
         try {
             const userStr = localStorage.getItem("paraasistan_user");
             if (userStr) {
                 const user = JSON.parse(userStr);
                 document.querySelectorAll(".menu-user-name").forEach(el => el.textContent = user.full_name || "Kullanıcı");
                 document.querySelectorAll(".menu-user-email").forEach(el => el.textContent = user.email || "");
+                if (user.is_admin) {
+                    document.querySelectorAll(".admin-sidebar-item, .admin-panel-link-container").forEach(el => el.classList.remove("hidden"));
+                }
+            }
+            const token = localStorage.getItem("paraasistan_token");
+            if (token) {
+                const res = await fetch(`${API_BASE}/auth/me`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const freshUser = await res.json();
+                    localStorage.setItem("paraasistan_user", JSON.stringify(freshUser));
+                    if (freshUser.is_admin) {
+                        document.querySelectorAll(".admin-sidebar-item, .admin-panel-link-container").forEach(el => el.classList.remove("hidden"));
+                    } else {
+                        document.querySelectorAll(".admin-sidebar-item, .admin-panel-link-container").forEach(el => el.classList.add("hidden"));
+                    }
+                }
             }
         } catch (e) {
             console.warn("Kullanıcı bilgisi okunamadı:", e);
@@ -768,6 +977,8 @@
     }
 
     document.addEventListener("DOMContentLoaded", async () => {
+        updateThemeUI();
+        updatePrivacyUI();
         const dateInput = document.getElementById("tx-date");
         if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
         populateProfileInfo();
@@ -977,7 +1188,7 @@
                             ${tx.category}
                         </span>
                     </td>
-                    <td class="py-md font-label-md text-label-md ${amountColor} text-right">${amountFormatted}</td>
+                    <td onclick="togglePrivacyMode()" class="privacy-mask py-md font-label-md text-label-md ${amountColor} text-right cursor-pointer select-none" title="Bakiyeleri gizlemek veya göstermek için tıklayın">${amountFormatted}</td>
                     <td class="py-md text-right pl-md">
                         <button onclick="deleteTransaction(${tx.id})" title="Sil" class="text-outline hover:text-error transition-colors p-1 rounded-full hover:bg-surface-container">
                             <span class="material-symbols-outlined text-sm">delete</span>

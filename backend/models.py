@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, DateTime, Text
+from sqlalchemy import Column, Integer, String, Float, DateTime, Text, Boolean
 from database import Base
 import datetime
 
@@ -22,6 +22,8 @@ class User(Base):
     email = Column(String, unique=True, index=True, nullable=False)    
     hashed_password = Column(String, nullable=False)               
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    is_admin = Column(Boolean, default=False)
+    is_active = Column(Boolean, default=True)
 
 class Category(Base):
     __tablename__ = "categories"

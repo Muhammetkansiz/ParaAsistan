@@ -69,5 +69,17 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     user = db.query(models.User).filter(models.User.id == int(user_id)).first()
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Kullanıcı bulunamadı, lütfen tekrar giriş yapın!")
+    
+    if not getattr(user, "is_active", True):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Hesabınız askıya alınmıştır! Lütfen yönetici ile iletişime geçin.")
         
     return user
+
+def get_current_admin_user(current_user: models.User = Depends(get_current_user)):
+    """Sadece yönetici (is_admin == True) olan kullanıcılara izin verir."""
+    if not getattr(current_user, "is_admin", False):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Bu işlem için Yönetici (Admin) yetkisi gerekiyor!"
+        )
+    return current_user

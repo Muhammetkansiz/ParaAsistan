@@ -5,6 +5,7 @@ from sqlalchemy import func, extract, text
 from typing import List, Optional
 import datetime
 import calendar
+import time
 from database import engine, Base, get_db, SessionLocal
 import models
 import schemas
@@ -21,7 +22,11 @@ def migrate_db_columns():
             conn.execute(text("ALTER TABLE transactions ADD COLUMN IF NOT EXISTS currency VARCHAR DEFAULT 'TRY';"))
             conn.execute(text("ALTER TABLE transactions ADD COLUMN IF NOT EXISTS original_amount FLOAT;"))
             conn.execute(text("ALTER TABLE transactions ADD COLUMN IF NOT EXISTS exchange_rate FLOAT DEFAULT 1.0;"))
-        print("✅ Veritabanı para birimi kolonları başarıyla eşitlendi.")
+            conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS is_admin BOOLEAN DEFAULT FALSE;"))
+            conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT TRUE;"))
+            # İlk kayıtlı kullanıcıyı otomatik admin yapalım
+            conn.execute(text("UPDATE users SET is_admin = TRUE WHERE id = (SELECT min(id) FROM users);"))
+        print("✅ Veritabanı kolonları ve admin yetkisi başarıyla eşitlendi.")
     except Exception as e:
         print("⚠️ Migration uyarısı:", e)
 
@@ -593,6 +598,17 @@ def get_ai_panel_context(
     return ai_service.get_panel_context(db, user_id=current_user.id)
 
 
+@app.get("/api/ai/daily-briefing", tags=["Yapay Zeka"])
+async def get_daily_briefing(
+    force_refresh: bool = Query(False, description="Zorla yenileme bayrağı"),
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    """Kullanıcının gerçek finansal verilerini analiz edip kişiselleştirilmiş günlük AI brifingi döner."""
+    briefing = await ai_service.generate_daily_briefing(db, current_user.id, force_refresh=force_refresh)
+    return briefing
+
+
 @app.post("/api/ai/scan-receipt", tags=["Yapay Zeka"])
 async def scan_receipt(
     file: UploadFile = File(...),
@@ -604,6 +620,14 @@ async def scan_receipt(
 
     contents = await file.read()
     receipt_data = await ai_service.scan_receipt_with_gemini(contents, file.content_type)
+    
+    # Guardrails: Eğer fiş harici uygunsuz bir belge (kimlik, kart vb.) tespit edildiyse reddet
+    if not receipt_data.get("is_valid_receipt", True):
+        raise HTTPException(
+            status_code=400,
+            detail=receipt_data.get("error", "Yüklenen görsel geçerli bir fiş veya fatura değildir. Güvenlik politikası gereği kimlik veya kart belgeleri işlenemez.")
+        )
+
     return receipt_data
 
 
@@ -639,6 +663,9 @@ def login(login_data: schemas.UserLogin, db: Session = Depends(get_db)):
     if not auth.verify_password(login_data.password, user.hashed_password):
         raise HTTPException(status_code=401, detail="E-posta veya şifre hatalı!")
 
+    if not getattr(user, "is_active", True):
+        raise HTTPException(status_code=403, detail="Hesabınız yönetici tarafından askıya alınmıştır! Lütfen destek ile iletişime geçin.")
+
     token = auth.create_access_token({"sub": str(user.id), "email": user.email})
     return {
         "access_token": token,
@@ -646,8 +673,22 @@ def login(login_data: schemas.UserLogin, db: Session = Depends(get_db)):
         "user": {
             "id": user.id,
             "full_name": user.full_name,
-            "email": user.email
+            "email": user.email,
+            "is_admin": getattr(user, "is_admin", False),
+            "is_active": getattr(user, "is_active", True)
         }
+    }
+
+
+@app.get("/api/auth/me", tags=["Kimlik Doğrulama"])
+def get_me(current_user: models.User = Depends(get_current_user)):
+    return {
+        "id": current_user.id,
+        "full_name": current_user.full_name,
+        "email": current_user.email,
+        "is_admin": getattr(current_user, "is_admin", False),
+        "is_active": getattr(current_user, "is_active", True),
+        "created_at": current_user.created_at
     }
 
 
@@ -765,4 +806,160 @@ def delete_goal(
     db.delete(goal)
     db.commit()
     return None
+
+
+# --- YÖNETİCİ (ADMIN) PANELİ API'LERİ ---
+from auth import get_current_admin_user
+
+@app.get("/api/admin/stats", response_model=schemas.AdminStatsResponse, tags=["Yönetici Paneli"])
+def get_admin_stats(
+    db: Session = Depends(get_db),
+    admin: models.User = Depends(get_current_admin_user)
+):
+    """Sistem genelindeki KPI metriklerini döner."""
+    total_users = db.query(models.User).count()
+    total_tx = db.query(models.Transaction).count()
+    vol_sum = db.query(func.sum(models.Transaction.amount)).scalar() or 0.0
+    total_goals = db.query(models.Goal).count()
+    total_chat = db.query(models.ChatMessage).count()
+    
+    seven_days_ago = datetime.datetime.utcnow() - datetime.timedelta(days=7)
+    new_users = db.query(models.User).filter(models.User.created_at >= seven_days_ago).count()
+    
+    return schemas.AdminStatsResponse(
+        total_users=total_users,
+        total_transactions=total_tx,
+        total_volume=round(float(vol_sum), 2),
+        total_goals=total_goals,
+        total_chat_messages=total_chat,
+        new_users_last_7_days=new_users
+    )
+
+@app.get("/api/admin/users", response_model=List[schemas.AdminUserItem], tags=["Yönetici Paneli"])
+def get_admin_users(
+    db: Session = Depends(get_db),
+    admin: models.User = Depends(get_current_admin_user)
+):
+    """Tüm kullanıcıları, işlem sayılarını ve harcama toplamlarını döner."""
+    users = db.query(models.User).order_by(models.User.id.desc()).all()
+    user_list = []
+    
+    for u in users:
+        tx_count = db.query(models.Transaction).filter(models.Transaction.user_id == u.id).count()
+        spent = db.query(func.sum(models.Transaction.amount)).filter(
+            models.Transaction.user_id == u.id,
+            models.Transaction.type == "expense"
+        ).scalar() or 0.0
+        income = db.query(func.sum(models.Transaction.amount)).filter(
+            models.Transaction.user_id == u.id,
+            models.Transaction.type == "income"
+        ).scalar() or 0.0
+        
+        user_list.append(schemas.AdminUserItem(
+            id=u.id,
+            full_name=u.full_name,
+            email=u.email,
+            is_admin=bool(getattr(u, "is_admin", False)),
+            is_active=bool(getattr(u, "is_active", True)),
+            created_at=u.created_at or datetime.datetime.utcnow(),
+            transactions_count=tx_count,
+            total_spent=round(float(spent), 2),
+            total_income=round(float(income), 2)
+        ))
+        
+    return user_list
+
+@app.post("/api/admin/users/{user_id}/toggle-admin", tags=["Yönetici Paneli"])
+def toggle_user_admin(
+    user_id: int,
+    db: Session = Depends(get_db),
+    admin: models.User = Depends(get_current_admin_user)
+):
+    """Kullanıcının admin yetkisini açar veya kapatır."""
+    if user_id == admin.id:
+        raise HTTPException(status_code=400, detail="Kendi admin yetkinizi kaldıramazsınız!")
+        
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Kullanıcı bulunamadı!")
+        
+    user.is_admin = not getattr(user, "is_admin", False)
+    db.commit()
+    return {"message": f"{user.full_name} kullanıcısının admin yetkisi {'verildi' if user.is_admin else 'alındı'}.", "is_admin": user.is_admin}
+
+@app.post("/api/admin/users/{user_id}/toggle-active", tags=["Yönetici Paneli"])
+def toggle_user_active(
+    user_id: int,
+    db: Session = Depends(get_db),
+    admin: models.User = Depends(get_current_admin_user)
+):
+    """Kullanıcının hesabını askıya alır veya yeniden aktif eder."""
+    if user_id == admin.id:
+        raise HTTPException(status_code=400, detail="Kendi hesabınızı askıya alamazsınız!")
+        
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Kullanıcı bulunamadı!")
+        
+    user.is_active = not getattr(user, "is_active", True)
+    db.commit()
+    return {"message": f"{user.full_name} hesabı {'aktif edildi' if user.is_active else 'askıya alındı'}.", "is_active": user.is_active}
+
+@app.delete("/api/admin/users/{user_id}", tags=["Yönetici Paneli"])
+def delete_user_by_admin(
+    user_id: int,
+    db: Session = Depends(get_db),
+    admin: models.User = Depends(get_current_admin_user)
+):
+    """Kullanıcıyı ve ilişkili tüm verilerini sistemden siler."""
+    if user_id == admin.id:
+        raise HTTPException(status_code=400, detail="Kendi hesabınızı silemezsiniz!")
+        
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Kullanıcı bulunamadı!")
+        
+    # Kullanıcının ilişkili kayıtlarını temizle
+    db.query(models.Transaction).filter(models.Transaction.user_id == user_id).delete()
+    db.query(models.RecurringTransaction).filter(models.RecurringTransaction.user_id == user_id).delete()
+    db.query(models.Budget).filter(models.Budget.user_id == user_id).delete()
+    db.query(models.Goal).filter(models.Goal.user_id == user_id).delete()
+    db.delete(user)
+    db.commit()
+    return {"message": f"{user.full_name} kullanıcısı ve tüm verileri silindi."}
+
+@app.get("/api/admin/system-health", tags=["Yönetici Paneli"])
+def get_system_health(
+    db: Session = Depends(get_db),
+    admin: models.User = Depends(get_current_admin_user)
+):
+    """Sistem bileşenlerinin canlılık ve sağlık durumunu denetler."""
+    import ai_service
+    start_time = time.time()
+    gemini_ready = bool(getattr(ai_service, "GEMINI_API_KEY", ""))
+    
+    health_data = {
+        "status": "healthy",
+        "database": False,
+        "gemini_api": gemini_ready,
+        "latency_ms": 0,
+        "message": "Tüm sistemler çalışır durumda."
+    }
+
+    # 1. Veritabanı canlılık testi (SELECT 1 sorgusu)
+    try:
+        db.execute(text("SELECT 1"))
+        health_data["database"] = True
+    except Exception as e:
+        health_data["status"] = "error"
+        health_data["database"] = False
+        health_data["message"] = f"Veritabanı hatası: {str(e)}"
+
+    # 2. Gecikme (Latency) hesaplama
+    latency = round((time.time() - start_time) * 1000, 2)
+    health_data["latency_ms"] = latency
+
+    return health_data
+
+
 

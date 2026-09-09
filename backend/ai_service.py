@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 from sqlalchemy.orm import Session
 from sqlalchemy import func, extract
 import models
+from guardrails import AIGuardrails
 
 # 1. .env Dosyasından API Anahtarını Yükle:
 load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
@@ -109,7 +110,9 @@ def get_panel_context(db: Session, user_id: Optional[int] = None) -> dict:
             {
                 "description": tx.description or tx.category,
                 "amount": tx.amount,
-                "category": tx.category
+                "category": tx.category,
+                "currency": getattr(tx, "currency", "TRY") or "TRY",
+                "original_amount": getattr(tx, "original_amount", tx.amount)
             }
             for tx in recent_txs
         ],
@@ -197,14 +200,245 @@ def enrich_ai_impact(db: Session, user_id: Optional[int], impact: Optional[dict]
     return impact
 
 
+# --- 📊 DİNAMİK AI GÜNLÜK & HAFTALIK FİNANSAL BRİFİNG MOTORU ---
+_BRIEFING_CACHE = {}
+
+def calculate_weekly_financial_metrics(db: Session, user_id: int) -> dict:
+    import calendar
+    now = datetime.datetime.now()
+    seven_days_ago = now - datetime.timedelta(days=7)
+    fourteen_days_ago = now - datetime.timedelta(days=14)
+
+    tx_query = db.query(models.Transaction).filter(models.Transaction.user_id == user_id)
+    
+    # 1. Bu haftaki harcama (son 7 gün):
+    this_week_spent = tx_query.filter(
+        models.Transaction.type == "expense",
+        models.Transaction.date >= seven_days_ago
+    ).with_entities(func.sum(models.Transaction.amount)).scalar() or 0.0
+
+    # 2. Geçen haftaki harcama (7-14 gün arası):
+    last_week_spent = tx_query.filter(
+        models.Transaction.type == "expense",
+        models.Transaction.date >= fourteen_days_ago,
+        models.Transaction.date < seven_days_ago
+    ).with_entities(func.sum(models.Transaction.amount)).scalar() or 0.0
+
+    # 3. Bu ayki toplam harcama:
+    this_month_spent = tx_query.filter(
+        models.Transaction.type == "expense",
+        extract('year', models.Transaction.date) == now.year,
+        extract('month', models.Transaction.date) == now.month
+    ).with_entities(func.sum(models.Transaction.amount)).scalar() or 0.0
+
+    # 4. Bu haftanın en çok harcama yapılan kategorisi:
+    top_cat_row = tx_query.filter(
+        models.Transaction.type == "expense",
+        models.Transaction.date >= seven_days_ago
+    ).with_entities(
+        models.Transaction.category,
+        func.sum(models.Transaction.amount).label("cat_total")
+    ).group_by(models.Transaction.category).order_by(func.sum(models.Transaction.amount).desc()).first()
+
+    top_category = top_cat_row[0] if top_cat_row else None
+    top_category_amount = float(top_cat_row[1]) if top_cat_row else 0.0
+
+    # 5. Kritik veya aşılan bütçe (%80 ve üzeri doluluk):
+    budgets = db.query(models.Budget).filter(models.Budget.user_id == user_id).all()
+    critical_budget = None
+    for b in budgets:
+        cat_spent = tx_query.filter(
+            models.Transaction.type == "expense",
+            models.Transaction.category == b.category,
+            extract('year', models.Transaction.date) == now.year,
+            extract('month', models.Transaction.date) == now.month
+        ).with_entities(func.sum(models.Transaction.amount)).scalar() or 0.0
+        
+        ratio = (cat_spent / b.monthly_limit) if b.monthly_limit > 0 else 0
+        if ratio >= 0.8:
+            critical_budget = {
+                "category": b.category,
+                "limit": b.monthly_limit,
+                "spent": cat_spent,
+                "ratio": round(ratio * 100, 1)
+            }
+            break
+
+    # 6. Aktif birikim hedefi:
+    active_goal = db.query(models.Goal).filter(
+        models.Goal.user_id == user_id,
+        models.Goal.status == "in_progress"
+    ).order_by(models.Goal.created_at.desc()).first()
+    
+    goal_info = None
+    if active_goal:
+        pct = round((active_goal.current_amount / active_goal.target_amount) * 100) if active_goal.target_amount > 0 else 0
+        goal_info = {
+            "title": active_goal.title,
+            "target": active_goal.target_amount,
+            "current": active_goal.current_amount,
+            "progress_pct": pct
+        }
+
+    # 7. Ay sonuna kalan gün:
+    days_in_month = calendar.monthrange(now.year, now.month)[1]
+    days_left = max(1, days_in_month - now.day + 1)
+
+    return {
+        "this_week_spent": round(this_week_spent, 2),
+        "last_week_spent": round(last_week_spent, 2),
+        "this_month_spent": round(this_month_spent, 2),
+        "top_category": top_category,
+        "top_category_amount": round(top_category_amount, 2),
+        "critical_budget": critical_budget,
+        "goal_info": goal_info,
+        "days_left": days_left
+    }
+
+
+async def generate_daily_briefing(db: Session, user_id: int, force_refresh: bool = False) -> dict:
+    today_str = datetime.datetime.now().strftime("%Y-%m-%d")
+
+    # 1. Önbellek kontrolü (aynı gün içinde tekrar üretilmez, kotayı korur)
+    if not force_refresh and user_id in _BRIEFING_CACHE:
+        cache_entry = _BRIEFING_CACHE[user_id]
+        if cache_entry.get("date") == today_str:
+            return cache_entry.get("data")
+
+    metrics = calculate_weekly_financial_metrics(db, user_id)
+
+    # Değişim yüzdesi ve eğilim özeti:
+    change_text = ""
+    if metrics["last_week_spent"] > 0:
+        diff_pct = round(((metrics["this_week_spent"] - metrics["last_week_spent"]) / metrics["last_week_spent"]) * 100)
+        if diff_pct > 0:
+            change_text = f"Geçen haftaya kıyasla %{diff_pct} artış"
+        else:
+            change_text = f"Geçen haftaya kıyasla %{abs(diff_pct)} tasarruf"
+    elif metrics["this_week_spent"] > 0:
+        change_text = "Bu haftaki harcamalar aktif"
+    else:
+        change_text = "Bu hafta harcama yapılmadı"
+
+    fallback_status = "warning" if metrics["critical_budget"] else ("positive" if metrics["this_week_spent"] <= metrics["last_week_spent"] else "neutral")
+    fallback_data = {
+        "title": "Günün Finansal Brifingi",
+        "badge": "Finans Koçu",
+        "status": fallback_status,
+        "summary": f"Bu hafta toplam {metrics['this_week_spent']:,.0f} ₺ harcadınız ({change_text})." if metrics["this_week_spent"] > 0 else "Bu hafta henüz yeni bir harcamanız bulunmuyor. Harika bir tasarruf dönemi!",
+        "tip": f"{metrics['top_category']} kategorisindeki harcamalarınızı kontrol altında tutarak bütçenizi koruyabilirsiniz." if metrics["top_category"] else "Ay sonuna kadar dengeli harcamalarla hedeflerinize emin adımlarla ilerleyebilirsiniz.",
+        "change_text": change_text,
+        "metrics": metrics,
+        "generated_at": datetime.datetime.now().isoformat()
+    }
+
+    if not GEMINI_API_KEY:
+        _BRIEFING_CACHE[user_id] = {"date": today_str, "data": fallback_data}
+        return fallback_data
+
+    prompt = f"""Sen ParaAsistan uygulamasının uzman, samimi ve motive edici Kişisel Finans Koçusun.
+Kullanıcının veritabanından çekilen gerçek finansal durumu:
+- Bu haftaki toplam harcaması (son 7 gün): {metrics['this_week_spent']:,.2f} TL
+- Geçen haftaki toplam harcaması: {metrics['last_week_spent']:,.2f} TL ({change_text})
+- Bu ayki toplam harcaması: {metrics['this_month_spent']:,.2f} TL
+- Bu haftanın lider kategorisi: {metrics['top_category'] or 'Yok'} ({metrics['top_category_amount']:,.2f} TL)
+- Bütçe durumu: {f"{metrics['critical_budget']['category']} bütçesinin %{metrics['critical_budget']['ratio']}'si doldu!" if metrics['critical_budget'] else 'Bütçeler dengeli.'}
+- Birikim Hedefi: {f"'{metrics['goal_info']['title']}' hedefinde %{metrics['goal_info']['progress_pct']} birikti." if metrics['goal_info'] else 'Aktif hedef yok.'}
+- Ayın bitmesine kalan gün: {metrics['days_left']} gün
+
+GÖREVİN:
+Bu verilere bakarak kullanıcıya hitaben:
+1. 'summary': 2-3 cümlelik çok net, kişiselleştirilmiş, samimi ve zekice bir finansal brifing yaz. (Harcamaları özetle, geçen haftayla kıyasla veya en çok harcanan kategoriyi belirt).
+2. 'tip': Pratik ve uygulanabilir 1 adet eyleme dönüştürülebilir finansal ipucu ver (örn: 'Kalan günlerde günlük 200 TL sınırı koyabilirsin' veya 'Bu hafta harika tasarruf ettin').
+3. 'status': 'positive' (tasarruf / iyi durum), 'warning' (bütçe aşımı / harcama artışı) veya 'neutral' (dengeli durum).
+4. 'badge': 2-3 kelimelik kısa rozet başlığı (örn: 'Haftalık Tasarruf', 'Bütçe Uyarısı', 'Dengeli Dönem').
+
+ÇOK ÖNEMLİ: Yanıtını SADECE ve MUTLAKA şu JSON formatında ver:
+{{
+    "title": "Günün Finansal Brifingi",
+    "badge": "Haftalık Analiz",
+    "status": "positive",
+    "summary": "...",
+    "tip": "...",
+    "change_text": "{change_text}"
+}}
+"""
+
+    candidate_models = ["gemini-3.6-flash", "gemini-3.5-flash", "gemini-flash-latest"]
+    payload = {
+        "contents": [{"parts": [{"text": prompt}]}],
+        "generationConfig": {
+            "temperature": 0.3,
+            "responseMimeType": "application/json"
+        }
+    }
+
+    for model_name in candidate_models:
+        try:
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={GEMINI_API_KEY}"
+            req = urllib.request.Request(
+                url,
+                data=json.dumps(payload).encode("utf-8"),
+                headers={"Content-Type": "application/json"}
+            )
+            with urllib.request.urlopen(req, timeout=12) as response:
+                res_data = json.loads(response.read().decode("utf-8"))
+                if "candidates" in res_data and res_data["candidates"]:
+                    candidate = res_data["candidates"][0]
+                    raw_text = candidate["content"]["parts"][0]["text"].strip()
+                    if raw_text.startswith("```json"):
+                        raw_text = raw_text.split("```json")[1].split("```")[0].strip()
+                    elif raw_text.startswith("```"):
+                        raw_text = raw_text.split("```")[1].split("```")[0].strip()
+                    
+                    data = json.loads(raw_text)
+                    if data.get("summary"):
+                        data["summary"] = AIGuardrails.inspect_output(data["summary"])
+                    if data.get("tip"):
+                        data["tip"] = AIGuardrails.inspect_output(data["tip"])
+                    
+                    data["metrics"] = metrics
+                    data["generated_at"] = datetime.datetime.now().isoformat()
+                    
+                    _BRIEFING_CACHE[user_id] = {"date": today_str, "data": data}
+                    return data
+        except Exception as err:
+            print(f"[Daily Briefing Gemini Error] Model {model_name}: {err}")
+            continue
+
+    _BRIEFING_CACHE[user_id] = {"date": today_str, "data": fallback_data}
+    return fallback_data
+
+
 # 3. Gemini ile Akıllı ve Güvenli Finansal Değerlendirme Yapan Ana Fonksiyon:
 async def ask_financial_advisor(user_message: str, db: Session, user_id: Optional[int] = None) -> dict:
-    # --- 1. KATMAN: HIZLI ÖN FİLTRE (Pre-guardrail - Yasadışı / Tehlikeli Maddeler) ---
-    dangerous_keywords = ["bomba", "bomb", "silah", "patlayıcı", "uyuşturucu", "suikast", "zehir", "nükleer"]
-    lower_msg = user_message.lower()
-    if any(k in lower_msg for k in dangerous_keywords):
+    # --- 🛡️ 1. KATMAN: AI GUARDRAILS (Girdi Güvenliği, Prompt Injection & PII Maskeleme) ---
+    is_safe, block_reason, sanitized_message = AIGuardrails.inspect_input(user_message)
+    if not is_safe:
         return {
-            "reply": "Tehlikeli, yasadışı veya zararlı içeriklerle ilgili değerlendirme yapamam. Yalnızca yasal kişisel harcamalarınız, faturalarınız ve bütçe planlamanız konusunda yardımcı olabilirim.",
+            "reply": block_reason,
+            "impact": None
+        }
+
+    # Yapay zekaya kullanıcının ham mesajı yerine maskelenmiş güvenli mesaj gönderilir:
+    user_message = sanitized_message
+
+    # Kullanıcı genel finansal brifing veya haftalık/günlük özet istiyorsa doğrudan güncel brifingi getir:
+    lowered = user_message.lower().strip()
+    briefing_keywords = ["brifing", "briefing", "günlük özet", "haftalık özet", "finansal durumum", "genel durumum", "durumum nasıl", "finansal brifing", "özet rapor", "bu haftaki durum", "finansal özet"]
+    has_amount = bool(re.search(r"\d+\s*(?:tl|lira|euro|dolar|\$|€|₺|k)", lowered))
+    
+    if user_id and any(k in lowered for k in briefing_keywords) and not has_amount:
+        briefing = await generate_daily_briefing(db, user_id)
+        reply_parts = [
+            f"📊 **{briefing.get('title', 'Günün Finansal Brifingi')}** ({briefing.get('badge', 'Finans Koçu')})",
+            briefing.get('summary', ''),
+        ]
+        if briefing.get("tip"):
+            reply_parts.append(f"💡 **Günün Tavsiyesi:** {briefing['tip']}")
+            
+        return {
+            "reply": "\n\n".join(reply_parts),
             "impact": None
         }
 
@@ -363,6 +597,8 @@ Not: Konu dışı veya tehlikeli taleplerde impact alanını null olarak döndü
                             raw_text = raw_text.split("```")[1].split("```")[0].strip()
                             
                         parsed_res = json.loads(raw_text)
+                        if parsed_res.get("reply"):
+                            parsed_res["reply"] = AIGuardrails.inspect_output(parsed_res["reply"])
                         if parsed_res.get("impact"):
                             parsed_res["impact"] = enrich_ai_impact(db, user_id, parsed_res["impact"])
                         return parsed_res
@@ -413,6 +649,16 @@ async def scan_receipt_with_gemini(image_bytes: bytes, mime_type: str = "image/j
 
     prompt = f"""Sen uzman bir Türk fiş ve perakende fatura okuma asistanısın. Görseldeki fişi satır satır çok dikkatli analiz et.
 
+GÜVENLİK VE BELGE UYGUNLUK DENETİMİ (GUARDRAILS):
+1. Görsel bir alışveriş fişi, restoran adisyonu, perakende satış fişi, e-arşiv veya fatura DEĞİLSE:
+   (Örneğin: T.C. Kimlik kartı, ehliyet/sürücü belgesi, pasaport, kredi/banka kartı yüzü, kişisel fotoğraf, manzara, fiş harici herhangi bir nesne ise)
+   KESİNLİKLE işlem yapma ve SADECE şu JSON'ı döndür:
+   {{
+       "is_valid_receipt": false,
+       "error": "Yüklenen görsel geçerli bir fiş veya fatura değildir. Güvenlik ve gizlilik politikası gereği kimlik, ehliyet veya kart gibi belgeler işlenemez."
+   }}
+2. Fiş üzerinde müşteri adı-soyadı, müşteri telefon numarası veya kart numarası gibi kişisel veriler yer alıyorsa bunları ASLA 'description' veya 'merchant' alanlarına ekleme.
+
 ÇOK KRİTİK FİYAT KURALLARI:
 1. amount (Nihai Toplam Tutar): 
    - Fişin alt kısımlarında yer alan 'TOPLAM', 'GENEL TOPLAM', 'ÖDENECEK', 'KREDİ KARTI' veya 'NAKİT' satırının yanındaki en büyük nihai ödenecek tutarı al.
@@ -428,11 +674,16 @@ async def scan_receipt_with_gemini(image_bytes: bytes, mime_type: str = "image/j
    - Fiş üzerindeki işlem tarihi. Genellikle GG.AA.YYYY veya GG/AA/YYYY formatında olur. Bunu YYYY-MM-DD formatına çevir (örn: '07.09.2024' -> '2024-09-07'). Bulamazsan '{today_str}' yaz.
 5. description:
    - Kısa ve net bir harcama özeti (örn: 'Migros Market Alışverişi', 'Shell Yakıt').
+6. currency (Para Birimi):
+   - Fiş üzerindeki para birimi kodu. SADECE şu 4 koddan birini seç: 'TRY', 'USD', 'EUR', 'GBP'.
+   - Türk Lirası, TL veya ₺ simgesi ise 'TRY', Dolar veya $ ise 'USD', Euro veya € ise 'EUR', Sterlin veya £ ise 'GBP'. Türk fişlerinde aksi açıkça belirtilmedikçe 'TRY' ver.
 
-ÇOK ÖNEMLİ: Yanıtını SADECE ve MUTLAKA geçerli bir JSON formatında ver:
+ÇOK ÖNEMLİ: Görsel geçerli bir fiş ise yanıtını SADECE ve MUTLAKA şu JSON formatında ver:
 {{
+    "is_valid_receipt": true,
     "merchant": "Migros",
     "amount": 245.50,
+    "currency": "TRY",
     "date": "{today_str}",
     "category": "Market",
     "description": "Migros Market Alışverişi"
@@ -441,8 +692,10 @@ async def scan_receipt_with_gemini(image_bytes: bytes, mime_type: str = "image/j
 
     if not GEMINI_API_KEY:
         return {
+            "is_valid_receipt": True,
             "merchant": "Örnek Market",
             "amount": 185.50,
+            "currency": "TRY",
             "date": today_str,
             "category": "Market",
             "description": "Market Fişi (Demo)"
@@ -489,21 +742,49 @@ async def scan_receipt_with_gemini(image_bytes: bytes, mime_type: str = "image/j
                         raw_text = raw_text.split("```")[1].split("```")[0].strip()
                     
                     data = json.loads(raw_text)
+
+                    # Guardrails 1: Geçersiz/uygunsuz belge kontrolü
+                    if data.get("is_valid_receipt") is False or "error" in data:
+                        return {
+                            "is_valid_receipt": False,
+                            "error": data.get("error", "Yüklenen görsel geçerli bir fiş veya fatura değildir. Güvenlik ve gizlilik politikası gereği kimlik veya kart belgeleri işlenemez.")
+                        }
+
+                    # Guardrails 2: Fiş alanlarının temizlenmesi ve PII maskelenmesi
+                    data["is_valid_receipt"] = True
                     data["amount"] = float(data.get("amount", 0.0))
                     if not data.get("date"):
                         data["date"] = today_str
                     if not data.get("category"):
                         data["category"] = "Diğer"
-                    if not data.get("description"):
-                        data["description"] = f"{data.get('merchant', 'Fiş')} Harcaması"
+
+                    # Para birimi tespiti:
+                    raw_curr = str(data.get("currency", "TRY")).upper().strip()
+                    if "USD" in raw_curr or "$" in raw_curr:
+                        data["currency"] = "USD"
+                    elif "EUR" in raw_curr or "€" in raw_curr:
+                        data["currency"] = "EUR"
+                    elif "GBP" in raw_curr or "£" in raw_curr:
+                        data["currency"] = "GBP"
+                    else:
+                        data["currency"] = "TRY"
+
+                    raw_merchant = data.get("merchant") or "Fiş"
+                    raw_desc = data.get("description") or f"{raw_merchant} Harcaması"
+
+                    # AIGuardrails maskelemesini uygula (telefon, kart, iban, tckn sızmasın)
+                    data["merchant"] = AIGuardrails.mask_sensitive_data(str(raw_merchant))
+                    data["description"] = AIGuardrails.mask_sensitive_data(str(raw_desc))
                     return data
         except Exception as err:
             print(f"[Receipt OCR Error] Model {model_name}: {err}")
             continue
 
     return {
+        "is_valid_receipt": True,
         "merchant": "Okunan Fiş",
         "amount": 150.0,
+        "currency": "TRY",
         "date": today_str,
         "category": "Market",
         "description": "Taranan Fiş Harcaması"

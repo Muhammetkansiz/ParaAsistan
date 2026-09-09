@@ -80,9 +80,30 @@ class UserResponse(BaseModel):
     id: int
     full_name: str
     email: str
+    is_admin: bool = False
+    is_active: bool = True
     created_at: datetime
     class Config:
         from_attributes = True
+
+class AdminUserItem(BaseModel):
+    id: int
+    full_name: str
+    email: str
+    is_admin: bool
+    is_active: bool
+    created_at: datetime
+    transactions_count: int = 0
+    total_spent: float = 0.0
+    total_income: float = 0.0
+
+class AdminStatsResponse(BaseModel):
+    total_users: int
+    total_transactions: int
+    total_volume: float
+    total_goals: int
+    total_chat_messages: int
+    new_users_last_7_days: int
 
 class UserLogin(BaseModel):
     email: str

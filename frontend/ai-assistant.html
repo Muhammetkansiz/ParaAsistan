@@ -4,9 +4,19 @@
 <meta charset="utf-8">
 <meta content="width=device-width, initial-scale=1.0" name="viewport">
 <title>ParaAsistan - AI Finans & Satın Alma Danışmanı</title>
+<!-- Anti-flicker Script: Sayfa yüklenirken beyaz parlamayı engeller -->
+<script>
+    (function() {
+        const savedTheme = localStorage.getItem('paraasistan_theme') || 'light';
+        if (savedTheme === 'dark') {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    })();
+</script>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@600;700&amp;family=Manrope:wght@400;500;600&amp;display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block" rel="stylesheet">
 <script id="tailwind-config">
         tailwind.config = {
@@ -14,53 +24,31 @@
             theme: {
                 extend: {
                     "colors": {
-                        "on-surface-variant": "#454652",
-                        "secondary-fixed-dim": "#88d982",
-                        "surface-bright": "#f7f9fc",
-                        "on-background": "#191c1e",
-                        "primary-fixed-dim": "#bdc2ff",
-                        "tertiary-container": "#67000a",
-                        "error": "#ba1a1a",
-                        "on-primary-fixed-variant": "#343d96",
-                        "inverse-surface": "#2d3133",
-                        "on-tertiary-fixed": "#410004",
-                        "surface-container": "#eceef1",
-                        "inverse-on-surface": "#eff1f4",
-                        "primary-container": "#1a237e",
-                        "primary": "#000666",
-                        "secondary": "#1b6d24",
-                        "on-secondary-fixed": "#002204",
-                        "surface-dim": "#d8dadd",
-                        "on-surface": "#191c1e",
-                        "on-tertiary": "#ffffff",
-                        "surface-container-highest": "#e0e3e6",
-                        "on-secondary": "#ffffff",
-                        "outline": "#767683",
-                        "secondary-fixed": "#a3f69c",
-                        "on-tertiary-fixed-variant": "#910816",
-                        "surface-tint": "#4c56af",
-                        "primary-fixed": "#e0e0ff",
-                        "error-container": "#ffdad6",
-                        "surface-container-lowest": "#ffffff",
-                        "outline-variant": "#c6c5d4",
-                        "tertiary": "#400004",
-                        "on-secondary-container": "#217128",
-                        "surface-container-low": "#f2f4f7",
-                        "surface": "#f7f9fc",
-                        "on-tertiary-container": "#ff635f",
-                        "tertiary-fixed-dim": "#ffb3ae",
-                        "on-primary": "#ffffff",
-                        "on-error-container": "#93000a",
-                        "on-primary-fixed": "#000767",
-                        "on-error": "#ffffff",
-                        "tertiary-fixed": "#ffdad7",
-                        "on-secondary-fixed-variant": "#005312",
-                        "surface-variant": "#e0e3e6",
-                        "inverse-primary": "#bdc2ff",
-                        "background": "#f7f9fc",
-                        "secondary-container": "#a0f399",
-                        "surface-container-high": "#e6e8eb",
-                        "on-primary-container": "#8690ee"
+                        "background": "var(--color-background)",
+                        "surface": "var(--color-surface)",
+                        "surface-dim": "var(--color-surface-dim)",
+                        "surface-bright": "var(--color-surface-bright)",
+                        "surface-variant": "var(--color-surface-variant)",
+                        "surface-container-lowest": "var(--color-surface-container-lowest)",
+                        "surface-container-low": "var(--color-surface-container-low)",
+                        "surface-container": "var(--color-surface-container)",
+                        "surface-container-high": "var(--color-surface-container-high)",
+                        "surface-container-highest": "var(--color-surface-container-highest)",
+                        "primary": "var(--color-primary)",
+                        "primary-container": "var(--color-primary-container)",
+                        "secondary": "var(--color-secondary)",
+                        "secondary-container": "var(--color-secondary-container)",
+                        "error": "var(--color-error)",
+                        "error-container": "var(--color-error-container)",
+                        "on-background": "var(--color-on-background)",
+                        "on-surface": "var(--color-on-surface)",
+                        "on-surface-variant": "var(--color-on-surface-variant)",
+                        "on-primary": "var(--color-on-primary)",
+                        "on-primary-container": "var(--color-on-primary-container)",
+                        "on-secondary": "var(--color-on-secondary)",
+                        "on-secondary-container": "var(--color-on-secondary-container)",
+                        "outline": "var(--color-outline)",
+                        "outline-variant": "var(--color-outline-variant)"
                     },
                     "borderRadius": {
                         "DEFAULT": "1rem",
@@ -104,9 +92,102 @@
         }
     </script>
 <style>
-        body { background-color: theme('colors.background'); color: theme('colors.on-background'); }
+        :root {
+            --color-background: #f7f9fc;
+            --color-surface: #f7f9fc;
+            --color-surface-dim: #d8dadd;
+            --color-surface-bright: #f7f9fc;
+            --color-surface-variant: #e0e3e6;
+            --color-surface-container-lowest: #ffffff;
+            --color-surface-container-low: #f2f4f7;
+            --color-surface-container: #eceef1;
+            --color-surface-container-high: #e6e8eb;
+            --color-surface-container-highest: #e0e3e6;
+            --color-primary: #000666;
+            --color-primary-container: #1a237e;
+            --color-secondary: #1b6d24;
+            --color-secondary-container: #a0f399;
+            --color-error: #ba1a1a;
+            --color-error-container: #ffdad6;
+            --color-on-background: #191c1e;
+            --color-on-surface: #191c1e;
+            --color-on-surface-variant: #454652;
+            --color-on-primary: #ffffff;
+            --color-on-primary-container: #8690ee;
+            --color-on-secondary: #ffffff;
+            --color-on-secondary-container: #217128;
+            --color-outline: #767683;
+            --color-outline-variant: #c6c5d4;
+        }
+
+        html.dark {
+            --color-background: #000000;
+            --color-surface: #000000;
+            --color-surface-dim: #000000;
+            --color-surface-bright: #0a0a0c;
+            --color-surface-container-lowest: #0a0a0c;
+            --color-surface-container-low: #16181c;
+            --color-surface-container: #1a1d22;
+            --color-surface-container-high: #22262d;
+            --color-surface-container-highest: #2b3038;
+            --color-surface-variant: #16181c;
+            --color-on-background: #e7e9ea;
+            --color-on-surface: #e7e9ea;
+            --color-on-surface-variant: #71767b;
+            --color-outline: #2f3336;
+            --color-outline-variant: #202327;
+            --color-primary: #1d9bf0;
+            --color-on-primary: #ffffff;
+            --color-primary-container: #1a8cd8;
+            --color-on-primary-container: #e8f5fd;
+            --color-secondary: #00ba7c;
+            --color-on-secondary: #ffffff;
+            --color-secondary-container: #064e3b;
+            --color-on-secondary-container: #a7f3d0;
+            --color-error: #f4212e;
+            --color-error-container: #881337;
+            --color-on-error: #ffffff;
+        }
+
+        body { background-color: var(--color-background); color: var(--color-on-background); }
         .glass-card { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.3); }
-        .ambient-shadow { box-shadow: 16px 0 24px rgba(26, 35, 126, 0.05); }
+        html.dark .glass-card { background: rgba(16, 18, 22, 0.8); border: 1px solid #202327; }
+        .ambient-shadow { box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05); }
+        html.dark .ambient-shadow {
+            box-shadow: none;
+            border: 1px solid #202327;
+        }
+        html.dark h2.text-primary {
+            color: var(--color-on-background) !important;
+        }
+        html.dark nav[aria-label="Sidebar Navigation"] h1 {
+            color: #e7e9ea !important;
+        }
+        html.dark nav[aria-label="Sidebar Navigation"] a[aria-current="page"],
+        html.dark nav[aria-label="Sidebar Navigation"] a[aria-current="page"] span {
+            color: #e7e9ea !important;
+            border-color: #e7e9ea !important;
+        }
+        html.dark nav[aria-label="Sidebar Navigation"] a:hover,
+        html.dark nav[aria-label="Sidebar Navigation"] a:hover span {
+            color: #e7e9ea !important;
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--color-outline-variant);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--color-outline);
+        }
     </style>
 </head>
 <body class="flex min-h-screen overflow-hidden">
@@ -153,6 +234,13 @@
                 <span class="font-label-md text-label-md">Hedeflerim</span>
             </a>
         </li>
+        <!-- YÖNETİCİ PANELİ (Admin ise) -->
+        <li class="admin-sidebar-item hidden">
+            <a class="flex items-center gap-md px-md py-sm rounded-lg text-amber-500 hover:bg-amber-500/10 transition-all font-semibold" href="admin.html">
+                <span class="material-symbols-outlined text-[22px]">admin_panel_settings</span>
+                <span class="font-label-md text-label-md">Yönetici Paneli</span>
+            </a>
+        </li>
     </ul>
     <ul class="px-sm mt-auto space-y-sm border-t border-surface-variant pt-lg">
         <li>
@@ -196,7 +284,24 @@
                 </div>
             </div>
         </div>
-        <!-- 2. KURU DEĞİŞTİR (Ortada) -->
+        <!-- 2. GÖRÜNÜM (Açık / Koyu) -->
+        <div class="px-3 py-2.5 border-b border-surface-variant/40">
+            <div class="flex items-center justify-between mb-1.5 px-1">
+                <span class="text-[11px] font-bold tracking-wider text-on-surface-variant uppercase">Görünüm</span>
+                <span class="current-theme-tag text-xs font-semibold text-outline">Açık</span>
+            </div>
+            <div class="grid grid-cols-2 gap-1 p-1 bg-surface-container-low rounded-xl">
+                <button type="button" onclick="setAppTheme('light')" class="btn-theme-light flex items-center justify-center gap-1.5 py-1.5 text-xs font-bold rounded-lg transition-all">
+                    <span class="material-symbols-outlined text-[16px]">light_mode</span>
+                    <span>Açık</span>
+                </button>
+                <button type="button" onclick="setAppTheme('dark')" class="btn-theme-dark flex items-center justify-center gap-1.5 py-1.5 text-xs font-bold rounded-lg transition-all">
+                    <span class="material-symbols-outlined text-[16px]">dark_mode</span>
+                    <span>Koyu</span>
+                </button>
+            </div>
+        </div>
+        <!-- 3. KURU DEĞİŞTİR (Ortada) -->
         <div class="px-3 py-3 border-b border-surface-variant/40">
             <div class="flex items-center justify-between mb-2 px-1">
                 <span class="text-[11px] font-bold tracking-wider text-on-surface-variant uppercase">Kuru Değiştir</span>
@@ -208,6 +313,13 @@
                 <button type="button" onclick="setAppCurrency('GBP')" class="btn-curr-GBP py-1.5 text-xs font-bold rounded-lg transition-all text-on-surface hover:bg-surface-container-high">£ GBP</button>
                 <button type="button" onclick="setAppCurrency('TRY')" class="btn-curr-TRY py-1.5 text-xs font-bold rounded-lg transition-all text-on-surface hover:bg-surface-container-high">₺ TRY</button>
             </div>
+        </div>
+        <!-- YÖNETİCİ KONSOLU (Admin ise) -->
+        <div class="admin-panel-link-container hidden pt-1 px-2 border-b border-surface-variant/40 pb-1">
+            <a href="admin.html" class="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-amber-500 hover:bg-amber-500/10 rounded-xl transition-colors">
+                <span class="material-symbols-outlined text-[18px]">admin_panel_settings</span>
+                <span>Yönetici Paneli</span>
+            </a>
         </div>
         <!-- 3. PROFİLDEN ÇIK (En Altta) -->
         <div class="pt-1 px-2">
@@ -251,7 +363,24 @@
                 </div>
             </div>
         </div>
-        <!-- 2. KURU DEĞİŞTİR (Ortada) -->
+        <!-- 2. GÖRÜNÜM (Açık / Koyu) -->
+        <div class="px-3 py-2.5 border-b border-surface-variant/40">
+            <div class="flex items-center justify-between mb-1.5 px-1">
+                <span class="text-[11px] font-bold tracking-wider text-on-surface-variant uppercase">Görünüm</span>
+                <span class="current-theme-tag text-xs font-semibold text-outline">Açık</span>
+            </div>
+            <div class="grid grid-cols-2 gap-1 p-1 bg-surface-container-low rounded-xl">
+                <button type="button" onclick="setAppTheme('light')" class="btn-theme-light flex items-center justify-center gap-1.5 py-1.5 text-xs font-bold rounded-lg transition-all">
+                    <span class="material-symbols-outlined text-[16px]">light_mode</span>
+                    <span>Açık</span>
+                </button>
+                <button type="button" onclick="setAppTheme('dark')" class="btn-theme-dark flex items-center justify-center gap-1.5 py-1.5 text-xs font-bold rounded-lg transition-all">
+                    <span class="material-symbols-outlined text-[16px]">dark_mode</span>
+                    <span>Koyu</span>
+                </button>
+            </div>
+        </div>
+        <!-- 3. KURU DEĞİŞTİR (Ortada) -->
         <div class="px-3 py-3 border-b border-surface-variant/40">
             <div class="flex items-center justify-between mb-2 px-1">
                 <span class="text-[11px] font-bold tracking-wider text-on-surface-variant uppercase">Kuru Değiştir</span>
@@ -263,6 +392,13 @@
                 <button type="button" onclick="setAppCurrency('GBP')" class="btn-curr-GBP py-1.5 text-xs font-bold rounded-lg transition-all text-on-surface hover:bg-surface-container-high">£ GBP</button>
                 <button type="button" onclick="setAppCurrency('TRY')" class="btn-curr-TRY py-1.5 text-xs font-bold rounded-lg transition-all text-on-surface hover:bg-surface-container-high">₺ TRY</button>
             </div>
+        </div>
+        <!-- YÖNETİCİ KONSOLU (Admin ise) -->
+        <div class="admin-panel-link-container hidden pt-1 px-2 border-b border-surface-variant/40 pb-1">
+            <a href="admin.html" class="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-amber-500 hover:bg-amber-500/10 rounded-xl transition-colors">
+                <span class="material-symbols-outlined text-[18px]">admin_panel_settings</span>
+                <span>Yönetici Paneli</span>
+            </a>
         </div>
         <!-- 3. PROFİLDEN ÇIK (En Altta) -->
         <div class="pt-1 px-2">
@@ -289,7 +425,22 @@
     </div>
 </div>
 <!-- Chat Input -->
-<form id="chat-form" onsubmit="handleSendChatMessage(event)" class="p-lg bg-surface-bright border-t border-surface-container-high sticky bottom-0">
+<form id="chat-form" onsubmit="handleSendChatMessage(event)" class="p-md md:p-lg bg-surface-bright border-t border-surface-container-high sticky bottom-0">
+<!-- Hızlı Soru Çipleri (Quick Chips) -->
+<div class="flex items-center gap-2 mb-2.5 overflow-x-auto no-scrollbar pb-1 text-xs">
+    <button type="button" onclick="sendQuickPrompt('Günün finansal brifingi nedir?')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container hover:bg-primary/10 text-on-surface hover:text-primary border border-outline-variant/30 shrink-0 transition-all font-medium active:scale-95 shadow-xs">
+        <span class="material-symbols-outlined text-[15px] text-primary">auto_awesome</span>
+        <span>Günün Finansal Brifingi</span>
+    </button>
+    <button type="button" onclick="sendQuickPrompt('5000 TL mont almalı mıyım?')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container hover:bg-primary/10 text-on-surface hover:text-primary border border-outline-variant/30 shrink-0 transition-all font-medium active:scale-95 shadow-xs">
+        <span class="material-symbols-outlined text-[15px] text-secondary">shopping_bag</span>
+        <span>5000 TL mont almalı mıyım?</span>
+    </button>
+    <button type="button" onclick="sendQuickPrompt('Bu haftaki harcamalarım ve bütçem ne durumda?')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container hover:bg-primary/10 text-on-surface hover:text-primary border border-outline-variant/30 shrink-0 transition-all font-medium active:scale-95 shadow-xs">
+        <span class="material-symbols-outlined text-[15px] text-tertiary">query_stats</span>
+        <span>Bu haftaki durumum nasıl?</span>
+    </button>
+</div>
 <div class="relative flex items-center">
 <input id="chat-input" required class="w-full bg-surface-container-lowest border-2 border-transparent focus:border-primary-container rounded-full py-md pl-lg pr-[100px] font-body-md text-body-md text-on-surface outline-none transition-all shadow-sm placeholder:text-outline-variant" placeholder="Mesajınızı yazın veya '5000 TL mont alayım mı?' diye sorun..." type="text">
 <div class="absolute right-2 flex gap-xs">
@@ -314,7 +465,7 @@
 <h3 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider mb-xs">Planlanan Alışveriş</h3>
 <p id="impact-product-name" class="font-headline-md text-headline-md text-on-surface text-outline">Henüz bir ürün sorulmadı</p>
 </div>
-<span id="impact-price" class="font-display text-display text-outline">0 ₺</span>
+<span id="impact-price" class="font-display text-display text-outline">0 <span class="app-currency-sym">₺</span></span>
 </div>
 <div class="mt-lg">
 <h4 id="impact-category-title" class="font-label-md text-label-md text-on-surface-variant mb-sm">Bütçe Etki Durumu</h4>
@@ -322,8 +473,8 @@
 <div id="impact-progress-bar" class="bg-primary h-full rounded-full transition-all duration-1000" style="width: 0%;"></div>
 </div>
 <div class="flex justify-between mt-sm font-label-sm text-label-sm text-on-surface-variant">
-<span id="impact-spent-text">Mevcut: 0 ₺ harcandı</span>
-<span id="impact-new-total">Yeni Toplam: 0 ₺</span>
+<span id="impact-spent-text">Mevcut: 0 <span class="app-currency-sym">₺</span> harcandı</span>
+<span id="impact-new-total">Yeni Toplam: 0 <span class="app-currency-sym">₺</span></span>
 </div>
 </div>
 </div>
@@ -374,9 +525,31 @@
         window.location.href = "login.html";
     }
 
-    // 💱 PARA BİRİMİ YÖNETİMİ
+    // 💱 PARA BİRİMİ & CANLI KUR YÖNETİMİ
+    const liveExchangeRates = {
+        USD: 34.20,
+        EUR: 37.50,
+        GBP: 44.10,
+        TRY: 1.0
+    };
+
+    async function loadLiveRates() {
+        try {
+            const res = await fetch(`${API_BASE}/currency/rates`);
+            if (res.ok) {
+                const data = await res.json();
+                if (data.USD) liveExchangeRates.USD = Number(data.USD);
+                if (data.EUR) liveExchangeRates.EUR = Number(data.EUR);
+                if (data.GBP) liveExchangeRates.GBP = Number(data.GBP);
+                if (data.TRY) liveExchangeRates.TRY = 1.0;
+            }
+        } catch (e) {
+            console.warn("Canlı kurlar alınamadı, varsayılan kurlar devrede:", e);
+        }
+    }
+
     function getAppCurrency() {
-        return localStorage.getItem('paraasistan_currency') || 'USD';
+        return localStorage.getItem('paraasistan_currency') || 'TRY';
     }
 
     function getCurrencySymbol(curr) {
@@ -386,7 +559,25 @@
             'GBP': '£',
             'TRY': '₺'
         };
-        return symbols[curr] || '$';
+        return symbols[curr] || '₺';
+    }
+
+    function convertAmount(amountInTRY) {
+        const curr = getAppCurrency();
+        const rate = liveExchangeRates[curr] || 1.0;
+        return Number(amountInTRY || 0) / rate;
+    }
+
+    function formatMoney(amountInTRY) {
+        const curr = getAppCurrency();
+        const sym = getCurrencySymbol(curr);
+        const val = Number(amountInTRY || 0);
+        const converted = convertAmount(Math.abs(val));
+        const sign = val < 0 ? '-' : '';
+        if (curr === 'TRY') {
+            return `${sign}${converted.toLocaleString('tr-TR', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} ₺`;
+        }
+        return `${sign}${sym}${converted.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     }
 
     function updateCurrencyUI() {
@@ -407,6 +598,66 @@
                     btn.className = `btn-curr-${c} py-1.5 text-xs font-bold rounded-lg transition-all bg-primary text-on-primary shadow-sm`;
                 } else {
                     btn.className = `btn-curr-${c} py-1.5 text-xs font-bold rounded-lg transition-all text-on-surface hover:bg-surface-container-high`;
+                }
+            });
+        });
+
+        // Sağ paneldeki dinamik tutarları güncel kura göre yeniden biçimlendir:
+        if (window.currentImpactData) {
+            updateImpactPanel(window.currentImpactData);
+        } else {
+            const priceEl = document.getElementById("impact-price");
+            if (priceEl && priceEl.classList.contains("text-outline")) {
+                priceEl.innerText = formatMoney(0);
+            }
+            const newTotalEl = document.getElementById("impact-new-total");
+            if (newTotalEl) {
+                newTotalEl.innerText = `Yeni Toplam: ${formatMoney(0)}`;
+            }
+            if (window.lastThisMonthSpent !== undefined) {
+                const spentEl = document.getElementById("impact-spent-text");
+                if (spentEl) {
+                    spentEl.innerText = `Mevcut: ${formatMoney(window.lastThisMonthSpent)} harcandı`;
+                }
+            }
+        }
+    }
+
+    // 🌓 TEMA YÖNETİMİ (AÇIK / KOYU)
+    function getAppTheme() {
+        return localStorage.getItem('paraasistan_theme') || 'light';
+    }
+
+    function setAppTheme(theme) {
+        localStorage.setItem('paraasistan_theme', theme);
+        if (theme === 'dark') {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+        updateThemeUI();
+        showToast(theme === 'dark' ? 'Karanlık tema aktif edildi 🌙' : 'Aydınlık tema aktif edildi ☀️', 'success');
+    }
+
+    function updateThemeUI() {
+        const theme = getAppTheme();
+        const isDark = theme === 'dark';
+        if (isDark) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+
+        document.querySelectorAll('.current-theme-tag').forEach(tag => {
+            tag.innerText = isDark ? 'Koyu 🌙' : 'Açık ☀️';
+        });
+
+        ['light', 'dark'].forEach(t => {
+            document.querySelectorAll(`.btn-theme-${t}`).forEach(btn => {
+                if (t === theme) {
+                    btn.className = `btn-theme-${t} flex items-center justify-center gap-1.5 py-1.5 text-xs font-bold rounded-lg transition-all bg-primary text-on-primary shadow-sm`;
+                } else {
+                    btn.className = `btn-theme-${t} flex items-center justify-center gap-1.5 py-1.5 text-xs font-bold rounded-lg transition-all text-on-surface hover:bg-surface-container-high`;
                 }
             });
         });
@@ -440,13 +691,31 @@
         }
     });
 
-    function populateProfileInfo() {
+    async function populateProfileInfo() {
         try {
             const userStr = localStorage.getItem("paraasistan_user");
             if (userStr) {
                 const user = JSON.parse(userStr);
                 document.querySelectorAll(".menu-user-name").forEach(el => el.textContent = user.full_name || "Kullanıcı");
                 document.querySelectorAll(".menu-user-email").forEach(el => el.textContent = user.email || "");
+                if (user.is_admin) {
+                    document.querySelectorAll(".admin-sidebar-item, .admin-panel-link-container").forEach(el => el.classList.remove("hidden"));
+                }
+            }
+            const token = localStorage.getItem("paraasistan_token");
+            if (token) {
+                const res = await fetch(`${API_BASE}/auth/me`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const freshUser = await res.json();
+                    localStorage.setItem("paraasistan_user", JSON.stringify(freshUser));
+                    if (freshUser.is_admin) {
+                        document.querySelectorAll(".admin-sidebar-item, .admin-panel-link-container").forEach(el => el.classList.remove("hidden"));
+                    } else {
+                        document.querySelectorAll(".admin-sidebar-item, .admin-panel-link-container").forEach(el => el.classList.add("hidden"));
+                    }
+                }
             }
         } catch (e) {
             console.warn("Kullanıcı bilgisi okunamadı:", e);
@@ -458,6 +727,16 @@
             "Content-Type": "application/json",
             "Authorization": `Bearer ${localStorage.getItem("paraasistan_token")}`
         };
+    }
+
+    function sendQuickPrompt(promptText) {
+        const input = document.getElementById("chat-input");
+        if (!input) return;
+        input.value = promptText;
+        const form = document.getElementById("chat-form");
+        if (form) {
+            form.dispatchEvent(new Event("submit", { cancelable: true }));
+        }
     }
 
     async function handleSendChatMessage(event) {
@@ -493,7 +772,7 @@
             </div>
             <div class="bg-surface-container-low p-md rounded-2xl rounded-tl-sm text-on-surface-variant font-body-md text-body-md shadow-sm flex items-center gap-2">
                 <span class="material-symbols-outlined animate-spin text-sm">progress_activity</span>
-                ParaAsistan bütçenizi inceliyor ve analiz ediyor...
+                ParaAsistan verilerinizi inceliyor ve analiz ediyor...
             </div>
         `;
         messagesContainer.appendChild(loadingBubble);
@@ -519,7 +798,11 @@
             const data = await response.json();
             loadingBubble.remove();
 
-            // 3. Yapay Zeka Cevap Balonu:
+            // 3. Yapay Zeka Cevap Balonu (Markdown bold & satır sonu desteği):
+            const formattedReply = (data.reply || 'Yanıt alınamadı.')
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n/g, '<br>');
+
             const aiBubble = document.createElement("div");
             aiBubble.className = "flex items-start gap-md max-w-[95%]";
             aiBubble.innerHTML = `
@@ -527,7 +810,7 @@
                     <span class="material-symbols-outlined text-sm">smart_toy</span>
                 </div>
                 <div class="bg-surface-container-low p-md rounded-2xl rounded-tl-sm text-on-surface font-body-md text-body-md shadow-sm w-full leading-relaxed">
-                    ${data.reply ? data.reply.replace(/\n/g, '<br>') : 'Yanıt alınamadı.'}
+                    ${formattedReply}
                 </div>
             `;
             messagesContainer.appendChild(aiBubble);
@@ -556,8 +839,10 @@
         }
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("DOMContentLoaded", async () => {
+        updateThemeUI();
         populateProfileInfo();
+        await loadLiveRates();
         updateCurrencyUI();
         loadInitialPanelContext();
     });
@@ -590,8 +875,8 @@
 
             // 2. Bu ayki harcama:
             if (data.this_month_spent !== undefined) {
-                const sym = getCurrencySymbol(getAppCurrency());
-                document.getElementById("impact-spent-text").innerText = `Mevcut: ${sym}${data.this_month_spent.toLocaleString('en-US', { minimumFractionDigits: 2 })} harcandı`;
+                window.lastThisMonthSpent = data.this_month_spent;
+                document.getElementById("impact-spent-text").innerText = `Mevcut: ${formatMoney(data.this_month_spent)} harcandı`;
             }
 
             // 3. Son Alışverişler:
@@ -621,13 +906,14 @@
                         <span class="text-[11px] text-outline">${tx.category || 'Gider'}</span>
                     </div>
                 </div>
-                <span class="font-body-md text-body-md text-error font-semibold">-${getCurrencySymbol(tx.currency || getAppCurrency())}${Number(tx.original_amount !== undefined && tx.original_amount !== null ? tx.original_amount : tx.amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                <span class="font-body-md text-body-md text-error font-semibold">-${formatMoney(tx.amount)}</span>
             </div>
         `).join('');
     }
 
     function updateImpactPanel(impact) {
         if (!impact) return;
+        window.currentImpactData = impact;
 
         // 1. Ürün adı ve fiyat
         if (impact.product_name) {
@@ -637,7 +923,7 @@
         }
         if (impact.price !== undefined) {
             const priceEl = document.getElementById("impact-price");
-            priceEl.innerText = `${Number(impact.price).toLocaleString('tr-TR')} ₺`;
+            priceEl.innerText = formatMoney(impact.price);
             priceEl.classList.remove("text-outline");
         }
         if (impact.category) {
@@ -649,8 +935,8 @@
         const newTotal = impact.new_total || (currentSpent + (Number(impact.price) || 0));
         const limit = impact.budget_limit || 0;
 
-        document.getElementById("impact-spent-text").innerText = `Mevcut: ${currentSpent.toLocaleString('tr-TR')} ₺ harcandı`;
-        document.getElementById("impact-new-total").innerText = `Yeni Toplam: ${newTotal.toLocaleString('tr-TR')} ₺`;
+        document.getElementById("impact-spent-text").innerText = `Mevcut: ${formatMoney(currentSpent)} harcandı`;
+        document.getElementById("impact-new-total").innerText = `Yeni Toplam: ${formatMoney(newTotal)}`;
 
         const bar = document.getElementById("impact-progress-bar");
         let pct = 70;
@@ -791,6 +1077,8 @@
                 const receiptData = await response.json();
                 const uniqueId = "rec-" + Date.now();
                 const cardId = "receipt-btn-" + Date.now();
+                const receiptCurrency = receiptData.currency || "TRY";
+                const receiptSym = getCurrencySymbol(receiptCurrency);
 
                 // 4. Okunan Fiş Kartı (Düzenlenebilir & Onaylanabilir):
                 const aiBubble = document.createElement("div");
@@ -815,8 +1103,12 @@
                             </div>
                             <div class="grid grid-cols-2 gap-2">
                                 <div>
-                                    <label class="text-[11px] font-semibold text-outline uppercase block mb-1">Toplam Tutar</label>
-                                    <input id="rec-amount-${uniqueId}" type="number" step="0.01" value="${receiptData.amount || 0}" oninput="handleReceiptAmountChange('${uniqueId}')" class="w-full px-3 py-1.5 bg-surface-container border border-surface-variant rounded-lg font-bold text-error text-base outline-none focus:ring-1 focus:ring-primary" />
+                                    <label class="text-[11px] font-semibold text-outline uppercase block mb-1">Toplam Tutar (${receiptSym})</label>
+                                    <div class="relative flex items-center">
+                                        <input id="rec-amount-${uniqueId}" type="number" step="0.01" value="${receiptData.amount || 0}" oninput="handleReceiptAmountChange('${uniqueId}')" class="w-full pl-3 pr-8 py-1.5 bg-surface-container border border-surface-variant rounded-lg font-bold text-error text-base outline-none focus:ring-1 focus:ring-primary" />
+                                        <span class="absolute right-3 text-sm font-bold text-on-surface-variant/70 pointer-events-none">${receiptSym}</span>
+                                        <input type="hidden" id="rec-currency-${uniqueId}" value="${receiptCurrency}" />
+                                    </div>
                                 </div>
                                 <div>
                                     <label class="text-[11px] font-semibold text-outline uppercase block mb-1">Kategori</label>
@@ -852,11 +1144,15 @@
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
                 // 5. Sağ Paneli Güncelle:
+                const ocrCurr = receiptCurrency;
+                const ocrRate = liveExchangeRates[ocrCurr] || 1.0;
+                const ocrAmountInTRY = ocrCurr === "TRY" ? Number(receiptData.amount) : (Number(receiptData.amount) * ocrRate);
+
                 updateImpactPanel({
                     product_name: receiptData.merchant,
-                    price: receiptData.amount,
+                    price: ocrAmountInTRY,
                     category: receiptData.category,
-                    ai_suggestion: `Fiş okundu: ${receiptData.merchant} (${Number(receiptData.amount).toLocaleString('tr-TR')} ₺). Tutarı gerekirse yukarıdan düzeltip 'Harcamalarıma Kaydet'e tıklayabilirsiniz.`
+                    ai_suggestion: `Fiş okundu: ${receiptData.merchant} (${Number(receiptData.amount).toLocaleString('tr-TR')} ${receiptSym}). Tutarı gerekirse yukarıdan düzeltip 'Harcamalarıma Kaydet'e tıklayabilirsiniz.`
                 });
 
             } catch (error) {
@@ -883,11 +1179,16 @@
         const amount = parseFloat(document.getElementById(`rec-amount-${uniqueId}`)?.value) || 0;
         const merchant = document.getElementById(`rec-merchant-${uniqueId}`)?.value || "Alışveriş";
         const category = document.getElementById(`rec-category-${uniqueId}`)?.value || "Diğer";
+        const recCurr = document.getElementById(`rec-currency-${uniqueId}`)?.value || "TRY";
+
+        const rate = liveExchangeRates[recCurr] || 1.0;
+        const amountInTRY = recCurr === 'TRY' ? amount : (amount * rate);
+
         updateImpactPanel({
             product_name: merchant,
-            price: amount,
+            price: amountInTRY,
             category: category,
-            ai_suggestion: `Fiş tutarı güncellendi: ${amount.toLocaleString('tr-TR')} ₺.`
+            ai_suggestion: `Fiş tutarı güncellendi: ${amount.toLocaleString('tr-TR')} ${getCurrencySymbol(recCurr)}.`
         });
     }
 
@@ -914,12 +1215,19 @@
         }
 
         try {
+            const recCurrency = document.getElementById(`rec-currency-${uniqueId}`)?.value || "TRY";
+            const rate = liveExchangeRates[recCurrency] || 1.0;
+            const baseAmountInTRY = recCurrency === 'TRY' ? amount : (amount * rate);
+
             const payload = {
                 type: "expense",
-                amount: amount,
+                amount: baseAmountInTRY,
                 category: category,
                 description: `${merchant} Fişi`,
-                date: dateVal + "T12:00:00"
+                date: dateVal + "T12:00:00",
+                currency: recCurrency,
+                original_amount: amount,
+                exchange_rate: rate
             };
 
             const res = await fetch(`${API_BASE}/transactions`, {
@@ -937,7 +1245,7 @@
                 btn.innerHTML = `<span class="material-symbols-outlined text-sm">check_circle</span> Harcama Kaydedildi`;
             }
 
-            showToast(`'${merchant}' (${amount.toLocaleString('tr-TR')} ₺) başarıyla kaydedildi!`, "success");
+            showToast(`'${merchant}' (${amount.toLocaleString('tr-TR')} ${getCurrencySymbol(recCurrency)}) başarıyla kaydedildi!`, "success");
             loadInitialPanelContext();
 
         } catch (err) {
