@@ -13,6 +13,9 @@
         } else {
             document.documentElement.classList.remove('dark');
         }
+        if (localStorage.getItem('paraasistan_privacy') === 'true') {
+            document.documentElement.classList.add('privacy-mode');
+        }
     })();
 </script>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -146,6 +149,17 @@
 
         body { background-color: var(--color-background); }
         .soft-shadow { box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05); }
+
+        /* 👁️ Gizlilik / Hayalet Modu */
+        html.privacy-mode .privacy-mask {
+            filter: blur(9px) !important;
+            user-select: none !important;
+            transition: filter 0.25s ease;
+        }
+        html.privacy-mode .privacy-mask:hover {
+            filter: blur(2px) !important;
+        }
+
         html.dark .soft-shadow {
             box-shadow: none;
             border: 1px solid #202327;
@@ -342,7 +356,7 @@
                 </div>
                 <div>
                     <p class="font-label-md text-on-surface-variant mb-xs">Toplam Biriken Para</p>
-                    <h3 id="summary-total-saved" class="font-headline-lg text-[28px] md:text-[32px] text-on-background font-bold tracking-tight">0,00 ₺</h3>
+                    <h3 id="summary-total-saved" onclick="togglePrivacyMode()" class="privacy-mask font-headline-lg text-[28px] md:text-[32px] text-on-background font-bold tracking-tight cursor-pointer hover:opacity-85 transition-all select-none" title="Bakiyeleri gizlemek veya göstermek için tıklayın">0,00 ₺</h3>
                 </div>
             </div>
 
@@ -356,7 +370,7 @@
                 </div>
                 <div>
                     <p class="font-label-md text-on-surface-variant mb-xs">Toplam Hedef Tutarı</p>
-                    <h3 id="summary-total-target" class="font-headline-lg text-[28px] md:text-[32px] text-on-background font-bold tracking-tight">0,00 ₺</h3>
+                    <h3 id="summary-total-target" onclick="togglePrivacyMode()" class="privacy-mask font-headline-lg text-[28px] md:text-[32px] text-on-background font-bold tracking-tight cursor-pointer hover:opacity-85 transition-all select-none" title="Bakiyeleri gizlemek veya göstermek için tıklayın">0,00 ₺</h3>
                 </div>
             </div>
 
@@ -670,6 +684,45 @@
         showToast(`Para birimi ${curr} (${getCurrencySymbol(curr)}) olarak ayarlandı`, "success");
     }
 
+    // 👁️ GİZLİLİK MODU (HAYALET MODU)
+    function isPrivacyMode() {
+        return localStorage.getItem('paraasistan_privacy') === 'true';
+    }
+
+    function togglePrivacyMode() {
+        const nextState = !isPrivacyMode();
+        localStorage.setItem('paraasistan_privacy', nextState ? 'true' : 'false');
+        updatePrivacyUI();
+    }
+
+    function updatePrivacyUI() {
+        const active = isPrivacyMode();
+        if (active) {
+            document.documentElement.classList.add('privacy-mode');
+        } else {
+            document.documentElement.classList.remove('privacy-mode');
+        }
+
+        document.querySelectorAll('.privacy-toggle-icon').forEach(icon => {
+            icon.innerText = active ? 'visibility_off' : 'visibility';
+            icon.className = active 
+                ? 'privacy-toggle-icon material-symbols-outlined text-[22px] text-amber-500' 
+                : 'privacy-toggle-icon material-symbols-outlined text-[22px] text-on-surface-variant';
+        });
+
+        document.querySelectorAll('.btn-privacy-toggle').forEach(btn => {
+            btn.title = active ? "Bakiyeleri Göster (Kısayol: H)" : "Bakiyeleri Gizle (Kısayol: H)";
+        });
+    }
+
+    // Klavye Kısayolu: H tuşuna basınca gizle/aç
+    document.addEventListener('keydown', (e) => {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        if (e.key === 'h' || e.key === 'H') {
+            togglePrivacyMode();
+        }
+    });
+
     // 👤 PROFİL MENÜSÜ AÇ/KAPA
     function toggleProfileDropdown(e, target) {
         e.stopPropagation();
@@ -752,6 +805,7 @@
 
     document.addEventListener("DOMContentLoaded", async () => {
         updateThemeUI();
+        updatePrivacyUI();
         populateProfileInfo();
         updateCurrencyUI();
         await loadLiveRates();
@@ -881,8 +935,8 @@
 
                     <div class="mb-4">
                         <div class="flex justify-between items-end mb-1">
-                            <span class="text-2xl font-bold text-on-surface">${formatMoney(goal.current_amount || 0)}</span>
-                            <span class="text-sm font-semibold text-outline">/ ${formatMoney(goal.target_amount || 0)}</span>
+                            <span onclick="togglePrivacyMode()" class="privacy-mask text-2xl font-bold text-on-surface cursor-pointer hover:opacity-85 transition-all select-none" title="Bakiyeleri gizlemek veya göstermek için tıklayın">${formatMoney(goal.current_amount || 0)}</span>
+                            <span onclick="togglePrivacyMode()" class="privacy-mask text-sm font-semibold text-outline cursor-pointer hover:opacity-85 transition-all select-none" title="Bakiyeleri gizlemek veya göstermek için tıklayın">/ ${formatMoney(goal.target_amount || 0)}</span>
                         </div>
                         
                         <!-- Progress Bar -->
@@ -891,7 +945,7 @@
                         </div>
 
                         <div class="flex justify-between items-center text-[12px]">
-                            <span class="text-on-surface-variant font-medium">${formatMoney(goal.remaining_amount || 0)} kaldı</span>
+                            <span onclick="togglePrivacyMode()" class="privacy-mask text-on-surface-variant font-medium cursor-pointer hover:opacity-85 transition-all select-none" title="Bakiyeleri gizlemek veya göstermek için tıklayın">${formatMoney(goal.remaining_amount || 0)} kaldı</span>
                             ${statusBadge}
                         </div>
 

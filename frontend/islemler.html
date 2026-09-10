@@ -210,9 +210,9 @@
             --color-surface-variant: #16181c;
             --color-on-background: #e7e9ea;
             --color-on-surface: #e7e9ea;
-            --color-on-surface-variant: #71767b;
-            --color-outline: #2f3336;
-            --color-outline-variant: #202327;
+            --color-on-surface-variant: #94a3b8;
+            --color-outline: #8b949e;
+            --color-outline-variant: #2f3336;
             --color-primary: #1d9bf0;
             --color-on-primary: #ffffff;
             --color-primary-container: #1a8cd8;
@@ -448,10 +448,10 @@
 <!-- Total Income -->
 <div class="bg-surface-container-lowest rounded-3xl p-6 card-shadow flex flex-col justify-between">
 <div class="flex justify-between items-center mb-4">
-<div class="w-11 h-11 rounded-full bg-secondary-container/20 text-secondary flex items-center justify-center shrink-0">
+<div class="w-11 h-11 rounded-full bg-secondary/10 text-secondary flex items-center justify-center shrink-0">
 <span class="material-symbols-outlined text-[24px] font-bold">arrow_upward</span>
 </div>
-<p class="font-label-sm text-label-sm text-outline uppercase tracking-wider font-semibold">Toplam Gelir</p>
+<p class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Toplam Gelir</p>
 </div>
 <div class="mt-auto">
 <h3 id="summary-income" onclick="togglePrivacyMode()" class="privacy-mask font-headline-lg text-[28px] md:text-[32px] text-on-background font-bold truncate tracking-tight cursor-pointer select-none" title="Bakiyeleri gizlemek veya göstermek için tıklayın">₺0.00</h3>
@@ -460,10 +460,10 @@
 <!-- Total Expenses -->
 <div class="bg-surface-container-lowest rounded-3xl p-6 card-shadow flex flex-col justify-between">
 <div class="flex justify-between items-center mb-4">
-<div class="w-11 h-11 rounded-full bg-error-container/20 text-error flex items-center justify-center shrink-0">
+<div class="w-11 h-11 rounded-full bg-error/10 text-error flex items-center justify-center shrink-0">
 <span class="material-symbols-outlined text-[24px] font-bold">arrow_downward</span>
 </div>
-<p class="font-label-sm text-label-sm text-outline uppercase tracking-wider font-semibold">Toplam Gider</p>
+<p class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Toplam Gider</p>
 </div>
 <div class="mt-auto">
 <h3 id="summary-expense" onclick="togglePrivacyMode()" class="privacy-mask font-headline-lg text-[28px] md:text-[32px] text-on-background font-bold truncate tracking-tight cursor-pointer select-none" title="Bakiyeleri gizlemek veya göstermek için tıklayın">₺0.00</h3>
@@ -473,9 +473,14 @@
 <div class="bg-surface-container-lowest rounded-3xl p-6 card-shadow flex flex-col justify-between relative overflow-hidden">
 <div class="absolute -right-12 -top-12 w-48 h-48 bg-primary/5 rounded-full blur-2xl"></div>
 <div class="z-10 flex flex-col h-full">
-<p class="font-label-sm text-label-sm text-outline uppercase tracking-wider font-semibold mb-4">Net Bakiye</p>
+<div class="flex justify-between items-center mb-4">
+<div class="w-11 h-11 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[24px] font-bold">account_balance_wallet</span>
+</div>
+<p class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Net Bakiye</p>
+</div>
 <div class="mt-auto">
-<h3 id="summary-balance" onclick="togglePrivacyMode()" class="privacy-mask font-display text-[32px] md:text-display text-primary dark:text-on-background font-bold truncate tracking-tight cursor-pointer select-none" title="Bakiyeleri gizlemek veya göstermek için tıklayın">₺0.00</h3>
+<h3 id="summary-balance" onclick="togglePrivacyMode()" class="privacy-mask font-headline-lg text-[28px] md:text-[32px] text-on-background font-bold truncate tracking-tight cursor-pointer select-none" title="Bakiyeleri gizlemek veya göstermek için tıklayın">₺0.00</h3>
 </div>
 </div>
 </div>
@@ -503,11 +508,11 @@
 <table class="w-full text-left border-collapse">
 <thead>
 <tr class="border-b border-surface-variant">
-<th class="pb-sm font-label-md text-label-md text-outline font-medium w-1/2">İşlem</th>
-<th class="pb-sm font-label-md text-label-md text-outline font-medium">Tarih</th>
-<th class="pb-sm font-label-md text-label-md text-outline font-medium">Kategori</th>
-<th class="pb-sm font-label-md text-label-md text-outline font-medium text-right">Tutar</th>
-<th class="pb-sm font-label-md text-label-md text-outline font-medium text-right w-12">İşlem</th>
+<th class="pb-sm text-xs font-semibold text-on-surface-variant uppercase tracking-wider w-1/2">İşlem</th>
+<th class="pb-sm text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Tarih</th>
+<th class="pb-sm text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Kategori</th>
+<th class="pb-sm text-xs font-semibold text-on-surface-variant uppercase tracking-wider text-right">Tutar</th>
+<th class="pb-sm text-xs font-semibold text-on-surface-variant uppercase tracking-wider text-right w-12">İşlem</th>
 </tr>
 </thead>
 <tbody id="transactions-tbody">
@@ -523,6 +528,105 @@
 </table>
 </div>
 </div>
+
+<!-- ============================================================== -->
+<!-- 🔄 DÜZENLİ GELİR VE GİDERLER (SABİT ÖDEMELER & ABONELİKLER) -->
+<!-- ============================================================== -->
+<div id="recurring-section" class="mt-xl space-y-lg">
+    <!-- Üst Başlık & Ekleme Butonu -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-md">
+        <div>
+            <div class="flex items-center gap-2 mb-1">
+                <span class="material-symbols-outlined text-primary text-[26px]">event_repeat</span>
+                <h3 class="font-headline-md text-headline-md text-on-surface font-bold">Düzenli Gelir & Giderler</h3>
+                <span id="recurring-count-badge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-primary/10 text-primary">0 Plan</span>
+            </div>
+            <p class="font-body-md text-body-md text-on-surface-variant">Maaş, kira, aidat, fatura, abonelik ve her ay tekrarlayan sabit bütçe akışlarınız.</p>
+        </div>
+        <button type="button" onclick="openRecurringModal('create')" class="px-md py-sm rounded-full bg-primary text-on-primary font-label-md text-label-md hover:bg-primary-container transition-all shadow-sm flex items-center gap-2 self-start md:self-auto cursor-pointer">
+            <span class="material-symbols-outlined text-[18px]">add_circle</span>
+            <span>Yeni Düzenli İşlem Ekle</span>
+        </button>
+    </div>
+
+    <!-- 3'lü Özet Bento Kartları (Aylık Düzenli Akış) -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-md">
+        <!-- Aylık Düzenli Gelir -->
+        <div class="bg-surface-container-lowest p-5 rounded-2xl card-shadow flex items-center justify-between">
+            <div>
+                <p class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Aylık Düzenli Gelir</p>
+                <h4 id="recurring-total-income" onclick="togglePrivacyMode()" class="privacy-mask font-headline-md text-headline-md text-on-background font-bold truncate tracking-tight cursor-pointer hover:opacity-85 transition-all select-none" title="Bakiyeleri gizlemek veya göstermek için tıklayın">₺0.00</h4>
+                <p id="recurring-income-count" class="text-[11px] text-on-surface-variant mt-0.5">0 aktif gelir</p>
+            </div>
+            <div class="w-11 h-11 rounded-2xl bg-secondary/10 text-secondary flex items-center justify-center">
+                <span class="material-symbols-outlined text-[24px]">arrow_downward</span>
+            </div>
+        </div>
+
+        <!-- Aylık Düzenli Gider -->
+        <div class="bg-surface-container-lowest p-5 rounded-2xl card-shadow flex items-center justify-between">
+            <div>
+                <p class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Aylık Düzenli Gider</p>
+                <h4 id="recurring-total-expense" onclick="togglePrivacyMode()" class="privacy-mask font-headline-md text-headline-md text-on-background font-bold truncate tracking-tight cursor-pointer hover:opacity-85 transition-all select-none" title="Bakiyeleri gizlemek veya göstermek için tıklayın">₺0.00</h4>
+                <p id="recurring-expense-count" class="text-[11px] text-on-surface-variant mt-0.5">0 aktif gider</p>
+            </div>
+            <div class="w-11 h-11 rounded-2xl bg-error/10 text-error flex items-center justify-center">
+                <span class="material-symbols-outlined text-[24px]">arrow_upward</span>
+            </div>
+        </div>
+
+        <!-- Aylık Net Sabit Yük / Kalan -->
+        <div class="bg-surface-container-lowest p-5 rounded-2xl card-shadow flex items-center justify-between">
+            <div>
+                <p class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Aylık Sabit Denge</p>
+                <h4 id="recurring-net-balance" onclick="togglePrivacyMode()" class="privacy-mask font-headline-md text-headline-md text-on-background font-bold truncate tracking-tight cursor-pointer hover:opacity-85 transition-all select-none" title="Bakiyeleri gizlemek veya göstermek için tıklayın">₺0.00</h4>
+                <p class="text-[11px] text-on-surface-variant mt-0.5">Sabit gelir - sabit gider</p>
+            </div>
+            <div class="w-11 h-11 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
+                <span class="material-symbols-outlined text-[24px]">account_balance_wallet</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Düzenli İşlemler Tablosu -->
+    <div class="bg-surface-container-lowest rounded-3xl p-6 card-shadow space-y-md">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-sm pb-md border-b border-surface-variant/40">
+            <div class="flex items-center gap-2">
+                <button type="button" onclick="filterRecurringType('all')" id="btn-rec-filter-all" class="px-3 py-1.5 rounded-full text-xs font-bold transition-all bg-primary text-on-primary shadow-sm">Tümü</button>
+                <button type="button" onclick="filterRecurringType('income')" id="btn-rec-filter-income" class="px-3 py-1.5 rounded-full text-xs font-bold transition-all bg-surface-container text-on-surface-variant hover:text-on-surface">Düzenli Gelirler</button>
+                <button type="button" onclick="filterRecurringType('expense')" id="btn-rec-filter-expense" class="px-3 py-1.5 rounded-full text-xs font-bold transition-all bg-surface-container text-on-surface-variant hover:text-on-surface">Düzenli Giderler</button>
+            </div>
+            <span class="text-xs text-outline font-medium">Günü geldiğinde otomatik olarak harcama kayıtlarınıza eklenir</span>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="border-b border-surface-variant">
+                        <th class="pb-sm text-xs font-semibold text-on-surface-variant uppercase tracking-wider">İşlem & Kategori</th>
+                        <th class="pb-sm text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Tür</th>
+                        <th class="pb-sm text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Ödeme / Tahsilat Günü</th>
+                        <th class="pb-sm text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Süre / Tekrar</th>
+                        <th class="pb-sm text-xs font-semibold text-on-surface-variant uppercase tracking-wider text-right">Aylık Tutar</th>
+                        <th class="pb-sm text-xs font-semibold text-on-surface-variant uppercase tracking-wider text-center">Durum</th>
+                        <th class="pb-sm text-xs font-semibold text-on-surface-variant uppercase tracking-wider text-right w-24">İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody id="recurring-transactions-tbody">
+                    <tr>
+                        <td colspan="7" class="py-xl text-center text-on-surface-variant font-body-md">
+                            <div class="flex justify-center items-center gap-2">
+                                <span class="material-symbols-outlined animate-spin text-primary">progress_activity</span>
+                                <span>Düzenli işlemler yükleniyor...</span>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
 </div>
 </main>
 <!-- BottomNavBar (Mobile Only) -->
@@ -607,21 +711,21 @@
                     <input id="tx-date" class="w-full px-md py-md bg-surface-container-low border border-surface-variant rounded-xl font-body-md text-on-background focus:ring-2 focus:ring-primary outline-none transition-all" type="date"/>
                 </div>
 
-                <!-- 🔄 Düzenli / Tekrarlayan İşlem Seçeneği -->
-                <div class="space-y-sm pt-xs">
-                    <label class="flex items-center gap-sm cursor-pointer select-none">
-                        <input type="checkbox" id="tx-is-recurring" onchange="toggleRecurringOptions()" class="w-4 h-4 rounded text-primary focus:ring-primary border-surface-variant accent-primary cursor-pointer"/>
-                        <span class="font-label-md text-on-surface">Düzenli / Tekrarlayan İşlem</span>
-                    </label>
-
-                    <div id="recurring-options" class="hidden p-md bg-surface-container-low rounded-xl border border-surface-variant/60 space-y-xs transition-all">
-                        <label class="font-label-sm text-label-sm text-on-surface-variant">Kaç ay tekrarlansın? (1-36 ay)</label>
-                        <div class="flex items-center gap-2">
-                            <input id="tx-repeat-months" type="number" min="1" max="36" value="6" class="w-full px-md py-sm bg-surface-container-lowest border border-surface-variant rounded-lg font-body-md text-on-background focus:ring-2 focus:ring-primary outline-none transition-all"/>
-                            <span class="font-label-sm text-on-surface-variant shrink-0">Ay</span>
+                <!-- 🔄 Düzenli / Tekrarlayan İşlem Yönlendirme -->
+                <div class="p-3.5 bg-surface-container-low rounded-2xl border border-surface-variant/70 hover:border-primary/50 transition-all flex items-center justify-between gap-3">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined text-[20px]">event_repeat</span>
                         </div>
-                        <p class="text-[11px] text-outline">Seçilen tarihten itibaren her ay için ayrı işlem kaydı oluşturulacaktır.</p>
+                        <div>
+                            <p class="font-label-md text-on-surface font-semibold text-xs">Düzenli İşlem mi?</p>
+                            <p class="text-[11px] text-outline">Kira, maaş, fatura veya abonelik</p>
+                        </div>
                     </div>
+                    <button type="button" onclick="redirectToRecurringModal()" class="px-3 py-1.5 rounded-xl bg-primary text-on-primary font-label-md text-xs font-bold hover:opacity-90 transition-all shrink-0 flex items-center gap-1 cursor-pointer shadow-sm">
+                        <span>Düzenli Ekle</span>
+                        <span class="material-symbols-outlined text-[15px]">arrow_forward</span>
+                    </button>
                 </div>
 
                 <div class="mt-auto pt-lg">
@@ -631,6 +735,112 @@
                 </div>
             </form>
         </div>
+    </div>
+</div>
+
+<!-- ============================================================== -->
+<!-- 📝 DÜZENLİ İŞLEM EKLE / DÜZENLE MODALI -->
+<!-- ============================================================== -->
+<div id="recurring-modal-backdrop" class="fixed inset-0 bg-on-background/40 backdrop-blur-sm z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300 p-4">
+    <div id="recurring-modal-card" class="bg-surface-container-lowest w-full max-w-md rounded-3xl shadow-2xl border border-surface-variant/40 overflow-hidden transform scale-95 transition-transform duration-300 flex flex-col max-h-[90vh]">
+        <!-- Modal Başlığı -->
+        <div class="p-5 border-b border-surface-variant/40 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                    <span class="material-symbols-outlined text-[20px]">event_repeat</span>
+                </div>
+                <h3 id="recurring-modal-title" class="font-headline-md text-headline-md text-on-surface font-bold">Yeni Düzenli İşlem</h3>
+            </div>
+            <button type="button" onclick="closeRecurringModal()" class="p-1.5 rounded-full text-on-surface-variant hover:bg-surface-container transition-colors">
+                <span class="material-symbols-outlined text-[20px]">close</span>
+            </button>
+        </div>
+
+        <!-- Modal Formu -->
+        <form id="recurring-form" onsubmit="handleSaveRecurring(event)" class="p-5 space-y-4 overflow-y-auto flex-1">
+            <input type="hidden" id="rec-edit-id" value="">
+            <input type="hidden" id="rec-type" value="expense">
+
+            <!-- Tür Seçimi: Gelir / Gider -->
+            <div class="flex p-1 bg-surface-container-low rounded-xl">
+                <button type="button" id="btn-rec-type-expense" onclick="setRecurringType('expense')" class="flex-1 py-2 px-3 rounded-lg text-xs font-bold transition-all bg-primary text-on-primary shadow-sm">Gider</button>
+                <button type="button" id="btn-rec-type-income" onclick="setRecurringType('income')" class="flex-1 py-2 px-3 rounded-lg text-xs font-bold transition-all text-on-surface-variant hover:text-on-surface">Gelir</button>
+            </div>
+
+            <!-- Tutar -->
+            <div class="space-y-1">
+                <label class="text-xs font-semibold text-on-surface-variant">Aylık Tutar (<span class="app-currency-sym">₺</span>) *</label>
+                <div class="relative">
+                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant font-bold app-currency-sym">₺</span>
+                    <input id="rec-amount" required step="0.01" min="0.01" class="w-full pl-8 pr-4 py-2.5 bg-surface-container-low border border-surface-variant rounded-xl text-sm font-bold text-on-background focus:ring-2 focus:ring-primary outline-none transition-all" placeholder="0.00" type="number"/>
+                </div>
+            </div>
+
+            <!-- Kategori -->
+            <div class="space-y-1">
+                <label class="text-xs font-semibold text-on-surface-variant">Kategori *</label>
+                <select id="rec-category" required class="w-full px-3 py-2.5 bg-surface-container-low border border-surface-variant rounded-xl text-sm font-medium text-on-background focus:ring-2 focus:ring-primary outline-none transition-all">
+                    <option value="Kira">Kira</option>
+                    <option value="Fatura">Fatura</option>
+                    <option value="Abonelik">Abonelik</option>
+                    <option value="Aidat">Aidat</option>
+                    <option value="Kredi / Borç">Kredi / Borç</option>
+                    <option value="Sigorta / Kasko">Sigorta / Kasko</option>
+                    <option value="Market">Market</option>
+                    <option value="Ulaşım">Ulaşım</option>
+                    <option value="Eğitim">Eğitim</option>
+                    <option value="Sağlık">Sağlık</option>
+                    <option value="Eğlence">Eğlence</option>
+                    <option value="Diğer Gider">Diğer Gider</option>
+                </select>
+            </div>
+
+            <!-- Açıklama / İsim -->
+            <div class="space-y-1">
+                <label class="text-xs font-semibold text-on-surface-variant">İşlem Adı / Açıklama *</label>
+                <input id="rec-description" required class="w-full px-3 py-2.5 bg-surface-container-low border border-surface-variant rounded-xl text-sm font-medium text-on-background focus:ring-2 focus:ring-primary outline-none transition-all" placeholder="Örn: Ev Kirası, Netflix, İş Maaşı..." type="text"/>
+            </div>
+
+            <!-- Gün Seçimi (1-31) -->
+            <div class="space-y-1">
+                <label class="text-xs font-semibold text-on-surface-variant">Her Ayın Hangi Günü? (1 - 31) *</label>
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-semibold text-outline">Her ayın</span>
+                    <input id="rec-day-of-month" required min="1" max="31" value="1" class="w-20 px-3 py-2 bg-surface-container-low border border-surface-variant rounded-xl text-sm font-bold text-center text-on-background focus:ring-2 focus:ring-primary outline-none transition-all" type="number"/>
+                    <span class="text-xs font-semibold text-outline">günü tekrarlansın</span>
+                </div>
+            </div>
+
+            <!-- Süre / Kaç Ay? -->
+            <div class="space-y-1">
+                <label class="text-xs font-semibold text-on-surface-variant">Tekrar Süresi</label>
+                <select id="rec-duration-select" onchange="handleDurationChange(this.value)" class="w-full px-3 py-2.5 bg-surface-container-low border border-surface-variant rounded-xl text-sm font-medium text-on-background focus:ring-2 focus:ring-primary outline-none transition-all">
+                    <option value="120">Süresiz / Düzenli Her Ay</option>
+                    <option value="3">3 Ay Boyunca</option>
+                    <option value="6">6 Ay Boyunca</option>
+                    <option value="12">1 Yıl (12 Ay)</option>
+                    <option value="24">2 Yıl (24 Ay)</option>
+                    <option value="custom">Özel Ay Sayısı Belirt</option>
+                </select>
+                <div id="rec-custom-duration-container" class="hidden pt-1">
+                    <div class="flex items-center gap-2">
+                        <input id="rec-custom-months" min="1" max="120" value="12" class="w-24 px-3 py-2 bg-surface-container-low border border-surface-variant rounded-xl text-sm font-bold text-center text-on-background focus:ring-2 focus:ring-primary outline-none" type="number"/>
+                        <span class="text-xs text-on-surface-variant">ay sonra otomatik tamamlansın</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Butonlar -->
+            <div class="pt-3 flex gap-2">
+                <button type="button" onclick="closeRecurringModal()" class="flex-1 py-2.5 px-4 rounded-xl border border-surface-variant text-on-surface font-label-md text-xs font-bold hover:bg-surface-container transition-all">
+                    Vazgeç
+                </button>
+                <button type="submit" id="btn-save-recurring" class="flex-1 py-2.5 px-4 rounded-xl bg-primary text-on-primary font-label-md text-xs font-bold hover:opacity-95 shadow-sm transition-all flex items-center justify-center gap-1.5">
+                    <span class="material-symbols-outlined text-[16px]">check</span>
+                    <span id="btn-save-recurring-text">Kaydet</span>
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -832,6 +1042,9 @@
         updateCurrencyUI();
         await loadSummary();
         await loadTransactions();
+        if (typeof renderRecurringTransactions === 'function') {
+            renderRecurringTransactions();
+        }
         showToast(`Para birimi ${curr} (${getCurrencySymbol(curr)}) olarak ayarlandı`, "success");
     }
 
@@ -854,11 +1067,14 @@
         }
     });
 
+    let currentUserIsAdmin = false;
+
     async function populateProfileInfo() {
         try {
             const userStr = localStorage.getItem("paraasistan_user");
             if (userStr) {
                 const user = JSON.parse(userStr);
+                currentUserIsAdmin = !!user.is_admin;
                 document.querySelectorAll(".menu-user-name").forEach(el => el.textContent = user.full_name || "Kullanıcı");
                 document.querySelectorAll(".menu-user-email").forEach(el => el.textContent = user.email || "");
                 if (user.is_admin) {
@@ -873,10 +1089,15 @@
                 if (res.ok) {
                     const freshUser = await res.json();
                     localStorage.setItem("paraasistan_user", JSON.stringify(freshUser));
+                    const wasAdmin = currentUserIsAdmin;
+                    currentUserIsAdmin = !!freshUser.is_admin;
                     if (freshUser.is_admin) {
                         document.querySelectorAll(".admin-sidebar-item, .admin-panel-link-container").forEach(el => el.classList.remove("hidden"));
                     } else {
                         document.querySelectorAll(".admin-sidebar-item, .admin-panel-link-container").forEach(el => el.classList.add("hidden"));
+                    }
+                    if (wasAdmin !== currentUserIsAdmin && allRecurringItems.length > 0) {
+                        renderRecurringTransactions();
                     }
                 }
             }
@@ -988,6 +1209,7 @@
         await loadLiveRates();
         loadTransactions();
         loadSummary();
+        loadRecurringTransactions();
     });
 
     function openSlideOver() {
@@ -1015,7 +1237,7 @@
         }
     }
 
-    function setType(type) {
+    function setType(type, selectedCat = null) {
         document.getElementById("tx-type").value = type;
         const btnExp = document.getElementById("btn-type-expense");
         const btnInc = document.getElementById("btn-type-income");
@@ -1029,20 +1251,25 @@
             btnExp.className = "flex-1 py-sm px-md rounded-full text-on-surface-variant font-label-md hover:bg-surface-container transition-all";
         }
 
-        // Veritabanından gelen o türe (expense veya income) ait kategorileri bas:
+        // Veritabanından gelen veya varsayılan kategorileri bas:
         if (catSelect) {
             catSelect.innerHTML = "";
-            const filtered = categoriesCache.filter(c => c.type === type);
-            if (filtered.length > 0) {
-                filtered.forEach(cat => {
-                    const opt = document.createElement("option");
-                    opt.value = cat.name;
-                    opt.textContent = cat.name;
-                    catSelect.appendChild(opt);
-                });
-            } else {
-                // Yedek
-                catSelect.innerHTML = '<option value="Diğer">Diğer</option>';
+            const filtered = (categoriesCache || []).filter(c => c.type === type);
+            let catList = filtered.map(c => c.name);
+            if (catList.length === 0) {
+                catList = type === 'income'
+                    ? ["Maaş", "Ek Gelir", "Yatırım", "Freelance", "Satış", "Diğer Gelir"]
+                    : ["Market", "Kira", "Fatura", "Ulaşım", "Teknoloji", "Eğlence", "Sağlık", "Eğitim", "Diğer"];
+            }
+            catList.forEach(name => {
+                const opt = document.createElement("option");
+                opt.value = name;
+                opt.textContent = name;
+                catSelect.appendChild(opt);
+            });
+            if (selectedCat) {
+                const match = Array.from(catSelect.options).find(o => o.value.toLowerCase() === selectedCat.toLowerCase());
+                if (match) catSelect.value = match.value;
             }
         }
     }
@@ -1298,6 +1525,577 @@
             }
         } catch (err) {
             alert("Sunucu hatası: " + err.message);
+        }
+    }
+
+    // ==============================================================
+    // 🔄 DÜZENLİ GELİR & GİDERLER (SABİT İŞLEMLER) YÖNETİMİ
+    // ==============================================================
+    let allRecurringItems = [];
+    let currentRecurringFilter = 'all';
+
+    function getRecurringCategoryIcon(cat) {
+        if (!cat) return 'receipt';
+        const found = (categoriesCache || []).find(c => c.name.toLowerCase() === cat.toLowerCase());
+        if (found && found.icon) return found.icon;
+
+        const icons = {
+            'Maaş': 'payments',
+            'Kira': 'home',
+            'Kira Geliri': 'real_estate_agent',
+            'Fatura': 'receipt_long',
+            'Abonelik': 'subscriptions',
+            'Aidat': 'apartment',
+            'Market': 'shopping_basket',
+            'Ulaşım': 'directions_car',
+            'Eğlence': 'movie',
+            'Sağlık': 'medical_services',
+            'Eğitim': 'school',
+            'Kredi / Borç': 'credit_card',
+            'Kredi': 'credit_card',
+            'Borç': 'credit_card',
+            'Sigorta / Kasko': 'security',
+            'Sigorta': 'security',
+            'Freelance / Ek Gelir': 'laptop_mac',
+            'Freelance': 'laptop_mac',
+            'Ek Gelir': 'savings',
+            'Yatırım / Temettü': 'trending_up',
+            'Yatırım': 'trending_up',
+            'Burs / Harçlık': 'school',
+            'Burs': 'school',
+            'Emekli Maaşı': 'account_balance',
+            'Satış Geliri': 'point_of_sale',
+            'Satış': 'point_of_sale',
+            'Teknoloji': 'laptop',
+            'Diğer Gelir': 'savings',
+            'Diğer Gider': 'receipt',
+            'Diğer': 'receipt'
+        };
+        return icons[cat] || 'receipt';
+    }
+
+    async function loadRecurringTransactions() {
+        try {
+            const res = await fetch(`${API_BASE}/recurring-transactions`, {
+                headers: getAuthHeaders()
+            });
+
+            if (!res.ok) {
+                if (res.status === 401) {
+                    window.location.href = "login.html";
+                    return;
+                }
+                throw new Error("Düzenli işlemler alınamadı");
+            }
+
+            allRecurringItems = await res.json();
+            renderRecurringTransactions();
+            loadTransactions();
+            loadSummary();
+        } catch (err) {
+            console.error("Düzenli işlemler hatası:", err);
+            const tbody = document.getElementById("recurring-transactions-tbody");
+            if (tbody) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="py-md text-center text-error font-body-md">
+                            Düzenli işlemler yüklenirken hata oluştu: ${err.message}
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+    }
+
+    function renderRecurringTransactions() {
+        const tbody = document.getElementById("recurring-transactions-tbody");
+        if (!tbody) return;
+
+        // 1. Özet Metrikleri Hesapla (Yalnızca Aktif olanlar)
+        let totalMonthlyIncome = 0;
+        let totalMonthlyExpense = 0;
+        let activeIncomeCount = 0;
+        let activeExpenseCount = 0;
+
+        allRecurringItems.forEach(r => {
+            if (r.is_active === 1) {
+                if (r.type === 'income') {
+                    totalMonthlyIncome += Number(r.amount);
+                    activeIncomeCount++;
+                } else {
+                    totalMonthlyExpense += Number(r.amount);
+                    activeExpenseCount++;
+                }
+            }
+        });
+
+        const monthlyNet = totalMonthlyIncome - totalMonthlyExpense;
+
+        const incomeEl = document.getElementById("recurring-total-income");
+        if (incomeEl) incomeEl.innerText = `+${formatMoney(totalMonthlyIncome)}`;
+
+        const incomeCountEl = document.getElementById("recurring-income-count");
+        if (incomeCountEl) incomeCountEl.innerText = `${activeIncomeCount} aktif gelir planı`;
+
+        const expenseEl = document.getElementById("recurring-total-expense");
+        if (expenseEl) expenseEl.innerText = `-${formatMoney(totalMonthlyExpense)}`;
+
+        const expenseCountEl = document.getElementById("recurring-expense-count");
+        if (expenseCountEl) expenseCountEl.innerText = `${activeExpenseCount} aktif gider planı`;
+
+        const netEl = document.getElementById("recurring-net-balance");
+        if (netEl) {
+            netEl.innerText = `${monthlyNet >= 0 ? '+' : ''}${formatMoney(monthlyNet)}`;
+            netEl.className = "privacy-mask font-headline-md text-headline-md font-bold text-on-background cursor-pointer hover:opacity-85 transition-all select-none";
+        }
+
+        const countBadge = document.getElementById("recurring-count-badge");
+        if (countBadge) countBadge.innerText = `${allRecurringItems.length} Plan`;
+
+        // 2. Filtreye Göre Tabloyu Çiz
+        let filtered = allRecurringItems;
+        if (currentRecurringFilter === 'income') filtered = allRecurringItems.filter(r => r.type === 'income');
+        if (currentRecurringFilter === 'expense') filtered = allRecurringItems.filter(r => r.type === 'expense');
+
+        if (filtered.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="py-xl text-center">
+                        <div class="flex flex-col items-center justify-center gap-2 text-outline">
+                            <span class="material-symbols-outlined text-4xl opacity-40">event_busy</span>
+                            <p class="font-body-md text-sm">Henüz kayıtlı düzenli bir işlem kuralı bulunmuyor.</p>
+                            <button type="button" onclick="openRecurringModal('create')" class="text-xs text-primary font-bold hover:underline cursor-pointer">Hemen ilk düzenli işlemini ekle</button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        tbody.innerHTML = filtered.map(r => {
+            const isIncome = r.type === 'income';
+            const iconBg = isIncome ? 'bg-secondary-container/30 text-secondary' : 'bg-error-container/20 text-error';
+            const typeBadge = isIncome 
+                ? `<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-secondary/10 text-secondary border border-secondary/20">Gelir</span>`
+                : `<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-error/10 text-error border border-error/20">Gider</span>`;
+            
+            const durationText = (r.total_months >= 100 || r.total_months === 0)
+                ? `<span class="text-xs font-semibold text-outline">Süresiz</span>`
+                : `<span class="text-xs font-semibold text-on-surface">${r.paid_months || 0}/${r.total_months} Ay</span>`;
+
+            const statusBadge = r.is_active === 1
+                ? `<button type="button" onclick="toggleRecurringActive(${r.id})" class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 hover:opacity-80 transition-all cursor-pointer" title="Duraklatmak için tıklayın">Aktif</button>`
+                : `<button type="button" onclick="toggleRecurringActive(${r.id})" class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20 hover:opacity-80 transition-all cursor-pointer" title="Yeniden başlatmak için tıklayın">Duraklatıldı</button>`;
+
+            const amountClass = isIncome ? 'text-secondary font-bold' : 'text-on-surface font-bold';
+            const sign = isIncome ? '+' : '-';
+            const safeDesc = (r.description || r.category || '').replace(/'/g, "\\'");
+
+            const lastRunHtml = r.last_payment_date
+                ? `<span class="inline-flex items-center gap-1 text-[11px] text-primary/80 font-medium"><span class="w-1.5 h-1.5 rounded-full bg-primary inline-block"></span>Son: ${new Date(r.last_payment_date).toLocaleDateString('tr-TR', {day: 'numeric', month: 'short'})}</span>`
+                : `<span class="text-[11px] text-outline font-medium">İlk gün bekleniyor</span>`;
+
+            return `
+                <tr class="border-b border-surface-variant hover:bg-surface-bright transition-colors group">
+                    <td class="py-md">
+                        <div class="flex items-center gap-md">
+                            <div class="w-10 h-10 squircle ${iconBg} flex justify-center items-center shrink-0">
+                                <span class="material-symbols-outlined">${getRecurringCategoryIcon(r.category)}</span>
+                            </div>
+                            <div>
+                                <p class="font-label-md text-label-md text-on-surface font-semibold">${r.description || r.category}</p>
+                                <p class="font-label-sm text-label-sm text-outline">${r.category}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="py-md">${typeBadge}</td>
+                    <td class="py-md">
+                        <div class="flex flex-col">
+                            <div class="flex items-center gap-1.5 text-on-surface text-sm font-medium">
+                                <span class="material-symbols-outlined text-[16px] text-outline">calendar_month</span>
+                                <span>Her ayın ${r.day_of_month}. günü</span>
+                            </div>
+                            <div class="mt-0.5 ml-5">
+                                ${lastRunHtml}
+                            </div>
+                        </div>
+                    </td>
+                    <td class="py-md">${durationText}</td>
+                    <td onclick="togglePrivacyMode()" class="privacy-mask py-md text-right font-label-md ${amountClass} cursor-pointer select-none">
+                        ${sign}${formatMoney(r.amount)}
+                    </td>
+                    <td class="py-md text-center">${statusBadge}</td>
+                    <td class="py-md text-right">
+                        <div class="flex items-center justify-end gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
+                            ${currentUserIsAdmin ? `
+                            <button type="button" onclick="runRecurringNow(${r.id}, '${safeDesc}')" class="p-1.5 rounded-lg hover:bg-amber-500/10 text-amber-500 hover:text-amber-600 transition-colors cursor-pointer" title="Hemen Şimdi Çalıştır (Yönetici Testi)">
+                                <span class="material-symbols-outlined text-[17px]">play_arrow</span>
+                            </button>
+                            ` : ''}
+                            <button type="button" onclick="editRecurring(${r.id})" class="p-1.5 rounded-lg hover:bg-surface-container text-outline hover:text-primary transition-colors cursor-pointer" title="Düzenle">
+                                <span class="material-symbols-outlined text-[16px]">edit</span>
+                            </button>
+                            <button type="button" onclick="deleteRecurring(${r.id}, '${safeDesc}')" class="p-1.5 rounded-lg hover:bg-error-container/20 text-outline hover:text-error transition-colors cursor-pointer" title="Sil">
+                                <span class="material-symbols-outlined text-[16px]">delete</span>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }).join("");
+    }
+
+    function filterRecurringType(type) {
+        currentRecurringFilter = type;
+        const btnAll = document.getElementById("btn-rec-filter-all");
+        const btnInc = document.getElementById("btn-rec-filter-income");
+        const btnExp = document.getElementById("btn-rec-filter-expense");
+
+        if (btnAll && btnInc && btnExp) {
+            [btnAll, btnInc, btnExp].forEach(b => {
+                b.className = "px-3 py-1.5 rounded-full text-xs font-bold transition-all bg-surface-container text-on-surface-variant hover:text-on-surface";
+            });
+
+            if (type === 'all') btnAll.className = "px-3 py-1.5 rounded-full text-xs font-bold transition-all bg-primary text-on-primary shadow-sm";
+            if (type === 'income') btnInc.className = "px-3 py-1.5 rounded-full text-xs font-bold transition-all bg-primary text-on-primary shadow-sm";
+            if (type === 'expense') btnExp.className = "px-3 py-1.5 rounded-full text-xs font-bold transition-all bg-primary text-on-primary shadow-sm";
+        }
+
+        renderRecurringTransactions();
+    }
+
+    // Slide-over panelinden Düzenli İşlemler menüsüne yönlendirme ve veri aktarma
+    function redirectToRecurringModal() {
+        const type = document.getElementById("tx-type") ? document.getElementById("tx-type").value : 'expense';
+        const amount = document.getElementById("tx-amount") ? document.getElementById("tx-amount").value : '';
+        const category = document.getElementById("tx-category") ? document.getElementById("tx-category").value : '';
+        const description = document.getElementById("tx-description") ? document.getElementById("tx-description").value : '';
+        const dateVal = document.getElementById("tx-date") ? document.getElementById("tx-date").value : '';
+
+        let dayOfMonth = new Date().getDate();
+        if (dateVal) {
+            const parts = dateVal.split('-');
+            if (parts.length === 3) {
+                dayOfMonth = parseInt(parts[2], 10) || new Date().getDate();
+            }
+        }
+
+        // 1. Kayan paneli kapat
+        closeSlideOver();
+
+        // 2. Sayfayı alt taraftaki Düzenli İşlemler bölümüne yumuşakça kaydır
+        const recSection = document.getElementById("recurring-section");
+        if (recSection) {
+            recSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        // 3. Kısa bir animasyon aralığının ardından modalı aktarılan verilerle aç
+        setTimeout(() => {
+            openRecurringModal('create', {
+                type: type,
+                amount: amount,
+                category: category,
+                description: description,
+                day_of_month: dayOfMonth
+            });
+            if (amount || description) {
+                showToast("İşlem bilgileri Düzenli İşlem formuna aktarıldı. ⚡", "success");
+            }
+        }, 200);
+    }
+
+    // Düzenli işlem kategorilerini türe göre dinamik doldur
+    function populateRecurringCategories(type, selectedCategory = null) {
+        const recCatSelect = document.getElementById("rec-category");
+        if (!recCatSelect) return;
+
+        // Düzenli gelirler ve giderler için en uygun, standart kategoriler
+        const defaultExpenseCategories = [
+            "Kira",
+            "Fatura",
+            "Abonelik",
+            "Aidat",
+            "Kredi / Borç",
+            "Sigorta / Kasko",
+            "Market",
+            "Ulaşım",
+            "Eğitim",
+            "Sağlık",
+            "Eğlence",
+            "Diğer Gider"
+        ];
+
+        const defaultIncomeCategories = [
+            "Maaş",
+            "Kira Geliri",
+            "Freelance / Ek Gelir",
+            "Yatırım / Temettü",
+            "Burs / Harçlık",
+            "Emekli Maaşı",
+            "Satış Geliri",
+            "Diğer Gelir"
+        ];
+
+        const defaults = type === 'income' ? defaultIncomeCategories : defaultExpenseCategories;
+
+        // Veritabanındaki kullanıcı/sistem kategorilerini de türe göre harmanla
+        const userCats = (categoriesCache || [])
+            .filter(c => c.type === type)
+            .map(c => c.name);
+
+        const allCats = [...new Set([...defaults, ...userCats])];
+
+        // Eğer dışarıdan veya önceki formdan gelen kategori bu listede yoksa bile ekle (kaybolmasın)
+        if (selectedCategory && !allCats.some(c => c.toLowerCase() === selectedCategory.toLowerCase())) {
+            allCats.push(selectedCategory);
+        }
+
+        recCatSelect.innerHTML = "";
+        allCats.forEach(cat => {
+            const opt = document.createElement("option");
+            opt.value = cat;
+            opt.textContent = cat;
+            recCatSelect.appendChild(opt);
+        });
+
+        if (selectedCategory) {
+            const match = Array.from(recCatSelect.options).find(o => o.value.toLowerCase() === selectedCategory.toLowerCase());
+            if (match) {
+                recCatSelect.value = match.value;
+            } else {
+                recCatSelect.value = allCats[0];
+            }
+        } else {
+            recCatSelect.value = allCats[0];
+        }
+    }
+
+    function setRecurringType(type, selectedCategory = null) {
+        document.getElementById("rec-type").value = type;
+        const btnExp = document.getElementById("btn-rec-type-expense");
+        const btnInc = document.getElementById("btn-rec-type-income");
+
+        if (type === 'expense') {
+            btnExp.className = "flex-1 py-2 px-3 rounded-lg text-xs font-bold transition-all bg-primary text-on-primary shadow-sm";
+            btnInc.className = "flex-1 py-2 px-3 rounded-lg text-xs font-bold transition-all text-on-surface-variant hover:text-on-surface";
+        } else {
+            btnInc.className = "flex-1 py-2 px-3 rounded-lg text-xs font-bold transition-all bg-primary text-on-primary shadow-sm";
+            btnExp.className = "flex-1 py-2 px-3 rounded-lg text-xs font-bold transition-all text-on-surface-variant hover:text-on-surface";
+        }
+
+        // Kategori seçeneklerini türe (Gelir veya Gider) göre dinamik güncelle
+        populateRecurringCategories(type, selectedCategory);
+    }
+
+    // Modal Aç / Kapa
+    function openRecurringModal(mode = 'create', data = null) {
+        const backdrop = document.getElementById("recurring-modal-backdrop");
+        const card = document.getElementById("recurring-modal-card");
+        const titleEl = document.getElementById("recurring-modal-title");
+        const editIdInput = document.getElementById("rec-edit-id");
+        const saveBtnText = document.getElementById("btn-save-recurring-text");
+
+        if (mode === 'edit' && data) {
+            titleEl.innerText = "Düzenli İşlemi Güncelle";
+            editIdInput.value = data.id;
+            saveBtnText.innerText = "Güncelle";
+            
+            // Türe göre buton ve kategori listesini ayarla
+            setRecurringType(data.type || 'expense', data.category);
+            
+            // Tutarı aktif para birimine çevirerek göster
+            const curr = getAppCurrency();
+            const rate = liveExchangeRates[curr] || 1.0;
+            const converted = (Number(data.amount) / rate).toFixed(2);
+            document.getElementById("rec-amount").value = converted;
+
+            document.getElementById("rec-description").value = data.description || '';
+            document.getElementById("rec-day-of-month").value = data.day_of_month || 1;
+
+            if (data.total_months >= 100 || data.total_months === 0) {
+                document.getElementById("rec-duration-select").value = "120";
+                handleDurationChange("120");
+            } else if ([3, 6, 12, 24].includes(data.total_months)) {
+                document.getElementById("rec-duration-select").value = String(data.total_months);
+                handleDurationChange(String(data.total_months));
+            } else {
+                document.getElementById("rec-duration-select").value = "custom";
+                handleDurationChange("custom");
+                document.getElementById("rec-custom-months").value = data.total_months;
+            }
+        } else {
+            titleEl.innerText = "Yeni Düzenli İşlem";
+            editIdInput.value = "";
+            saveBtnText.innerText = "Kaydet";
+            document.getElementById("recurring-form").reset();
+            
+            const recType = (data && data.type) ? data.type : 'expense';
+            const recCategory = (data && data.category) ? data.category : null;
+            
+            // Türe göre buton ve kategori listesini ayarla
+            setRecurringType(recType, recCategory);
+
+            if (data) {
+                if (data.amount) document.getElementById("rec-amount").value = data.amount;
+                if (data.description) document.getElementById("rec-description").value = data.description;
+                if (data.day_of_month) {
+                    document.getElementById("rec-day-of-month").value = data.day_of_month;
+                } else {
+                    document.getElementById("rec-day-of-month").value = new Date().getDate();
+                }
+            } else {
+                document.getElementById("rec-day-of-month").value = new Date().getDate();
+            }
+            handleDurationChange("120");
+        }
+
+        backdrop.classList.remove("opacity-0", "pointer-events-none");
+        card.classList.remove("scale-95");
+        card.classList.add("scale-100");
+    }
+
+    function closeRecurringModal() {
+        const backdrop = document.getElementById("recurring-modal-backdrop");
+        const card = document.getElementById("recurring-modal-card");
+        backdrop.classList.add("opacity-0", "pointer-events-none");
+        card.classList.remove("scale-100");
+        card.classList.add("scale-95");
+        document.getElementById("recurring-form").reset();
+    }
+
+    function handleDurationChange(val) {
+        const customContainer = document.getElementById("rec-custom-duration-container");
+        if (val === 'custom') {
+            customContainer.classList.remove("hidden");
+        } else {
+            customContainer.classList.add("hidden");
+        }
+    }
+
+    // Düzenli İşlem Kaydet / Güncelle
+    async function handleSaveRecurring(event) {
+        event.preventDefault();
+        const editId = document.getElementById("rec-edit-id").value;
+        const type = document.getElementById("rec-type").value;
+        const inputAmount = parseFloat(document.getElementById("rec-amount").value);
+        const category = document.getElementById("rec-category").value;
+        const description = document.getElementById("rec-description").value.trim();
+        const dayOfMonth = parseInt(document.getElementById("rec-day-of-month").value);
+        
+        let totalMonths = 120;
+        const durationSelect = document.getElementById("rec-duration-select").value;
+        if (durationSelect === 'custom') {
+            totalMonths = parseInt(document.getElementById("rec-custom-months").value) || 12;
+        } else {
+            totalMonths = parseInt(durationSelect);
+        }
+
+        // Girilen tutarı TRY bazına çevir
+        const curr = getAppCurrency();
+        const rate = liveExchangeRates[curr] || 1.0;
+        const amountInTRY = inputAmount * rate;
+
+        const payload = {
+            type: type,
+            amount: amountInTRY,
+            category: category,
+            description: description,
+            day_of_month: dayOfMonth,
+            total_months: totalMonths
+        };
+
+        const saveBtn = document.getElementById("btn-save-recurring");
+        saveBtn.disabled = true;
+        saveBtn.classList.add("opacity-50");
+
+        try {
+            const url = editId 
+                ? `${API_BASE}/recurring-transactions/${editId}` 
+                : `${API_BASE}/recurring-transactions`;
+            const method = editId ? "PUT" : "POST";
+
+            const res = await fetch(url, {
+                method: method,
+                headers: getAuthHeaders(),
+                body: JSON.stringify(payload)
+            });
+
+            if (!res.ok) {
+                const errData = await res.json();
+                throw new Error(errData.detail || "Kayıt işlemi başarısız!");
+            }
+
+            closeRecurringModal();
+            showToast(editId ? "Düzenli işlem güncellendi! 🔄" : "Düzenli işlem oluşturuldu! 🚀", "success");
+            await loadRecurringTransactions();
+        } catch (err) {
+            alert("Hata: " + err.message);
+        } finally {
+            saveBtn.disabled = false;
+            saveBtn.classList.remove("opacity-50");
+        }
+    }
+
+    function editRecurring(id) {
+        const item = allRecurringItems.find(r => r.id === id);
+        if (item) {
+            openRecurringModal('edit', item);
+        }
+    }
+
+    async function deleteRecurring(id, desc) {
+        if (!confirm(`"${desc}" düzenli işlem kuralını silmek istediğinize emin misiniz?`)) return;
+
+        try {
+            const res = await fetch(`${API_BASE}/recurring-transactions/${id}`, {
+                method: "DELETE",
+                headers: getAuthHeaders()
+            });
+
+            if (!res.ok) throw new Error("Silme işlemi başarısız");
+
+            showToast("Düzenli işlem silindi 🗑️", "success");
+            await loadRecurringTransactions();
+        } catch (err) {
+            alert("Hata: " + err.message);
+        }
+    }
+
+    async function toggleRecurringActive(id) {
+        try {
+            const res = await fetch(`${API_BASE}/recurring-transactions/${id}/toggle`, {
+                method: "POST",
+                headers: getAuthHeaders()
+            });
+
+            if (!res.ok) throw new Error("Durum değiştirilemedi");
+
+            const data = await res.json();
+            showToast(data.message, "success");
+            await loadRecurringTransactions();
+        } catch (err) {
+            alert("Hata: " + err.message);
+        }
+    }
+
+    async function runRecurringNow(id, desc) {
+        if (!confirm(`"${desc}" düzenli işlemini bugünün tarihiyle hemen şimdi manuel tetiklemek istiyor musunuz?`)) return;
+
+        try {
+            const res = await fetch(`${API_BASE}/recurring-transactions/${id}/run-now`, {
+                method: "POST",
+                headers: getAuthHeaders()
+            });
+
+            if (!res.ok) throw new Error("İşlem tetiklenemedi");
+
+            const data = await res.json();
+            showToast(data.message, "success");
+            await loadRecurringTransactions();
+            await loadTransactions();
+            await loadSummary();
+        } catch (err) {
+            alert("Hata: " + err.message);
         }
     }
 </script>

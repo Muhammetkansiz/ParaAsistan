@@ -13,6 +13,9 @@
         } else {
             document.documentElement.classList.remove('dark');
         }
+        if (localStorage.getItem('paraasistan_privacy') === 'true') {
+            document.documentElement.classList.add('privacy-mode');
+        }
     })();
 </script>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -155,6 +158,17 @@
         .soft-shadow {
             box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
         }
+
+        /* 👁️ Gizlilik / Hayalet Modu */
+        html.privacy-mode .privacy-mask {
+            filter: blur(9px) !important;
+            user-select: none !important;
+            transition: filter 0.25s ease;
+        }
+        html.privacy-mode .privacy-mask:hover {
+            filter: blur(2px) !important;
+        }
+
         html.dark .soft-shadow {
             box-shadow: none;
             border: 1px solid #202327;
@@ -426,14 +440,14 @@
 <div class="z-10">
 <p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-2">Toplam Aylık Bütçe</p>
 <div class="flex items-end gap-4 mb-xl">
-<h3 id="budget-total-spent" class="font-display text-display text-on-surface">0,00 ₺</h3>
-<p id="budget-total-limit" class="font-body-md text-body-md text-on-surface-variant pb-1">/ 0,00 ₺</p>
+<h3 id="budget-total-spent" onclick="togglePrivacyMode()" class="privacy-mask font-display text-display text-on-surface cursor-pointer hover:opacity-85 transition-all select-none" title="Bakiyeleri gizlemek veya göstermek için tıklayın">0,00 ₺</h3>
+<p id="budget-total-limit" onclick="togglePrivacyMode()" class="privacy-mask font-body-md text-body-md text-on-surface-variant pb-1 cursor-pointer hover:opacity-85 transition-all select-none" title="Bakiyeleri gizlemek veya göstermek için tıklayın">/ 0,00 ₺</p>
 </div>
 </div>
 <div class="z-10 w-full">
 <div class="flex justify-between font-label-sm text-label-sm mb-2">
 <span id="budget-total-percentage" class="text-on-surface-variant">%0 Harcandı</span>
-<span id="budget-total-remaining" class="text-secondary font-medium">0,00 ₺ Kalan</span>
+<span id="budget-total-remaining" onclick="togglePrivacyMode()" class="privacy-mask text-secondary font-medium cursor-pointer hover:opacity-85 transition-all select-none" title="Bakiyeleri gizlemek veya göstermek için tıklayın">0,00 ₺ Kalan</span>
 </div>
 <div class="w-full h-3 bg-surface-container-high rounded-full overflow-hidden">
 <div id="budget-total-progress" class="h-full bg-primary rounded-full transition-all duration-1000 ease-out" style="width: 0%;"></div>
@@ -664,6 +678,45 @@
         showToast(`Para birimi ${curr} (${getCurrencySymbol(curr)}) olarak ayarlandı`, "success");
     }
 
+    // 👁️ GİZLİLİK MODU (HAYALET MODU)
+    function isPrivacyMode() {
+        return localStorage.getItem('paraasistan_privacy') === 'true';
+    }
+
+    function togglePrivacyMode() {
+        const nextState = !isPrivacyMode();
+        localStorage.setItem('paraasistan_privacy', nextState ? 'true' : 'false');
+        updatePrivacyUI();
+    }
+
+    function updatePrivacyUI() {
+        const active = isPrivacyMode();
+        if (active) {
+            document.documentElement.classList.add('privacy-mode');
+        } else {
+            document.documentElement.classList.remove('privacy-mode');
+        }
+
+        document.querySelectorAll('.privacy-toggle-icon').forEach(icon => {
+            icon.innerText = active ? 'visibility_off' : 'visibility';
+            icon.className = active 
+                ? 'privacy-toggle-icon material-symbols-outlined text-[22px] text-amber-500' 
+                : 'privacy-toggle-icon material-symbols-outlined text-[22px] text-on-surface-variant';
+        });
+
+        document.querySelectorAll('.btn-privacy-toggle').forEach(btn => {
+            btn.title = active ? "Bakiyeleri Göster (Kısayol: H)" : "Bakiyeleri Gizle (Kısayol: H)";
+        });
+    }
+
+    // Klavye Kısayolu: H tuşuna basınca gizle/aç
+    document.addEventListener('keydown', (e) => {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        if (e.key === 'h' || e.key === 'H') {
+            togglePrivacyMode();
+        }
+    });
+
     // 👤 PROFİL MENÜSÜ AÇ/KAPA
     function toggleProfileDropdown(e, target) {
         e.stopPropagation();
@@ -716,6 +769,7 @@
 
     document.addEventListener("DOMContentLoaded", async () => {
         updateThemeUI();
+        updatePrivacyUI();
         populateProfileInfo();
         updateCurrencyUI();
         await loadLiveRates();
@@ -890,8 +944,8 @@
                 }
 
                 const remainingText = isExceeded
-                    ? `<p class="font-label-sm text-label-sm text-error font-semibold">${formatMoney(Math.abs(b.remaining || 0))} aşıldı</p>`
-                    : `<p class="font-label-sm text-label-sm text-on-surface-variant">${formatMoney(b.remaining || 0)} kaldı</p>`;
+                    ? `<p onclick="togglePrivacyMode()" class="privacy-mask font-label-sm text-label-sm text-error font-semibold cursor-pointer hover:opacity-85 transition-all select-none" title="Bakiyeleri gizlemek veya göstermek için tıklayın">${formatMoney(Math.abs(b.remaining || 0))} aşıldı</p>`
+                    : `<p onclick="togglePrivacyMode()" class="privacy-mask font-label-sm text-label-sm text-on-surface-variant cursor-pointer hover:opacity-85 transition-all select-none" title="Bakiyeleri gizlemek veya göstermek için tıklayın">${formatMoney(b.remaining || 0)} kaldı</p>`;
 
                 const card = document.createElement("div");
                 card.className = "bg-surface-container-lowest rounded-[1.5rem] p-md soft-shadow hover:-translate-y-1 transition-transform duration-300 relative group";
@@ -912,8 +966,8 @@
                     </div>
                     <div class="mb-4">
                         <div class="flex items-end gap-2 mb-1">
-                            <span class="font-headline-md text-headline-md text-on-surface font-bold">${formatMoney(b.spent || 0)}</span>
-                            <span class="font-body-md text-body-md text-on-surface-variant">/ ${formatMoney(b.monthly_limit || 0)}</span>
+                            <span onclick="togglePrivacyMode()" class="privacy-mask font-headline-md text-headline-md text-on-surface font-bold cursor-pointer hover:opacity-85 transition-all select-none" title="Bakiyeleri gizlemek veya göstermek için tıklayın">${formatMoney(b.spent || 0)}</span>
+                            <span onclick="togglePrivacyMode()" class="privacy-mask font-body-md text-body-md text-on-surface-variant cursor-pointer hover:opacity-85 transition-all select-none" title="Bakiyeleri gizlemek veya göstermek için tıklayın">/ ${formatMoney(b.monthly_limit || 0)}</span>
                         </div>
                         ${remainingText}
                     </div>

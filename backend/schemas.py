@@ -97,12 +97,53 @@ class AdminUserItem(BaseModel):
     total_spent: float = 0.0
     total_income: float = 0.0
 
+class UserRoleUpdate(BaseModel):
+    role: str
+
+class RecurringTransactionCreate(BaseModel):
+    type: str = Field(..., description="'expense' veya 'income'")
+    amount: float = Field(..., gt=0, description="Düzenli işlem tutarı")
+    category: str = Field(..., description="Kategori adı")
+    description: Optional[str] = None
+    day_of_month: int = Field(1, ge=1, le=31, description="Ayın günü (1-31)")
+    total_months: int = Field(12, ge=1, description="Toplam ay süresi (örn: 12 veya 999)")
+
+class RecurringTransactionUpdate(BaseModel):
+    type: Optional[str] = None
+    amount: Optional[float] = Field(None, gt=0)
+    category: Optional[str] = None
+    description: Optional[str] = None
+    day_of_month: Optional[int] = Field(None, ge=1, le=31)
+    total_months: Optional[int] = Field(None, ge=1)
+    is_active: Optional[int] = None
+
+class RecurringTransactionResponse(BaseModel):
+    id: int
+    user_id: int
+    type: str
+    amount: float
+    category: str
+    description: Optional[str] = None
+    day_of_month: int
+    total_months: int
+    paid_months: int
+    last_payment_date: Optional[datetime] = None
+    is_active: int
+    created_at: datetime
+    class Config:
+        from_attributes = True
+
+
 class AdminStatsResponse(BaseModel):
     total_users: int
     total_transactions: int
     total_volume: float
     total_goals: int
-    total_chat_messages: int
+    total_chat_messages: int = 0  # Geriye dönük uyumluluk için
+    total_ai_tokens: int = 0
+    prompt_tokens: int = 0
+    completion_tokens: int = 0
+    total_ai_requests: int = 0
     new_users_last_7_days: int
 
 class UserLogin(BaseModel):

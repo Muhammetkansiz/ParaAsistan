@@ -11,6 +11,7 @@ import models
 import schemas
 from auth import get_current_user
 import currency_service
+import statement_service
 
 # 🚀 Tabloları veritabanında otomatik oluştur (yoksa)
 Base.metadata.create_all(bind=engine)
@@ -24,6 +25,11 @@ def migrate_db_columns():
             conn.execute(text("ALTER TABLE transactions ADD COLUMN IF NOT EXISTS exchange_rate FLOAT DEFAULT 1.0;"))
             conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS is_admin BOOLEAN DEFAULT FALSE;"))
             conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT TRUE;"))
+            # Eski atıl chat_messages tablosunu temizle
+            try:
+                conn.execute(text("DROP TABLE IF EXISTS chat_messages CASCADE;"))
+            except Exception:
+                pass
             # İlk kayıtlı kullanıcıyı otomatik admin yapalım
             conn.execute(text("UPDATE users SET is_admin = TRUE WHERE id = (SELECT min(id) FROM users);"))
         print("✅ Veritabanı kolonları ve admin yetkisi başarıyla eşitlendi.")
@@ -103,35 +109,55 @@ def process_recurring_transactions(db: Session, user_id: int):
     ).all()
 
     for rule in active_rules:
-        last_date = rule.last_payment_date or rule.created_at
-        
-        # Gelecek taksitin yıl ve ayı:
-        total_months = last_date.year * 12 + (last_date.month - 1) + 1
-        next_year = total_months // 12
-        next_month = (total_months % 12) + 1
-        
-        max_days = calendar.monthrange(next_year, next_month)[1]
-        next_day = min(rule.day_of_month, max_days)
-        next_payment_date = datetime.datetime(next_year, next_month, next_day, last_date.hour, last_date.minute, last_date.second)
-        
-        # Eğer bir sonraki taksit günü geldiyse veya geçtiyse:
-        if now >= next_payment_date:
-            rule.paid_months += 1
-            rule.last_payment_date = next_payment_date
-            
-            desc = f"{rule.description} ({rule.paid_months}/{rule.total_months})"
-            new_tx = models.Transaction(
-                user_id=user_id,
-                type=rule.type,
-                amount=rule.amount,
-                category=rule.category,
-                description=desc,
-                date=next_payment_date
-            )
-            db.add(new_tx)
-            
-            if rule.paid_months >= rule.total_months:
-                rule.is_active = 0
+        while rule.paid_months < rule.total_months:
+            if rule.last_payment_date is None:
+                # İlk ödeme: Kuralın oluşturulduğu ayın seçilen günü
+                start_year = rule.created_at.year
+                start_month = rule.created_at.month
+                max_days = calendar.monthrange(start_year, start_month)[1]
+                target_day = min(rule.day_of_month, max_days)
+                candidate_date = datetime.datetime(
+                    start_year, start_month, target_day,
+                    rule.created_at.hour, rule.created_at.minute, rule.created_at.second
+                )
+            else:
+                # Bir sonraki ayın seçilen günü
+                last = rule.last_payment_date
+                total_m = last.year * 12 + (last.month - 1) + 1
+                next_year = total_m // 12
+                next_month = (total_m % 12) + 1
+                max_days = calendar.monthrange(next_year, next_month)[1]
+                target_day = min(rule.day_of_month, max_days)
+                candidate_date = datetime.datetime(
+                    next_year, next_month, target_day,
+                    last.hour, last.minute, last.second
+                )
+
+            # Tarih karşılaştırması: Belirlenen gün bugün veya geçmişteyse işlemi oluştur
+            if now.date() >= candidate_date.date():
+                rule.paid_months += 1
+                rule.last_payment_date = candidate_date
+                
+                desc = f"{rule.description or rule.category}"
+                if rule.total_months < 100 and rule.total_months > 0:
+                    desc += f" ({rule.paid_months}/{rule.total_months})"
+                
+                new_tx = models.Transaction(
+                    user_id=user_id,
+                    type=rule.type,
+                    amount=rule.amount,
+                    category=rule.category,
+                    description=desc,
+                    date=candidate_date
+                )
+                db.add(new_tx)
+                
+                if rule.paid_months >= rule.total_months:
+                    rule.is_active = 0
+                    break
+            else:
+                # Henüz günü gelmedi
+                break
                 
     db.commit()
 
@@ -182,6 +208,40 @@ def create_transaction(
     db.commit()
     db.refresh(db_tx)
     return db_tx
+
+@app.post("/api/transactions/batch", tags=["İşlemler"])
+def batch_create_transactions(
+    items: List[schemas.TransactionCreate],
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    """Banka ekstresi veya toplu aktarımlar için birden fazla işlemi tek seferde kaydeder."""
+    if not items:
+        raise HTTPException(status_code=400, detail="Kaydedilecek işlem bulunamadı.")
+    
+    created_records = []
+    for item in items:
+        base_date = item.date if item.date else datetime.datetime.utcnow()
+        db_tx = models.Transaction(
+            user_id=current_user.id,
+            type=item.type,
+            amount=item.amount,
+            category=item.category,
+            description=item.description or item.category,
+            date=base_date,
+            currency=item.currency or "TRY",
+            original_amount=item.original_amount if item.original_amount is not None else item.amount,
+            exchange_rate=item.exchange_rate or 1.0
+        )
+        db.add(db_tx)
+        created_records.append(db_tx)
+    
+    db.commit()
+    return {
+        "success": True,
+        "count": len(created_records),
+        "message": f"{len(created_records)} adet işlem başarıyla harcamalarınıza eklendi!"
+    }
 
 @app.get("/api/transactions", response_model=List[schemas.TransactionResponse], tags=["İşlemler"])
 def list_transactions(
@@ -249,7 +309,7 @@ def list_categories(
 
 
 
-@app.get("/api/recurring-transactions", tags=["İşlemler"])
+@app.get("/api/recurring-transactions", response_model=List[schemas.RecurringTransactionResponse], tags=["İşlemler"])
 def get_recurring_transactions(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user)
@@ -258,6 +318,150 @@ def get_recurring_transactions(
     return db.query(models.RecurringTransaction).filter(
         models.RecurringTransaction.user_id == current_user.id
     ).order_by(models.RecurringTransaction.created_at.desc()).all()
+
+
+@app.post("/api/recurring-transactions", response_model=schemas.RecurringTransactionResponse, tags=["İşlemler"])
+def create_recurring_transaction(
+    item: schemas.RecurringTransactionCreate,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    """Yeni bir düzenli gelir veya gider kuralı oluşturur."""
+    rec = models.RecurringTransaction(
+        user_id=current_user.id,
+        type=item.type,
+        amount=item.amount,
+        category=item.category,
+        description=item.description or item.category,
+        day_of_month=item.day_of_month,
+        total_months=item.total_months,
+        paid_months=0,
+        last_payment_date=None,
+        is_active=1
+    )
+    db.add(rec)
+    db.commit()
+    db.refresh(rec)
+
+    # Seçilen gün bugün veya geçmişteyse hemen bu ayın işlemini ekle
+    process_recurring_transactions(db, current_user.id)
+    db.refresh(rec)
+    return rec
+
+
+@app.post("/api/recurring-transactions/{recurring_id}/run-now", tags=["İşlemler"])
+def run_recurring_transaction_now(
+    recurring_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    if not getattr(current_user, "is_admin", False):
+        raise HTTPException(status_code=403, detail="Bu test işlemi yalnızca yöneticilere (admin) özeldir.")
+
+    rec = db.query(models.RecurringTransaction).filter(
+        models.RecurringTransaction.id == recurring_id,
+        models.RecurringTransaction.user_id == current_user.id
+    ).first()
+    if not rec:
+        raise HTTPException(status_code=404, detail="Düzenli işlem bulunamadı")
+
+    now = datetime.datetime.utcnow()
+    rec.paid_months += 1
+    rec.last_payment_date = now
+
+    desc = f"{rec.description or rec.category}"
+    if rec.total_months < 100 and rec.total_months > 0:
+        desc += f" ({rec.paid_months}/{rec.total_months})"
+
+    new_tx = models.Transaction(
+        user_id=current_user.id,
+        type=rec.type,
+        amount=rec.amount,
+        category=rec.category,
+        description=desc,
+        date=now
+    )
+    db.add(new_tx)
+
+    if rec.paid_months >= rec.total_months:
+        rec.is_active = 0
+
+    db.commit()
+    return {"message": f"'{rec.description or rec.category}' işlemi başarıyla tetiklendi ve İşlemler tablosuna eklendi! ⚡"}
+
+
+@app.put("/api/recurring-transactions/{recurring_id}", response_model=schemas.RecurringTransactionResponse, tags=["İşlemler"])
+def update_recurring_transaction(
+    recurring_id: int,
+    item: schemas.RecurringTransactionUpdate,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    """Mevcut bir düzenli işlem kuralını günceller."""
+    rec = db.query(models.RecurringTransaction).filter(
+        models.RecurringTransaction.id == recurring_id,
+        models.RecurringTransaction.user_id == current_user.id
+    ).first()
+    if not rec:
+        raise HTTPException(status_code=404, detail="Düzenli işlem kaydı bulunamadı!")
+
+    if item.type is not None:
+        rec.type = item.type
+    if item.amount is not None:
+        rec.amount = item.amount
+    if item.category is not None:
+        rec.category = item.category
+    if item.description is not None:
+        rec.description = item.description
+    if item.day_of_month is not None:
+        rec.day_of_month = item.day_of_month
+    if item.total_months is not None:
+        rec.total_months = item.total_months
+    if item.is_active is not None:
+        rec.is_active = item.is_active
+
+    db.commit()
+    db.refresh(rec)
+    return rec
+
+
+@app.delete("/api/recurring-transactions/{recurring_id}", tags=["İşlemler"])
+def delete_recurring_transaction(
+    recurring_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    """Mevcut bir düzenli işlem kuralını siler."""
+    rec = db.query(models.RecurringTransaction).filter(
+        models.RecurringTransaction.id == recurring_id,
+        models.RecurringTransaction.user_id == current_user.id
+    ).first()
+    if not rec:
+        raise HTTPException(status_code=404, detail="Düzenli işlem kaydı bulunamadı!")
+
+    db.delete(rec)
+    db.commit()
+    return {"message": "Düzenli işlem kuralı başarıyla silindi."}
+
+
+@app.post("/api/recurring-transactions/{recurring_id}/toggle", tags=["İşlemler"])
+def toggle_recurring_transaction(
+    recurring_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    """Düzenli işlemin aktif/duraklatıldı durumunu değiştirir."""
+    rec = db.query(models.RecurringTransaction).filter(
+        models.RecurringTransaction.id == recurring_id,
+        models.RecurringTransaction.user_id == current_user.id
+    ).first()
+    if not rec:
+        raise HTTPException(status_code=404, detail="Düzenli işlem kaydı bulunamadı!")
+
+    rec.is_active = 0 if rec.is_active == 1 else 1
+    db.commit()
+    status_str = "aktif edildi" if rec.is_active == 1 else "duraklatıldı"
+    return {"message": f"Düzenli işlem başarıyla {status_str}.", "is_active": rec.is_active}
 
 
 @app.get("/api/analytics/summary", response_model=schemas.SummaryResponse, tags=["Analiz"])
@@ -612,23 +816,40 @@ async def get_daily_briefing(
 @app.post("/api/ai/scan-receipt", tags=["Yapay Zeka"])
 async def scan_receipt(
     file: UploadFile = File(...),
+    db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user)
 ):
-    """Kullanıcının yüklediği fiş/fatura görselini Gemini Vision ile tarar ve yapılandırılmış JSON döner."""
-    if not file.content_type.startswith("image/"):
-        raise HTTPException(status_code=400, detail="Lütfen geçerli bir görsel dosyası (JPEG, PNG, WebP) yükleyin.")
+    """Kullanıcının yüklediği fiş, fatura veya banka ekstresini (Görsel, PDF, CSV) analiz eder."""
+    allowed_types = ["image/", "application/pdf", "text/csv", "application/csv", "text/plain", "application/vnd.ms-excel"]
+    fname = (file.filename or "").lower()
+    is_valid_type = any(file.content_type and file.content_type.startswith(t) for t in allowed_types) or fname.endswith((".csv", ".pdf", ".png", ".jpg", ".jpeg", ".webp"))
 
-    contents = await file.read()
-    receipt_data = await ai_service.scan_receipt_with_gemini(contents, file.content_type)
-    
-    # Guardrails: Eğer fiş harici uygunsuz bir belge (kimlik, kart vb.) tespit edildiyse reddet
-    if not receipt_data.get("is_valid_receipt", True):
+    if not is_valid_type:
         raise HTTPException(
-            status_code=400,
-            detail=receipt_data.get("error", "Yüklenen görsel geçerli bir fiş veya fatura değildir. Güvenlik politikası gereği kimlik veya kart belgeleri işlenemez.")
+            status_code=400, 
+            detail="Lütfen geçerli bir fiş/dekont görseli (JPEG/PNG), banka ekstresi (PDF) veya CSV dökümü yükleyin."
         )
 
-    return receipt_data
+    contents = await file.read()
+    doc_data = await statement_service.parse_statement_with_gemini(contents, file.content_type or "application/octet-stream", filename=file.filename or "")
+    
+    # Token kullanımını kaydet
+    if "usage_metadata" in doc_data and doc_data["usage_metadata"]:
+        feature_name = "statement_scan" if doc_data.get("is_statement") else "receipt_scan"
+        model_name = doc_data.get("model_used", "gemini-3.6-flash")
+        ai_service.log_token_usage(db, current_user.id, model_name, feature_name, doc_data.get("usage_metadata"))
+
+    # Guardrails: Eğer finansal evrak harici uygunsuz bir belge tespit edildiyse reddet
+    is_valid = doc_data.get("is_valid_document", True)
+    if not doc_data.get("is_statement"):
+        is_valid = is_valid and doc_data.get("is_valid_receipt", True)
+    if not is_valid:
+        raise HTTPException(
+            status_code=400, 
+            detail=doc_data.get("error", "Yüklenen belge geçerli bir fiş veya banka ekstresi değildir. Güvenlik politikası gereği kimlik veya kart belgeleri işlenemez.")
+        )
+
+    return doc_data
 
 
 
@@ -821,7 +1042,19 @@ def get_admin_stats(
     total_tx = db.query(models.Transaction).count()
     vol_sum = db.query(func.sum(models.Transaction.amount)).scalar() or 0.0
     total_goals = db.query(models.Goal).count()
-    total_chat = db.query(models.ChatMessage).count()
+    
+    # AI Token & İstek İstatistikleri
+    token_stats = db.query(
+        func.coalesce(func.sum(models.AITokenUsage.total_tokens), 0),
+        func.coalesce(func.sum(models.AITokenUsage.prompt_tokens), 0),
+        func.coalesce(func.sum(models.AITokenUsage.completion_tokens), 0),
+        func.count(models.AITokenUsage.id)
+    ).first()
+
+    total_ai_tokens = int(token_stats[0]) if token_stats else 0
+    prompt_tokens = int(token_stats[1]) if token_stats else 0
+    completion_tokens = int(token_stats[2]) if token_stats else 0
+    total_ai_requests = int(token_stats[3]) if token_stats else 0
     
     seven_days_ago = datetime.datetime.utcnow() - datetime.timedelta(days=7)
     new_users = db.query(models.User).filter(models.User.created_at >= seven_days_ago).count()
@@ -831,7 +1064,11 @@ def get_admin_stats(
         total_transactions=total_tx,
         total_volume=round(float(vol_sum), 2),
         total_goals=total_goals,
-        total_chat_messages=total_chat,
+        total_chat_messages=0,
+        total_ai_tokens=total_ai_tokens,
+        prompt_tokens=prompt_tokens,
+        completion_tokens=completion_tokens,
+        total_ai_requests=total_ai_requests,
         new_users_last_7_days=new_users
     )
 
@@ -886,6 +1123,37 @@ def toggle_user_admin(
     user.is_admin = not getattr(user, "is_admin", False)
     db.commit()
     return {"message": f"{user.full_name} kullanıcısının admin yetkisi {'verildi' if user.is_admin else 'alındı'}.", "is_admin": user.is_admin}
+
+@app.post("/api/admin/users/{user_id}/role", tags=["Yönetici Paneli"])
+def update_user_role(
+    user_id: int,
+    payload: schemas.UserRoleUpdate,
+    db: Session = Depends(get_db),
+    admin: models.User = Depends(get_current_admin_user)
+):
+    """Kullanıcının rolünü doğrudan 'admin' veya 'user' olarak ayarlar."""
+    target_role = payload.role.strip().lower()
+    if target_role not in ["admin", "user"]:
+        raise HTTPException(status_code=400, detail="Geçersiz rol! Lütfen 'admin' veya 'user' seçin.")
+
+    if user_id == admin.id and target_role != "admin":
+        raise HTTPException(status_code=400, detail="Kendi admin yetkinizi kaldıramazsınız!")
+
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Kullanıcı bulunamadı!")
+
+    user.is_admin = (target_role == "admin")
+    if hasattr(user, "role"):
+        user.role = target_role
+    db.commit()
+
+    role_text = "Yönetici (Admin)" if user.is_admin else "Standart Kullanıcı"
+    return {
+        "message": f"{user.full_name} kullanıcısının rolü '{role_text}' olarak güncellendi.",
+        "is_admin": user.is_admin,
+        "role": target_role
+    }
 
 @app.post("/api/admin/users/{user_id}/toggle-active", tags=["Yönetici Paneli"])
 def toggle_user_active(

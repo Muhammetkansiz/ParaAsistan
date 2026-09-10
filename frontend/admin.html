@@ -226,7 +226,21 @@
                         </div>
                     </div>
 
-                    <!-- 3. UYGULAMAYA DÖN -->
+                    <!-- 3. KURU DEĞİŞTİR -->
+                    <div style="border-color: var(--color-border);" class="px-3 py-2.5 border-b">
+                        <div class="flex items-center justify-between mb-1.5 px-1">
+                            <span style="color: var(--color-on-surface-variant);" class="text-[11px] font-bold tracking-wider uppercase">Para Birimi</span>
+                            <span style="color: var(--color-outline);" class="current-currency-tag text-xs font-semibold">TRY (₺)</span>
+                        </div>
+                        <div style="background-color: var(--color-surface-container-low);" class="grid grid-cols-4 gap-1 p-1 rounded-xl">
+                            <button type="button" onclick="setAppCurrency('USD')" class="btn-curr-USD py-1.5 text-xs font-bold rounded-lg transition-all">$ USD</button>
+                            <button type="button" onclick="setAppCurrency('EUR')" class="btn-curr-EUR py-1.5 text-xs font-bold rounded-lg transition-all">€ EUR</button>
+                            <button type="button" onclick="setAppCurrency('GBP')" class="btn-curr-GBP py-1.5 text-xs font-bold rounded-lg transition-all">£ GBP</button>
+                            <button type="button" onclick="setAppCurrency('TRY')" class="btn-curr-TRY py-1.5 text-xs font-bold rounded-lg transition-all">₺ TRY</button>
+                        </div>
+                    </div>
+
+                    <!-- 4. UYGULAMAYA DÖN -->
                     <div style="border-color: var(--color-border);" class="pt-1 px-2 border-b pb-1">
                         <a href="dashboard.html" style="color: var(--color-on-surface);" class="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold hover:bg-[var(--color-surface-container-low)] rounded-xl transition-colors">
                             <span class="material-symbols-outlined text-[18px]">dashboard</span>
@@ -316,14 +330,14 @@
             <!-- Gemini AI Trafiği -->
             <div class="x-card p-5 flex flex-col justify-between">
                 <div class="flex items-center justify-between mb-4">
-                    <span style="color: var(--color-on-surface-variant);" class="text-xs font-semibold uppercase tracking-wider">Gemini AI Talepleri</span>
+                    <span style="color: var(--color-on-surface-variant);" class="text-xs font-semibold uppercase tracking-wider">Gemini AI Token Tüketimi</span>
                     <div class="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center">
-                        <span class="material-symbols-outlined text-[20px]">smart_toy</span>
+                        <span class="material-symbols-outlined text-[20px]">token</span>
                     </div>
                 </div>
                 <div>
-                    <h3 id="stat-total-ai" style="color: var(--color-on-surface);" class="text-2xl md:text-3xl font-bold">0</h3>
-                    <p class="text-xs text-amber-500 mt-1">Sohbet ve fiş okuma trafiği</p>
+                    <h3 id="stat-total-ai-tokens" style="color: var(--color-on-surface);" class="text-2xl md:text-3xl font-bold">0</h3>
+                    <p id="stat-token-breakdown" class="text-xs text-amber-500 mt-1">Girdi: 0 • Çıktı: 0 • (0 İstek)</p>
                 </div>
             </div>
         </div>
@@ -384,6 +398,7 @@
     <script>
         const API_BASE = "http://127.0.0.1:8000/api";
         let allUsers = [];
+        let adminStatsData = null;
 
         // 🌓 TEMA YÖNETİMİ (AÇIK / KOYU)
         function getAppTheme() {
@@ -423,6 +438,94 @@
                     }
                 });
             });
+        }
+
+        // 💱 PARA BİRİMİ YÖNETİMİ
+        let liveExchangeRates = {
+            "TRY": 1.0,
+            "USD": 38.0,
+            "EUR": 40.0,
+            "GBP": 48.0
+        };
+
+        async function loadLiveRates() {
+            try {
+                const res = await fetch(`${API_BASE}/currency/rates`);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.USD) liveExchangeRates.USD = Number(data.USD);
+                    if (data.EUR) liveExchangeRates.EUR = Number(data.EUR);
+                    if (data.GBP) liveExchangeRates.GBP = Number(data.GBP);
+                    if (data.TRY) liveExchangeRates.TRY = 1.0;
+                }
+            } catch (e) {
+                console.warn("Canlı kurlar alınamadı, varsayılan kurlar devrede:", e);
+            }
+        }
+
+        function getAppCurrency() {
+            return localStorage.getItem('paraasistan_currency') || 'TRY';
+        }
+
+        function getCurrencySymbol(curr) {
+            const symbols = {
+                'USD': '$',
+                'EUR': '€',
+                'GBP': '£',
+                'TRY': '₺'
+            };
+            return symbols[curr] || '₺';
+        }
+
+        function convertAmount(amountInTRY) {
+            const curr = getAppCurrency();
+            const rate = liveExchangeRates[curr] || 1.0;
+            return Number(amountInTRY || 0) / rate;
+        }
+
+        function formatMoney(amountInTRY) {
+            const curr = getAppCurrency();
+            const sym = getCurrencySymbol(curr);
+            const val = Number(amountInTRY || 0);
+            const converted = convertAmount(Math.abs(val));
+            const sign = val < 0 ? '-' : '';
+            const locale = curr === 'TRY' ? 'tr-TR' : 'en-US';
+            return `${sign}${sym}${converted.toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        }
+
+        function updateCurrencyUI() {
+            const activeCurr = getAppCurrency();
+            const sym = getCurrencySymbol(activeCurr);
+
+            document.querySelectorAll(".current-currency-tag").forEach(el => {
+                el.textContent = `${activeCurr} (${sym})`;
+            });
+
+            document.querySelectorAll(".app-currency-sym").forEach(el => {
+                el.textContent = sym;
+            });
+
+            ['USD', 'EUR', 'GBP', 'TRY'].forEach(c => {
+                document.querySelectorAll(`.btn-curr-${c}`).forEach(btn => {
+                    if (c === activeCurr) {
+                        btn.className = `btn-curr-${c} py-1.5 text-xs font-bold rounded-lg transition-all bg-amber-500 text-stone-900 shadow-sm`;
+                    } else {
+                        btn.className = `btn-curr-${c} py-1.5 text-xs font-bold rounded-lg transition-all hover:bg-[var(--color-surface-container)] text-[var(--color-on-surface)]`;
+                    }
+                });
+            });
+        }
+
+        async function setAppCurrency(curr) {
+            localStorage.setItem('paraasistan_currency', curr);
+            updateCurrencyUI();
+            if (adminStatsData) {
+                renderAdminStats(adminStatsData);
+            }
+            if (allUsers && allUsers.length > 0) {
+                renderUsersTable(allUsers);
+            }
+            showToast(`Para birimi ${curr} (${getCurrencySymbol(curr)}) olarak ayarlandı`, "success");
         }
 
         // 👤 PROFİL MENÜSÜ AÇ / KAPA
@@ -478,6 +581,8 @@
             }, 3500);
         }
 
+        let currentAdminUser = null;
+
         // 1. Yetki Kontrolü: Admin değilse ekranı hiç göstermeden kapı dışarı et
         async function checkAdminAuth() {
             const token = localStorage.getItem("paraasistan_token");
@@ -501,6 +606,7 @@
                     return false;
                 }
 
+                currentAdminUser = user;
                 document.getElementById("admin-user-name").innerText = user.full_name;
                 const menuName = document.getElementById("menu-user-name");
                 const menuEmail = document.getElementById("menu-user-email");
@@ -517,6 +623,25 @@
             }
         }
 
+        function renderAdminStats(stats) {
+            if (!stats) return;
+            document.getElementById("stat-total-users").innerText = stats.total_users;
+            document.getElementById("stat-new-users").innerHTML = `
+                <span class="material-symbols-outlined text-[14px]">trending_up</span>
+                <span>Son 7 günde +${stats.new_users_last_7_days} yeni üye</span>
+            `;
+            document.getElementById("stat-total-volume").innerText = formatMoney(stats.total_volume);
+            document.getElementById("stat-total-tx").innerText = stats.total_transactions;
+            document.getElementById("stat-total-ai-tokens").innerText = (stats.total_ai_tokens || 0).toLocaleString('tr-TR');
+            const promptK = (stats.prompt_tokens || 0).toLocaleString('tr-TR');
+            const compK = (stats.completion_tokens || 0).toLocaleString('tr-TR');
+            const reqCount = (stats.total_ai_requests || 0).toLocaleString('tr-TR');
+            const breakdownEl = document.getElementById("stat-token-breakdown");
+            if (breakdownEl) {
+                breakdownEl.innerText = `Girdi: ${promptK} • Çıktı: ${compK} • (${reqCount} İstek)`;
+            }
+        }
+
         // 2. İstatistikleri ve Kullanıcıları Çek
         async function fetchAdminData() {
             try {
@@ -525,15 +650,8 @@
                     headers: getAuthHeaders()
                 });
                 if (statsRes.ok) {
-                    const stats = await statsRes.json();
-                    document.getElementById("stat-total-users").innerText = stats.total_users;
-                    document.getElementById("stat-new-users").innerHTML = `
-                        <span class="material-symbols-outlined text-[14px]">trending_up</span>
-                        <span>Son 7 günde +${stats.new_users_last_7_days} yeni üye</span>
-                    `;
-                    document.getElementById("stat-total-volume").innerText = "₺" + Number(stats.total_volume).toLocaleString('tr-TR', { minimumFractionDigits: 2 });
-                    document.getElementById("stat-total-tx").innerText = stats.total_transactions;
-                    document.getElementById("stat-total-ai").innerText = stats.total_chat_messages;
+                    adminStatsData = await statsRes.json();
+                    renderAdminStats(adminStatsData);
                 }
 
                 // Kullanıcı Listesi
@@ -566,10 +684,19 @@
             tbody.innerHTML = users.map(u => {
                 const dateStr = u.created_at ? new Date(u.created_at).toLocaleDateString('tr-TR', { day: '2-digit', month: 'short', year: 'numeric' }) : "-";
                 
-                // KRAL TACI EMOJİSİ KALDIRILDI
-                const roleBadge = u.is_admin 
-                    ? `<span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20">Admin</span>`
-                    : `<span style="background-color: var(--color-badge-bg); border-color: var(--color-border); color: var(--color-on-surface-variant);" class="px-2 py-0.5 rounded-full text-[11px] font-semibold border">Kullanıcı</span>`;
+                // Rol Görünümü: Giriş yapmış yönetici kendi rolünü değiştiremez; diğerleri için açılır liste (dropdown)
+                const isSelf = currentAdminUser && (Number(currentAdminUser.id) === Number(u.id));
+                const safeName = (u.full_name || '').replace(/'/g, "\\'");
+                const roleContent = isSelf
+                    ? `<span class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-amber-500/15 text-amber-500 border border-amber-500/30 inline-flex items-center gap-1" title="Kendi adminlik rolünüzü kaldıramazsınız">Admin (Siz)</span>`
+                    : `
+                        <select onchange="changeUserRole(${u.id}, this.value, '${safeName}', this)"
+                                style="background-color: var(--color-surface-container); border-color: var(--color-border); color: var(--color-on-surface);"
+                                class="text-xs font-semibold rounded-lg px-2.5 py-1 border outline-none cursor-pointer transition-all hover:border-amber-500/40 focus:ring-1 focus:ring-amber-500 ${u.is_admin ? 'text-amber-500 border-amber-500/40 bg-amber-500/10' : ''}">
+                            <option value="user" ${!u.is_admin ? 'selected' : ''}>Kullanıcı</option>
+                            <option value="admin" ${u.is_admin ? 'selected' : ''}>Yönetici</option>
+                        </select>
+                    `;
                 
                 const statusBadge = u.is_active 
                     ? `<span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">Aktif</span>`
@@ -590,18 +717,15 @@
                         </td>
                         <td style="color: var(--color-on-surface-variant);" class="py-3 px-4 font-medium">${dateStr}</td>
                         <td style="color: var(--color-on-surface);" class="py-3 px-4 font-semibold">${u.transactions_count}</td>
-                        <td style="color: var(--color-on-surface);" class="py-3 px-4 font-semibold">₺${Number(u.total_spent).toLocaleString('tr-TR', { minimumFractionDigits: 2 })}</td>
-                        <td class="py-3 px-4">${roleBadge}</td>
+                        <td style="color: var(--color-on-surface);" class="py-3 px-4 font-semibold">${formatMoney(u.total_spent)}</td>
+                        <td class="py-3 px-4">${roleContent}</td>
                         <td class="py-3 px-4">${statusBadge}</td>
                         <td class="py-3 px-4 text-right">
                             <div class="flex items-center justify-end gap-1.5 opacity-80 group-hover:opacity-100 transition-opacity">
-                                <button onclick="toggleAdmin(${u.id})" style="color: var(--color-on-surface-variant);" class="p-1.5 rounded-lg hover:bg-[var(--color-surface-container)] hover:text-amber-500 transition-colors" title="${u.is_admin ? 'Adminliği Kaldır' : 'Admin Yap'}">
-                                    <span class="material-symbols-outlined text-[16px]">admin_panel_settings</span>
+                                <button onclick="toggleActive(${u.id}, '${safeName}', ${u.is_active})" style="color: var(--color-on-surface-variant);" class="p-1.5 rounded-lg hover:bg-[var(--color-surface-container)] ${u.is_active ? 'hover:text-rose-500 hover:bg-rose-500/10' : 'text-emerald-500 hover:text-emerald-400 bg-emerald-500/10'} transition-colors ${isSelf ? 'opacity-30 cursor-not-allowed' : ''}" title="${isSelf ? 'Kendi hesabınızı askıya alamazsınız' : (u.is_active ? 'Hesabı Askıya Al (Girişini Engelle)' : 'Hesap Engelini Kaldır (Yeniden Aktif Et)')}" ${isSelf ? 'disabled' : ''}>
+                                    <span class="material-symbols-outlined text-[16px]">${u.is_active ? 'block' : 'lock_open'}</span>
                                 </button>
-                                <button onclick="toggleActive(${u.id})" style="color: var(--color-on-surface-variant);" class="p-1.5 rounded-lg hover:bg-[var(--color-surface-container)] ${u.is_active ? 'hover:text-rose-500' : 'text-emerald-500 hover:text-emerald-400'} transition-colors" title="${u.is_active ? 'Hesabı Askıya Al (Banla)' : 'Hesabı Aktif Et'}">
-                                    <span class="material-symbols-outlined text-[16px]">${u.is_active ? 'block' : 'check_circle'}</span>
-                                </button>
-                                <button onclick="deleteUser(${u.id}, '${u.full_name}')" class="p-1.5 rounded-lg hover:bg-rose-500/10 text-[var(--color-on-surface-variant)] hover:text-rose-500 transition-colors" title="Kullanıcıyı ve Verilerini Sil">
+                                <button onclick="deleteUser(${u.id}, '${safeName}')" class="p-1.5 rounded-lg hover:bg-rose-500/10 text-[var(--color-on-surface-variant)] hover:text-rose-500 transition-colors ${isSelf ? 'opacity-30 cursor-not-allowed' : ''}" title="${isSelf ? 'Kendi hesabınızı silemezsiniz' : 'Kullanıcıyı ve Verilerini Sil'}" ${isSelf ? 'disabled' : ''}>
                                     <span class="material-symbols-outlined text-[16px]">delete</span>
                                 </button>
                             </div>
@@ -626,24 +750,42 @@
             renderUsersTable(filtered);
         }
 
-        // 5. Admin Yetkisini Aç / Kapat
-        async function toggleAdmin(userId) {
+        // 5. Kullanıcı Rolünü Doğrudan Değiştir (Dropdown)
+        async function changeUserRole(userId, newRole, userName, selectEl) {
+            const roleTitle = newRole === 'admin' ? 'Yönetici (Admin)' : 'Standart Kullanıcı';
+            const previousRole = newRole === 'admin' ? 'user' : 'admin';
+
+            const confirmed = confirm(`"${userName}" adlı kullanıcının rolünü "${roleTitle}" olarak değiştirmek istediğinize emin misiniz?`);
+            if (!confirmed) {
+                if (selectEl) selectEl.value = previousRole;
+                return;
+            }
+
             try {
-                const res = await fetch(`${API_BASE}/admin/users/${userId}/toggle-admin`, {
+                const res = await fetch(`${API_BASE}/admin/users/${userId}/role`, {
                     method: "POST",
-                    headers: getAuthHeaders()
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ role: newRole })
                 });
                 const data = await res.json();
-                if (!res.ok) throw new Error(data.detail || "İşlem başarısız");
+                if (!res.ok) throw new Error(data.detail || "Rol değiştirme başarısız!");
+
                 showToast(data.message);
                 fetchAdminData();
             } catch (err) {
                 showToast(err.message, "error");
+                if (selectEl) selectEl.value = previousRole;
             }
         }
 
-        // 6. Hesabı Askıya Al / Aç
-        async function toggleActive(userId) {
+        // 6. Hesabı Askıya Al / Aç (Ban / Unban)
+        async function toggleActive(userId, userName, currentActive) {
+            const actionText = currentActive 
+                ? `"${userName}" adlı kullanıcının hesabını askıya almak (girişini ve tüm işlemlerini engellemek) istediğinize emin misiniz?` 
+                : `"${userName}" adlı kullanıcının engelini kaldırıp hesabını yeniden aktif etmek istiyor musunuz?`;
+
+            if (!confirm(actionText)) return;
+
             try {
                 const res = await fetch(`${API_BASE}/admin/users/${userId}/toggle-active`, {
                     method: "POST",
@@ -651,7 +793,7 @@
                 });
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.detail || "İşlem başarısız");
-                showToast(data.message);
+                showToast(data.message, data.is_active ? "success" : "error");
                 fetchAdminData();
             } catch (err) {
                 showToast(err.message, "error");
@@ -712,8 +854,11 @@
         // Başlangıç
         window.addEventListener("DOMContentLoaded", async () => {
             updateThemeUI();
+            updateCurrencyUI();
             const isAuthorized = await checkAdminAuth();
             if (isAuthorized) {
+                await loadLiveRates();
+                updateCurrencyUI();
                 checkSystemHealth();
                 fetchAdminData();
                 // Her 60 saniyede bir otomatik sağlık kontrolü

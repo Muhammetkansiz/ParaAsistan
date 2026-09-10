@@ -43,11 +43,15 @@ class Budget(Base):
     month = Column(String, nullable=True)
 
 
-class ChatMessage(Base):
-    __tablename__ = "chat_messages"
+class AITokenUsage(Base):
+    __tablename__ = "ai_token_usage"
     id = Column(Integer, primary_key=True, index=True)
-    role = Column(String, nullable=False) 
-    content = Column(Text, nullable=False)            
+    user_id = Column(Integer, index=True, nullable=True)
+    model = Column(String, nullable=False)  # 'gemini-2.5-flash', 'gemini-3.6-flash' vb.
+    feature = Column(String, nullable=False)  # 'chat', 'receipt_scan', 'daily_briefing'
+    prompt_tokens = Column(Integer, default=0)
+    completion_tokens = Column(Integer, default=0)
+    total_tokens = Column(Integer, default=0)
     created_at = Column(DateTime, default=datetime.datetime.utcnow) 
 
 
@@ -61,8 +65,8 @@ class RecurringTransaction(Base):
     description = Column(String, nullable=True)
     day_of_month = Column(Integer, default=1)  # Ayın hangi günü (1-31)
     total_months = Column(Integer, nullable=False)  # Toplam ay sayısı (örn: 6)
-    paid_months = Column(Integer, default=1)  # Ödenen ay sayısı (ilk başta 1)
-    last_payment_date = Column(DateTime, default=datetime.datetime.utcnow)
+    paid_months = Column(Integer, default=0)  # Ödenen ay sayısı
+    last_payment_date = Column(DateTime, nullable=True, default=None)
     is_active = Column(Integer, default=1)  # 1: Aktif, 0: Tamamlandı veya iptal
     created_at = Column(DateTime, default=datetime.datetime.utcnow) 
 

@@ -16,6 +16,7 @@
     })();
 </script>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@600;700&amp;family=Manrope:wght@400;500;600&amp;display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block" rel="stylesheet">
 <script id="tailwind-config">
@@ -444,11 +445,11 @@
 <div class="relative flex items-center">
 <input id="chat-input" required class="w-full bg-surface-container-lowest border-2 border-transparent focus:border-primary-container rounded-full py-md pl-lg pr-[100px] font-body-md text-body-md text-on-surface outline-none transition-all shadow-sm placeholder:text-outline-variant" placeholder="Mesajınızı yazın veya '5000 TL mont alayım mı?' diye sorun..." type="text">
 <div class="absolute right-2 flex gap-xs">
-<button type="button" title="Fiş Yükle" onclick="document.getElementById('receipt-file-input').click()" class="p-2 text-outline hover:text-primary transition-colors rounded-full hover:bg-surface-container-low"><span class="material-symbols-outlined" data-icon="attach_file">attach_file</span></button>
+<button type="button" title="Fiş veya Banka Ekstresi Yükle (Görsel, PDF, CSV)" onclick="document.getElementById('receipt-file-input').click()" class="p-2 text-outline hover:text-primary transition-colors rounded-full hover:bg-surface-container-low"><span class="material-symbols-outlined" data-icon="attach_file">attach_file</span></button>
 <button type="submit" class="p-2 bg-primary-container text-on-primary-container rounded-full hover:opacity-90 transition-opacity"><span class="material-symbols-outlined" data-icon="send">send</span></button>
 </div>
 </div>
-<input type="file" id="receipt-file-input" accept="image/*" class="hidden" onchange="handleReceiptUpload(event)">
+<input type="file" id="receipt-file-input" accept="image/*,application/pdf,.csv,text/csv" class="hidden" onchange="handleReceiptUpload(event)">
 </form>
 </section>
 <!-- Right Panel: Bütçe Etki Analizi Preview -->
@@ -739,24 +740,86 @@
         }
     }
 
+    function maskSensitiveDataClient(text) {
+        if (!text) return { masked: "", isMasked: false };
+        let masked = text;
+        let isMasked = false;
+
+        // A) Türkiye IBAN Numaraları (TR ile başlayan 24-26 haneli)
+        const ibanRegex = /\bTR\d{2}[ ]?(?:\d{4}[ ]?){5}\d{2}\b/gi;
+        if (ibanRegex.test(masked)) {
+            isMasked = true;
+            masked = masked.replace(ibanRegex, (match) => {
+                const clean = match.replace(/\s+/g, '');
+                return `TR** **** **** **** **** ${clean.slice(-4)}`;
+            });
+        }
+
+        // B) Kredi / Banka Kartı Numaraları (13-16 haneli)
+        const cardRegex = /\b(?:\d[ -]*?){13,16}\b/g;
+        masked = masked.replace(cardRegex, (match) => {
+            const digits = match.replace(/\D/g, '');
+            if (digits.length >= 13 && digits.length <= 16) {
+                if (!(digits.length === 11 && digits.startsWith('05')) && !(digits.length === 10 && digits.startsWith('5'))) {
+                    isMasked = true;
+                    return `****-****-****-${digits.slice(-4)}`;
+                }
+            }
+            return match;
+        });
+
+        // C) TC Kimlik Numarası (11 haneli 0 ile başlamayan)
+        const tcknRegex = /\b[1-9]\d{10}\b/g;
+        if (tcknRegex.test(masked)) {
+            isMasked = true;
+            masked = masked.replace(tcknRegex, '***********');
+        }
+
+        // D) Türkiye Cep Telefonu Numaraları (05xx xxx xx xx)
+        const phoneRegex = /(?:\+?90\s*|0)?(5\d{2})[\s.-]?(\d{3})[\s.-]?(\d{2})[\s.-]?(\d{2})\b/g;
+        if (phoneRegex.test(masked)) {
+            isMasked = true;
+            masked = masked.replace(phoneRegex, '0$1 *** ** $4');
+        }
+
+        // E) Parola / PIN / CVV
+        const passRegex = /\b(şifrem|parolam|pinim|cvv)\s*[:=]?\s*(\w+)\b/gi;
+        if (passRegex.test(masked)) {
+            isMasked = true;
+            masked = masked.replace(passRegex, '$1: [GİZLENDİ]');
+        }
+
+        return { masked, isMasked };
+    }
+
     async function handleSendChatMessage(event) {
         event.preventDefault();
 
         const inputEl = document.getElementById("chat-input");
-        const messageText = inputEl.value.trim();
-        if (!messageText) return;
+        const rawMessageText = inputEl.value.trim();
+        if (!rawMessageText) return;
+
+        // Anında hassas veri maskelemesi uygula:
+        const { masked: clientMaskedText, isMasked: clientIsMasked } = maskSensitiveDataClient(rawMessageText);
 
         const messagesContainer = document.getElementById("chat-messages");
+        const msgId = "user-msg-" + Date.now();
 
-        // 1. Kullanıcı mesaj balonu:
+        // 1. Kullanıcı mesaj balonu (Sansürlenmiş veri & Güvenlik kalkanı rozeti):
         const userBubble = document.createElement("div");
         userBubble.className = "flex items-start gap-md max-w-[85%] self-end flex-row-reverse";
         userBubble.innerHTML = `
             <div class="w-10 h-10 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center shrink-0">
                 <span class="material-symbols-outlined text-sm">person</span>
             </div>
-            <div class="bg-primary-container text-on-primary-container p-md rounded-2xl rounded-tr-sm font-body-md text-body-md shadow-sm">
-                ${messageText}
+            <div class="bg-primary-container text-on-primary-container p-md rounded-2xl rounded-tr-sm font-body-md text-body-md shadow-sm space-y-1.5">
+                <div id="${msgId}" class="whitespace-pre-wrap">${escapeHtml(clientMaskedText)}</div>
+                ${clientIsMasked ? `
+                    <div class="flex items-center gap-1.5 pt-1.5 border-t border-on-primary-container/20 text-[11px] font-medium text-emerald-800 dark:text-emerald-300">
+                        <span class="material-symbols-outlined text-sm text-emerald-600 dark:text-emerald-400">shield_lock</span>
+                        <span>AI Güvenlik Kalkanı: Hassas veri (IBAN / Kart No) yapay zekaya gitmeden önce sansürlendi.</span>
+                    </div>
+                ` : ''}
             </div>
         `;
         messagesContainer.appendChild(userBubble);
@@ -782,7 +845,7 @@
             const response = await fetch(`${API_BASE}/ai/chat`, {
                 method: "POST",
                 headers: getAuthHeaders(),
-                body: JSON.stringify({ message: messageText })
+                body: JSON.stringify({ message: rawMessageText })
             });
 
             if (response.status === 401) {
@@ -797,6 +860,23 @@
 
             const data = await response.json();
             loadingBubble.remove();
+
+            // Eğer backend tarafından ek maskeleme yapıldıysa balonu güncelle:
+            if (data.is_masked && data.sanitized_message) {
+                const textEl = document.getElementById(msgId);
+                if (textEl) {
+                    textEl.innerText = data.sanitized_message;
+                    if (!userBubble.querySelector('.border-t')) {
+                        const badgeDiv = document.createElement("div");
+                        badgeDiv.className = "flex items-center gap-1.5 pt-1.5 border-t border-on-primary-container/20 text-[11px] font-medium text-emerald-800 dark:text-emerald-300";
+                        badgeDiv.innerHTML = `
+                            <span class="material-symbols-outlined text-sm text-emerald-600 dark:text-emerald-400">shield_lock</span>
+                            <span>AI Güvenlik Kalkanı: Hassas veri yapay zekaya gitmeden önce sansürlendi.</span>
+                        `;
+                        textEl.parentElement.appendChild(badgeDiv);
+                    }
+                }
+            }
 
             // 3. Yapay Zeka Cevap Balonu (Markdown bold & satır sonu desteği):
             const formattedReply = (data.reply || 'Yanıt alınamadı.')
@@ -1005,45 +1085,470 @@
         }, 3500);
     }
 
+    function escapeHtml(str) {
+        if (!str) return "";
+        return String(str)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    // PII Gizleme / Sansürleme Yardımcıları
+    function dataURLtoFile(dataurl, filename) {
+        try {
+            const arr = dataurl.split(',');
+            const mime = arr[0].match(/:(.*?);/)[1];
+            const bstr = atob(arr[1]);
+            let n = bstr.length;
+            const u8arr = new Uint8Array(n);
+            while (n--) {
+                u8arr[n] = bstr.charCodeAt(n);
+            }
+            return new File([u8arr], filename, { type: mime });
+        } catch (e) {
+            console.warn("dataURLtoFile dönüştürme hatası:", e);
+            return null;
+        }
+    }
+
+    // İstemci Tarafında OCR & Hassas Veri (IBAN / Kart No / TC No) Sansürleme Motoru
+    async function scanAndRedactPIIClient(file) {
+        // 1. Orijinal dosyayı Data URL olarak oku
+        const originalDataUrl = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+
+        // 2. Görsel nesnesi oluştur
+        const img = await new Promise((resolve, reject) => {
+            const image = new Image();
+            image.crossOrigin = "anonymous";
+            image.onload = () => resolve(image);
+            image.onerror = reject;
+            image.src = originalDataUrl;
+        });
+
+        const naturalWidth = img.naturalWidth || img.width;
+        const naturalHeight = img.naturalHeight || img.height;
+
+        // Tesseract.js mevcut mu kontrol et
+        if (!window.Tesseract) {
+            console.warn("Tesseract.js yüklenemedi veya hazır değil.");
+            return {
+                fileToSend: file,
+                previewUrl: originalDataUrl,
+                originalUrl: originalDataUrl,
+                isRedacted: false,
+                sensitiveBoxes: [],
+                summary: ""
+            };
+        }
+
+        let sensitiveBoxes = [];
+        try {
+            // Tesseract OCR analizi (7 saniye zaman aşımı ile kilitlenmeyi engeller)
+            const ocrPromise = Tesseract.recognize(img, 'eng');
+            const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("OCR timeout")), 7000));
+            const res = await Promise.race([ocrPromise, timeoutPromise]);
+            const data = res?.data || {};
+            const lines = data.lines || [];
+            const words = data.words || [];
+
+            // Hassas Veri RegEx Tanımları:
+            // IBAN: TR ile başlayan veya "IBAN" kelimesini içeren satırlar
+            const ibanRegex = /(?:TR\s*\d{2}[\s\d]{8,30}|IBAN\s*:?\s*[A-Z0-9\s]{10,34})/i;
+            // Kart Numarası: 16 haneli bloklar veya KART NO / CARD NO içerenler
+            const cardRegex = /(?:\b(?:\d{4}[ -]?){3}\d{4}\b|\b(?:\d{4}[ *]{1,2}){3}\d{4}\b)/;
+            const cardKeywordRegex = /(?:KART\s*NO|CARD\s*NO|KRED[İI]\s*KART|HESAP\s*NO|M[ÜU][ŞS]TER[İI]\s*NO|PAN\s*:)/i;
+            // TC Kimlik No
+            const tcknRegex = /(?:TCKN|T\.?C\.?\s*K[İI]ML[İI]K|TC\s*NO)\s*:?\s*\d{11}/i;
+
+            // Fiş tutarlarını ve genel toplamları KORUMA kuralı (kesinlikle sansürleme!)
+            const totalExclusionRegex = /(?:TOPLAM|GENEL\s*TOPLAM|TUTAR|KDV|ARA\s*TOPLAM|ÖDENECEK|ODENECEK|F[İI]YAT|NAK[İI]T|PARA\s*[ÜU]ST[ÜU]|TOTAL|SUBTOTAL|AMOUNT|BALANCE)/i;
+
+            // Satır bazında tarama
+            for (const line of lines) {
+                const txt = (line.text || "").trim();
+                if (!txt || txt.length < 4) continue;
+
+                // Eğer satır toplam tutar satırıysa ve açıkça IBAN içermiyorsa atla
+                if (totalExclusionRegex.test(txt) && !ibanRegex.test(txt)) {
+                    continue;
+                }
+
+                let matchType = null;
+                if (ibanRegex.test(txt) || /IBAN/i.test(txt)) {
+                    matchType = "IBAN";
+                } else if (cardRegex.test(txt) || cardKeywordRegex.test(txt)) {
+                    matchType = "KART NO";
+                } else if (tcknRegex.test(txt)) {
+                    matchType = "TC KİMLİK";
+                }
+
+                if (matchType && line.bbox) {
+                    sensitiveBoxes.push({
+                        x0: line.bbox.x0,
+                        y0: line.bbox.y0,
+                        x1: line.bbox.x1,
+                        y1: line.bbox.y1,
+                        type: matchType
+                    });
+                }
+            }
+
+            // Kelime bazında ek kontrol (özellikle satır bölünmelerinde 'TR33...' tespiti için)
+            for (const word of words) {
+                const wText = (word.text || "").trim();
+                if (/^TR\d{2}/i.test(wText) && word.bbox) {
+                    const covered = sensitiveBoxes.some(b => 
+                        word.bbox.x0 >= b.x0 - 15 && word.bbox.x1 <= b.x1 + 15 &&
+                        word.bbox.y0 >= b.y0 - 15 && word.bbox.y1 <= b.y1 + 15
+                    );
+                    if (!covered) {
+                        sensitiveBoxes.push({
+                            x0: word.bbox.x0,
+                            y0: word.bbox.y0,
+                            x1: word.bbox.x1,
+                            y1: word.bbox.y1,
+                            type: "IBAN"
+                        });
+                    }
+                }
+            }
+        } catch (ocrErr) {
+            console.warn("Yerel OCR analiz uyarısı (işleme devam ediliyor):", ocrErr);
+        }
+
+        // Eğer hassas veri bulunamadıysa orijinali döndür (boşluklar veya tutarlar asla sansürlenmez!)
+        if (sensitiveBoxes.length === 0) {
+            return {
+                fileToSend: file,
+                previewUrl: originalDataUrl,
+                originalUrl: originalDataUrl,
+                isRedacted: false,
+                sensitiveBoxes: [],
+                summary: ""
+            };
+        }
+
+        // Hassas veri bulundu! Canvas üzerinde gerçek siyah opak bant çiz
+        const canvas = document.createElement("canvas");
+        canvas.width = naturalWidth;
+        canvas.height = naturalHeight;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+            return {
+                fileToSend: file,
+                previewUrl: originalDataUrl,
+                originalUrl: originalDataUrl,
+                isRedacted: false,
+                sensitiveBoxes: [],
+                summary: ""
+            };
+        }
+
+        ctx.drawImage(img, 0, 0, naturalWidth, naturalHeight);
+        const w = naturalWidth;
+        const h = naturalHeight;
+
+        for (const box of sensitiveBoxes) {
+            const padX = Math.max(8, Math.floor((box.x1 - box.x0) * 0.05));
+            const padY = Math.max(5, Math.floor((box.y1 - box.y0) * 0.2));
+            const bx = Math.max(0, box.x0 - padX);
+            const by = Math.max(0, box.y0 - padY);
+            const bw = Math.min(w - bx, (box.x1 - box.x0) + padX * 2);
+            const bh = Math.max(24, Math.min(h - by, (box.y1 - box.y0) + padY * 2));
+
+            // Siyah opak bant (pikselleri tamamen yok eder)
+            ctx.fillStyle = "#09090b";
+            ctx.fillRect(bx, by, bw, bh);
+
+            // Zümrüt yeşili güvenlik bordürü
+            ctx.strokeStyle = "#10b981";
+            ctx.lineWidth = Math.max(1.5, Math.min(3, Math.floor(bh * 0.08)));
+            ctx.strokeRect(bx, by, bw, bh);
+
+            // Güvenlik metni
+            ctx.fillStyle = "#ffffff";
+            const fontSize = Math.min(Math.max(11, Math.floor(bh * 0.45)), 18);
+            ctx.font = `bold ${fontSize}px system-ui, -apple-system, sans-serif`;
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(`🔒 SANSÜRLENDİ [${box.type}]`, bx + bw / 2, by + bh / 2);
+        }
+
+        // Sağ üst köşeye PII Koruma Damgası bas
+        const stampW = Math.min(220, Math.floor(w * 0.4));
+        const stampH = Math.max(24, Math.floor(stampW * 0.16));
+        ctx.fillStyle = "rgba(10, 15, 29, 0.92)";
+        ctx.fillRect(w - stampW - 10, 10, stampW, stampH);
+        ctx.strokeStyle = "#10b981";
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(w - stampW - 10, 10, stampW, stampH);
+        ctx.fillStyle = "#34d399";
+        ctx.font = `bold ${Math.max(10, Math.floor(stampH * 0.5))}px system-ui, sans-serif`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("🛡️ PII KALKANI AKTİF", w - stampW / 2 - 10, 10 + stampH / 2);
+
+        const censoredDataUrl = canvas.toDataURL("image/jpeg", 0.92);
+        const censoredFile = dataURLtoFile(censoredDataUrl, file.name || "sansurlu_belge.jpg");
+
+        return {
+            fileToSend: censoredFile || file,
+            previewUrl: censoredDataUrl,
+            originalUrl: originalDataUrl,
+            isRedacted: true,
+            sensitiveBoxes: sensitiveBoxes,
+            summary: Array.from(new Set(sensitiveBoxes.map(b => b.type))).join(", ")
+        };
+    }
+
+    // Kullanıcının orijinal ve sansürlü görsel arasında geçiş yapabilmesi için
+    window.toggleImageCensor = function(photoId) {
+        const img = document.getElementById(`${photoId}-img`);
+        const badge = document.getElementById(`${photoId}-badge`);
+        const icon = document.getElementById(`${photoId}-icon`);
+        const text = document.getElementById(`${photoId}-btn-text`);
+        if (!img) return;
+
+        if (img.dataset.mode === "censored") {
+            // Orijinal Görünüme Geç
+            img.dataset.mode = "original";
+            img.src = img.dataset.originalUrl;
+            if (badge) {
+                badge.className = "absolute top-2 left-2 bg-amber-500/90 backdrop-blur text-white text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 border border-white/20 shadow-sm pointer-events-none transition-all";
+                badge.innerHTML = `<span class="material-symbols-outlined text-[11px]">visibility</span><span>Orijinal (Cihazınızda)</span>`;
+            }
+            if (icon) icon.textContent = "shield";
+            if (text) text.textContent = "Sansürlü Gör";
+        } else {
+            // Sansürlü Görünüme Geç
+            img.dataset.mode = "censored";
+            img.src = img.dataset.censoredUrl;
+            if (badge) {
+                badge.className = "absolute top-2 left-2 bg-black/90 backdrop-blur text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 border border-emerald-500/50 shadow-sm pointer-events-none transition-all";
+                badge.innerHTML = `<span class="material-symbols-outlined text-[11px]">enhanced_encryption</span><span>Sansürlü Görünüm</span>`;
+            }
+            if (icon) icon.textContent = "visibility";
+            if (text) text.textContent = "Orijinali Gör";
+        }
+    };
+
+    let currentLightboxPhotoId = null;
+
+    window.openImageModal = function(photoId) {
+        const imgEl = document.getElementById(`${photoId}-img`);
+        if (!imgEl) return;
+
+        currentLightboxPhotoId = photoId;
+        const modal = document.getElementById("image-lightbox-modal");
+        const lightboxImg = document.getElementById("lightbox-img");
+        const badge = document.getElementById("lightbox-badge");
+        const badgeText = document.getElementById("lightbox-badge-text");
+        const badgeIcon = document.getElementById("lightbox-badge-icon");
+        const toggleBtn = document.getElementById("lightbox-toggle-btn");
+        const toggleText = document.getElementById("lightbox-toggle-text");
+        const toggleIcon = document.getElementById("lightbox-toggle-icon");
+        const infoText = document.getElementById("lightbox-info-text");
+
+        const mode = imgEl.dataset.mode || "original";
+        const censoredUrl = imgEl.dataset.censoredUrl || imgEl.src;
+        const originalUrl = imgEl.dataset.originalUrl || imgEl.src;
+        const isRedacted = !!(censoredUrl && originalUrl && censoredUrl !== originalUrl);
+
+        lightboxImg.src = mode === "censored" ? censoredUrl : originalUrl;
+        lightboxImg.dataset.mode = mode;
+        lightboxImg.dataset.censoredUrl = censoredUrl;
+        lightboxImg.dataset.originalUrl = originalUrl;
+
+        if (isRedacted) {
+            if (toggleBtn) toggleBtn.classList.remove("hidden");
+            if (mode === "censored") {
+                if (badge) badge.className = "ml-2 inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40";
+                if (badgeText) badgeText.textContent = "Sansürlü Görünüm";
+                if (badgeIcon) badgeIcon.textContent = "enhanced_encryption";
+                if (toggleText) toggleText.textContent = "Orijinali Gör";
+                if (toggleIcon) toggleIcon.textContent = "visibility";
+                if (infoText) infoText.textContent = "Yapay zekaya (Gemini) yalnızca siyah bant ile sansürlenmiş bu görsel iletilmiştir.";
+            } else {
+                if (badge) badge.className = "ml-2 inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40";
+                if (badgeText) badgeText.textContent = "Orijinal (Cihazınızda)";
+                if (badgeIcon) badgeIcon.textContent = "visibility";
+                if (toggleText) toggleText.textContent = "Sansürlü Gör";
+                if (toggleIcon) toggleIcon.textContent = "shield";
+                if (infoText) infoText.textContent = "Bu ham görsel yalnızca cihazınızın yerel belleğinde saklanmaktadır.";
+            }
+        } else {
+            if (toggleBtn) toggleBtn.classList.add("hidden");
+            if (badge) badge.className = "ml-2 inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-white/10 text-slate-300 border border-white/20";
+            if (badgeText) badgeText.textContent = "Temiz Belge";
+            if (badgeIcon) badgeIcon.textContent = "check_circle";
+            if (infoText) infoText.textContent = "Belgede hassas IBAN veya kart numarası tespit edilmemiştir.";
+        }
+
+        if (modal) {
+            modal.classList.remove("hidden");
+            document.body.style.overflow = "hidden";
+        }
+    };
+
+    window.closeImageModal = function() {
+        const modal = document.getElementById("image-lightbox-modal");
+        if (modal) {
+            modal.classList.add("hidden");
+            document.body.style.overflow = "";
+        }
+        currentLightboxPhotoId = null;
+    };
+
+    window.toggleLightboxCensor = function() {
+        if (!currentLightboxPhotoId) return;
+        toggleImageCensor(currentLightboxPhotoId);
+        openImageModal(currentLightboxPhotoId);
+    };
+
+    document.addEventListener("keydown", function(e) {
+        if (e.key === "Escape") {
+            closeImageModal();
+        }
+    });
+
     async function handleReceiptUpload(event) {
         const file = event.target.files[0];
         if (!file) return;
         event.target.value = ""; // Aynı dosyayı tekrar seçebilmek için sıfırla
 
         const messagesContainer = document.getElementById("chat-messages");
+        const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
+        const isCsv = file.type.includes("csv") || file.name.toLowerCase().endsWith(".csv");
+        const isImage = file.type.startsWith("image/");
 
-        // 1. Kullanıcı mesajı (Önizleme resmi ile):
-        const reader = new FileReader();
-        reader.onload = async function(e) {
-            const previewUrl = e.target.result;
+        const uploadDocument = async (docMeta = {}) => {
+            const fileToSend = docMeta.fileToSend || file;
+            const previewUrl = docMeta.previewUrl;
+            const originalUrl = docMeta.originalUrl;
+            const isRedacted = !!docMeta.isRedacted;
+            const summary = docMeta.summary || "";
+            let photoId = null;
 
+            // 1. Kullanıcı mesajı (Önizleme görseli veya dosya kartı):
             const userBubble = document.createElement("div");
             userBubble.className = "flex items-start gap-md max-w-[85%] self-end flex-row-reverse";
-            userBubble.innerHTML = `
-                <div class="w-10 h-10 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center shrink-0">
-                    <span class="material-symbols-outlined text-sm">receipt</span>
-                </div>
-                <div class="bg-primary-container text-on-primary-container p-md rounded-2xl rounded-tr-sm font-body-md text-body-md shadow-sm space-y-2">
-                    <div class="flex items-center gap-2">
-                        <span class="material-symbols-outlined text-sm">photo</span>
-                        <span class="font-medium">Fiş Yüklendi: ${file.name}</span>
+
+            if (isPdf || isCsv) {
+                const docIcon = isPdf ? "picture_as_pdf" : "table_chart";
+                const docBadgeBg = isPdf ? "bg-red-500/20 text-red-600 dark:text-red-400" : "bg-emerald-500/20 text-emerald-600 dark:text-emerald-400";
+                const docTypeLabel = isPdf ? "PDF Banka Ekstresi" : "CSV Hesap Dökümü";
+                const sizeLabel = (file.size / 1024).toFixed(1) + " KB";
+
+                userBubble.innerHTML = `
+                    <div class="w-10 h-10 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined text-sm">${docIcon}</span>
                     </div>
-                    <img src="${previewUrl}" alt="Yüklenen Fiş" class="max-w-[220px] max-h-[160px] rounded-xl object-cover border border-white/20 shadow-sm" />
-                </div>
-            `;
+                    <div class="bg-primary-container text-on-primary-container p-md rounded-2xl rounded-tr-sm font-body-md text-body-md shadow-sm space-y-2 max-w-sm">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-sm">${docIcon}</span>
+                            <span class="font-medium">${docTypeLabel} Yüklendi</span>
+                        </div>
+                        <div class="flex items-center gap-3 p-2.5 rounded-xl bg-black/10 dark:bg-white/10 border border-white/20">
+                            <div class="w-10 h-10 rounded-lg ${docBadgeBg} flex items-center justify-center shrink-0">
+                                <span class="material-symbols-outlined text-xl">${docIcon}</span>
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <p class="text-xs font-semibold truncate">${escapeHtml(file.name)}</p>
+                                <p class="text-[11px] opacity-75">${sizeLabel} • ${docTypeLabel}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                photoId = "photo_" + Math.random().toString(36).substring(2, 9);
+                userBubble.innerHTML = `
+                    <div class="w-10 h-10 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined text-sm">receipt</span>
+                    </div>
+                    <div class="bg-primary-container text-on-primary-container p-md rounded-2xl rounded-tr-sm font-body-md text-body-md shadow-sm space-y-2.5 max-w-sm">
+                        <div class="flex items-center justify-between gap-2 border-b border-white/10 pb-1.5">
+                            <div class="flex items-center gap-1.5 font-medium text-xs">
+                                <span class="material-symbols-outlined text-sm">photo_camera</span>
+                                <span class="truncate max-w-[150px]">${escapeHtml(file.name)}</span>
+                            </div>
+                            <span id="${photoId}-shield-badge" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${isRedacted ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' : 'bg-white/15 text-on-primary-container border-white/20'} border">
+                                <span class="material-symbols-outlined text-[11px]">${isRedacted ? 'shield_lock' : 'shield'}</span>
+                                ${isRedacted ? 'PII Sansürlendi' : 'AI Kalkanı'}
+                            </span>
+                        </div>
+                        ${previewUrl ? `
+                        <div class="relative group rounded-xl overflow-hidden border border-white/20 shadow-md bg-zinc-950 max-w-[260px] cursor-pointer" onclick="openImageModal('${photoId}')" title="Büyütmek için tıklayın">
+                            <!-- Resim: Sansürlenmişse gerçek siyah bantlı net görsel; sansürsüzse net orijinal görsel. Asla bulanıklaştırma yok -->
+                            <img id="${photoId}-img" 
+                                 src="${previewUrl}" 
+                                 data-original-url="${originalUrl || previewUrl}" 
+                                 data-censored-url="${previewUrl}" 
+                                 data-mode="${isRedacted ? 'censored' : 'original'}" 
+                                 class="w-full max-h-[220px] object-contain bg-zinc-900 transition-all duration-300 group-hover:scale-[1.02]" 
+                                 alt="Yüklenen Belge" />
+
+                            <!-- Hover Büyüt İpucu -->
+                            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+                                <span class="bg-black/85 text-white text-[11px] font-medium px-2.5 py-1.5 rounded-lg backdrop-blur flex items-center gap-1.5 shadow-lg border border-white/20">
+                                    <span class="material-symbols-outlined text-[15px]">zoom_in</span>
+                                    <span>Büyütmek İçin Tıkla</span>
+                                </span>
+                            </div>
+
+                            ${isRedacted ? `
+                            <!-- Sol Üst Rozet -->
+                            <div id="${photoId}-badge" class="absolute top-2 left-2 bg-black/90 backdrop-blur text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 border border-emerald-500/50 shadow-sm pointer-events-none transition-all">
+                                <span class="material-symbols-outlined text-[11px]">enhanced_encryption</span>
+                                <span>Sansürlü Görünüm</span>
+                            </div>
+
+                            <!-- Sağ Alt 'Orijinali Gör' Butonu -->
+                            <button type="button" onclick="event.stopPropagation(); toggleImageCensor('${photoId}')" class="absolute bottom-2 right-2 z-10 bg-black/85 hover:bg-black text-white text-[11px] font-medium px-2.5 py-1.5 rounded-lg backdrop-blur flex items-center gap-1 transition-all border border-white/20 shadow-lg cursor-pointer">
+                                <span id="${photoId}-icon" class="material-symbols-outlined text-[13px]">visibility</span>
+                                <span id="${photoId}-btn-text">Orijinali Gör</span>
+                            </button>
+                            ` : `
+                            <!-- Temiz Belge Rozeti -->
+                            <div class="absolute top-2 left-2 bg-black/75 backdrop-blur text-emerald-300 text-[10px] font-medium px-2 py-0.5 rounded-full flex items-center gap-1 border border-white/10 shadow-sm pointer-events-none">
+                                <span class="material-symbols-outlined text-[11px]">check_circle</span>
+                                <span>Hassas Veri İçermiyor</span>
+                            </div>
+                            `}
+                        </div>
+                        <div id="${photoId}-footer" class="flex items-start gap-1.5 text-[11px] ${isRedacted ? 'text-emerald-200/90 bg-emerald-950/40 border-emerald-500/20' : 'text-slate-200/80 bg-slate-900/40 border-slate-500/20'} font-medium border rounded-lg p-2">
+                            <span class="material-symbols-outlined text-xs ${isRedacted ? 'text-emerald-400' : 'text-slate-400'} shrink-0 mt-0.5">${isRedacted ? 'verified_user' : 'security'}</span>
+                            <span><strong>AI Güvenlik Kalkanı:</strong> ${isRedacted ? `Belgedeki özel veriler (${escapeHtml(summary)}) yapay zekaya gönderilmeden önce yerel olarak sansürlendi. Gemini sunucularına sansürlü görsel iletildi.` : 'Belge incelendi; IBAN veya kart numarası tespit edilmedi, doğrudan işleme alındı.'}</span>
+                        </div>
+                        ` : ''}
+                    </div>
+                `;
+            }
             messagesContainer.appendChild(userBubble);
 
-            // 2. OCR Yükleniyor Göstergesi:
+            // 2. Yükleniyor / Analiz Göstergesi:
             const loadingBubble = document.createElement("div");
             loadingBubble.id = "receipt-loading-indicator";
             loadingBubble.className = "flex items-start gap-md max-w-[85%]";
+            const loadingText = isPdf 
+                ? "ParaAsistan PDF banka ekstrenizi Gemini ile inceliyor ve işlemleri ayrıştırıyor..." 
+                : (isCsv 
+                    ? "ParaAsistan CSV hesap dökümünüzü analiz ediyor ve işlemleri sınıflandırıyor..." 
+                    : "ParaAsistan fişinizi/belgenizi Gemini Vision ile inceliyor ve analiz ediyor...");
+
             loadingBubble.innerHTML = `
                 <div class="w-10 h-10 rounded-full bg-surface-tint flex items-center justify-center text-on-primary shrink-0">
                     <span class="material-symbols-outlined text-sm">document_scanner</span>
                 </div>
                 <div class="bg-surface-container-low p-md rounded-2xl rounded-tl-sm text-on-surface-variant font-body-md text-body-md shadow-sm flex items-center gap-2">
                     <span class="material-symbols-outlined animate-spin text-sm">progress_activity</span>
-                    ParaAsistan fişinizi Gemini Vision ile inceliyor ve analiz ediyor...
+                    ${loadingText}
                 </div>
             `;
             messagesContainer.appendChild(loadingBubble);
@@ -1052,7 +1557,7 @@
             // 3. Backend'e Gönderim:
             try {
                 const formData = new FormData();
-                formData.append("file", file);
+                formData.append("file", fileToSend);
 
                 const response = await fetch(`${API_BASE}/ai/scan-receipt`, {
                     method: "POST",
@@ -1071,16 +1576,159 @@
 
                 if (!response.ok) {
                     const errData = await response.json().catch(() => ({}));
-                    throw new Error(errData.detail || "Fiş taranamadı.");
+                    throw new Error(errData.detail || "Belge taranamadı.");
                 }
 
-                const receiptData = await response.json();
-                const uniqueId = "rec-" + Date.now();
-                const cardId = "receipt-btn-" + Date.now();
-                const receiptCurrency = receiptData.currency || "TRY";
+                const docData = await response.json();
+                const receiptCurrency = docData.currency || "TRY";
                 const receiptSym = getCurrencySymbol(receiptCurrency);
 
-                // 4. Okunan Fiş Kartı (Düzenlenebilir & Onaylanabilir):
+                // Güvenlik kalkanı durum güncellemesi:
+                if (isImage && photoId) {
+                    const footerEl = document.getElementById(`${photoId}-footer`);
+                    const shieldBadge = document.getElementById(`${photoId}-shield-badge`);
+                    if (isRedacted || docData.has_sensitive_data) {
+                        if (footerEl) {
+                            footerEl.className = "flex items-start gap-1.5 text-[11px] text-emerald-200/90 font-medium bg-emerald-950/40 border border-emerald-500/20 rounded-lg p-2";
+                            footerEl.innerHTML = `
+                                <span class="material-symbols-outlined text-xs text-emerald-400 shrink-0 mt-0.5">verified_user</span>
+                                <span><strong>AI Güvenlik Kalkanı:</strong> Belgedeki özel veriler (IBAN/kart) yapay zekaya gönderilmeden önce sansürlendi ve güvenle analiz edildi.</span>
+                            `;
+                        }
+                        if (shieldBadge) {
+                            shieldBadge.className = "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30";
+                            shieldBadge.innerHTML = `<span class="material-symbols-outlined text-[11px]">shield_lock</span> PII Sansürlendi`;
+                        }
+                    } else {
+                        if (footerEl) {
+                            footerEl.className = "flex items-start gap-1.5 text-[11px] text-slate-200/80 font-medium bg-slate-900/40 border border-slate-500/20 rounded-lg p-2";
+                            footerEl.innerHTML = `
+                                <span class="material-symbols-outlined text-xs text-slate-400 shrink-0 mt-0.5">verified_user</span>
+                                <span><strong>AI Güvenlik Kalkanı:</strong> Belge başarıyla analiz edildi, özel veri bulunmadı.</span>
+                            `;
+                        }
+                        if (shieldBadge) {
+                            shieldBadge.className = "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/15 text-on-primary-container border border-white/20";
+                            shieldBadge.innerHTML = `<span class="material-symbols-outlined text-[11px]">check_circle</span> Temiz Belge`;
+                        }
+                    }
+                }
+
+                // 4. Eğer Çok Satırlı Banka/Kredi Kartı Ekstresi İse:
+                if (docData.is_statement) {
+                    const stmtTransactions = docData.transactions || [];
+                    const stmtBankName = docData.bank_name || "Banka Ekstresi";
+                    const stmtSummary = docData.summary_text || `Ekstrenizde toplam ${stmtTransactions.length} işlem tespit edildi.`;
+                    const stmtExpense = Number(docData.total_expense || 0);
+                    const stmtIncome = Number(docData.total_income || 0);
+                    const stmtId = "stmt-" + Date.now();
+                    const batchBtnId = "batch-btn-" + Date.now();
+
+                    // Bellekte işlemleri sakla
+                    window[`_stmt_data_${stmtId}`] = stmtTransactions;
+
+                    const aiBubble = document.createElement("div");
+                    aiBubble.className = "flex items-start gap-md max-w-[95%]";
+                    aiBubble.innerHTML = `
+                        <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-on-primary shrink-0 shadow-sm">
+                            <span class="material-symbols-outlined text-sm">account_balance</span>
+                        </div>
+                        <div class="bg-surface-container-low p-lg rounded-2xl rounded-tl-sm text-on-surface font-body-md text-body-md shadow-sm w-full max-w-lg space-y-3.5 border border-outline-variant/30">
+                            <div class="flex items-center justify-between border-b border-surface-variant pb-2.5">
+                                <div>
+                                    <span class="font-headline-md text-[16px] font-bold text-primary flex items-center gap-1.5">
+                                        <span class="material-symbols-outlined text-lg">account_balance</span>
+                                        ${escapeHtml(stmtBankName)}
+                                    </span>
+                                    <p class="text-xs text-on-surface-variant mt-0.5">${escapeHtml(stmtSummary)}</p>
+                                </div>
+                                <span class="px-2.5 py-1 bg-primary/10 text-primary rounded-full text-xs font-semibold shrink-0">
+                                    ${stmtTransactions.length} İşlem
+                                </span>
+                            </div>
+
+                            <!-- AI Guardrails Bilgi Rozeti -->
+                            <div class="flex items-center gap-2 px-3 py-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 rounded-xl text-xs font-medium">
+                                <span class="material-symbols-outlined text-base text-emerald-600 dark:text-emerald-400 shrink-0">shield_lock</span>
+                                <span>AI Güvenlik Kalkanı: Ekstredeki tüm IBAN ve hesap bilgileri yapay zekaya aktarılmadan önce sansürlenmiştir.</span>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-2 text-center">
+                                <div class="p-2.5 rounded-xl bg-surface-container border border-surface-variant/40">
+                                    <div class="text-[11px] font-semibold text-outline uppercase">Toplam Harcama</div>
+                                    <div class="text-base font-bold text-error mt-0.5">-${stmtExpense.toLocaleString('tr-TR', {minimumFractionDigits: 2, maximumFractionDigits: 2})} ${receiptSym}</div>
+                                </div>
+                                <div class="p-2.5 rounded-xl bg-surface-container border border-surface-variant/40">
+                                    <div class="text-[11px] font-semibold text-outline uppercase">Toplam Gelir</div>
+                                    <div class="text-base font-bold text-emerald-600 dark:text-emerald-400 mt-0.5">+${stmtIncome.toLocaleString('tr-TR', {minimumFractionDigits: 2, maximumFractionDigits: 2})} ${receiptSym}</div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <span class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider">İşlem Detayları</span>
+                                    <span class="text-[11px] text-outline">Kayıt öncesi kontrol edin</span>
+                                </div>
+                                <div class="max-h-56 overflow-y-auto space-y-1.5 pr-1 divide-y divide-surface-variant/30">
+                                    ${stmtTransactions.map((tx) => {
+                                        const isMasked = tx.description && (tx.description.includes('TR**') || tx.description.includes('****') || tx.description.includes('***'));
+                                        return `
+                                            <div class="flex items-center justify-between py-2 px-2 hover:bg-surface-container rounded-lg transition-colors text-xs gap-2">
+                                                <div class="min-w-0 flex-1">
+                                                    <div class="font-medium text-on-surface truncate flex items-center gap-1.5">
+                                                        <span>${escapeHtml(tx.description || 'İşlem')}</span>
+                                                        ${isMasked ? `
+                                                            <span class="inline-flex items-center gap-0.5 text-[10px] text-emerald-700 dark:text-emerald-300 bg-emerald-500/15 px-1.5 py-0.5 rounded font-medium shrink-0" title="Hassas veri sansürlendi">
+                                                                <span class="material-symbols-outlined text-[11px]">shield_lock</span> Sansürlendi
+                                                            </span>
+                                                        ` : ''}
+                                                    </div>
+                                                    <div class="flex items-center gap-2 text-[11px] text-outline mt-0.5">
+                                                        <span>${tx.date || ''}</span>
+                                                        <span class="px-1.5 py-0.5 rounded bg-surface-variant text-on-surface-variant text-[10px]">${escapeHtml(tx.category || 'Diğer')}</span>
+                                                    </div>
+                                                </div>
+                                                <div class="text-right shrink-0">
+                                                    <span class="font-bold ${tx.type === 'income' ? 'text-emerald-600 dark:text-emerald-400' : 'text-error'}">
+                                                        ${tx.type === 'income' ? '+' : '-'}${Number(Math.abs(tx.amount)).toLocaleString('tr-TR', {minimumFractionDigits: 2, maximumFractionDigits: 2})} ${receiptSym}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        `;
+                                    }).join('')}
+                                </div>
+                            </div>
+
+                            <div class="pt-1">
+                                <button id="${batchBtnId}" onclick="submitBatchStatement('${stmtId}', '${batchBtnId}', '${receiptCurrency}')" class="w-full py-2.5 px-4 bg-primary text-on-primary rounded-xl font-label-md font-semibold flex items-center justify-center gap-2 hover:opacity-90 shadow-sm transition-all">
+                                    <span class="material-symbols-outlined text-sm">cloud_upload</span>
+                                    <span>Tümünü Harcamalarıma Ekle (${stmtTransactions.length} İşlem)</span>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    messagesContainer.appendChild(aiBubble);
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+                    // Sağ Paneli Güncelle
+                    updateImpactPanel({
+                        product_name: stmtBankName,
+                        price: stmtExpense,
+                        category: "Ekstre",
+                        ai_suggestion: `${stmtBankName} ekstresi incelendi. Toplam ${stmtTransactions.length} işlem (${stmtExpense.toLocaleString('tr-TR')} ₺ harcama, ${stmtIncome.toLocaleString('tr-TR')} ₺ gelir). 'Tümünü Harcamalarıma Ekle' butonuyla tek tıkla kaydedebilirsiniz.`
+                    });
+
+                    return;
+                }
+
+                // 5. Tekil Perakende Fişi veya Fatura İse:
+                const uniqueId = "rec-" + Date.now();
+                const cardId = "receipt-btn-" + Date.now();
+
+                // Fatura Gelir mi Gider mi Kontrolü
+                const isIncome = (docData.transaction_type === 'income' || docData.document_kind === 'sales_invoice');
+                const initialType = isIncome ? 'income' : 'expense';
+
                 const aiBubble = document.createElement("div");
                 aiBubble.className = "flex items-start gap-md max-w-[95%]";
                 aiBubble.innerHTML = `
@@ -1091,21 +1739,35 @@
                         <div class="flex items-center justify-between border-b border-surface-variant pb-2">
                             <span class="font-headline-md text-[16px] font-bold text-primary flex items-center gap-1.5">
                                 <span class="material-symbols-outlined text-lg">receipt_long</span>
-                                Fiş Okundu
+                                ${isIncome ? 'Satış Faturası Okundu' : 'Fiş / Fatura Okundu'}
                             </span>
-                            <span class="text-[11px] text-outline font-medium">Gerekirse düzenleyin</span>
+                            <span id="rec-badge-${uniqueId}" class="px-2 py-0.5 rounded-full text-[11px] font-bold ${isIncome ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400' : 'bg-rose-500/15 text-error'} flex items-center gap-1">
+                                <span class="material-symbols-outlined text-[13px]">${isIncome ? 'arrow_upward' : 'arrow_downward'}</span>
+                                ${isIncome ? 'Satış Faturası (Gelir)' : 'Alış / Gider Belgesi'}
+                            </span>
                         </div>
+
+                        <!-- Hızlı Gelir / Gider Değiştirici (Toggle) -->
+                        <div class="p-1 bg-surface-container rounded-xl flex gap-1">
+                            <button type="button" id="rec-btn-expense-${uniqueId}" onclick="setReceiptCardType('${uniqueId}', 'expense')" class="flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1 ${!isIncome ? 'bg-surface-container-lowest text-error shadow-sm' : 'text-on-surface-variant hover:text-on-surface'}">
+                                <span class="material-symbols-outlined text-[15px]">arrow_downward</span> Gider (Harcama)
+                            </button>
+                            <button type="button" id="rec-btn-income-${uniqueId}" onclick="setReceiptCardType('${uniqueId}', 'income')" class="flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1 ${isIncome ? 'bg-surface-container-lowest text-emerald-600 dark:text-emerald-400 shadow-sm' : 'text-on-surface-variant hover:text-on-surface'}">
+                                <span class="material-symbols-outlined text-[15px]">arrow_upward</span> Gelir (Kestiğim Fatura)
+                            </button>
+                        </div>
+                        <input type="hidden" id="rec-type-${uniqueId}" value="${initialType}" />
                         
                         <div class="space-y-2 text-sm">
                             <div>
-                                <label class="text-[11px] font-semibold text-outline uppercase block mb-1">İşyeri / Mağaza</label>
-                                <input id="rec-merchant-${uniqueId}" value="${receiptData.merchant || ''}" class="w-full px-3 py-1.5 bg-surface-container border border-surface-variant rounded-lg font-semibold text-on-surface text-sm outline-none focus:ring-1 focus:ring-primary" placeholder="İşletme Adı" />
+                                <label id="rec-merchant-label-${uniqueId}" class="text-[11px] font-semibold text-outline uppercase block mb-1">${isIncome ? 'Müşteri / Alıcı Firma Adı' : 'İşyeri / Satıcı / Mağaza Adı'}</label>
+                                <input id="rec-merchant-${uniqueId}" value="${escapeHtml(docData.merchant || '')}" class="w-full px-3 py-1.5 bg-surface-container border border-surface-variant rounded-lg font-semibold text-on-surface text-sm outline-none focus:ring-1 focus:ring-primary" placeholder="${isIncome ? 'Müşteri Adı' : 'İşletme Adı'}" />
                             </div>
                             <div class="grid grid-cols-2 gap-2">
                                 <div>
                                     <label class="text-[11px] font-semibold text-outline uppercase block mb-1">Toplam Tutar (${receiptSym})</label>
                                     <div class="relative flex items-center">
-                                        <input id="rec-amount-${uniqueId}" type="number" step="0.01" value="${receiptData.amount || 0}" oninput="handleReceiptAmountChange('${uniqueId}')" class="w-full pl-3 pr-8 py-1.5 bg-surface-container border border-surface-variant rounded-lg font-bold text-error text-base outline-none focus:ring-1 focus:ring-primary" />
+                                        <input id="rec-amount-${uniqueId}" type="number" step="0.01" value="${docData.amount || 0}" oninput="handleReceiptAmountChange('${uniqueId}')" class="w-full pl-3 pr-8 py-1.5 bg-surface-container border border-surface-variant rounded-lg font-bold ${isIncome ? 'text-emerald-600 dark:text-emerald-400' : 'text-error'} text-base outline-none focus:ring-1 focus:ring-primary" />
                                         <span class="absolute right-3 text-sm font-bold text-on-surface-variant/70 pointer-events-none">${receiptSym}</span>
                                         <input type="hidden" id="rec-currency-${uniqueId}" value="${receiptCurrency}" />
                                     </div>
@@ -1113,29 +1775,43 @@
                                 <div>
                                     <label class="text-[11px] font-semibold text-outline uppercase block mb-1">Kategori</label>
                                     <select id="rec-category-${uniqueId}" onchange="handleReceiptCategoryChange('${uniqueId}')" class="w-full px-3 py-1.5 bg-surface-container border border-surface-variant rounded-lg font-medium text-on-surface text-sm outline-none focus:ring-1 focus:ring-primary">
-                                        <option value="Market" ${receiptData.category === 'Market' ? 'selected' : ''}>Market</option>
-                                        <option value="Ulaşım" ${receiptData.category === 'Ulaşım' ? 'selected' : ''}>Ulaşım</option>
-                                        <option value="Teknoloji" ${receiptData.category === 'Teknoloji' ? 'selected' : ''}>Teknoloji</option>
-                                        <option value="Eğlence" ${receiptData.category === 'Eğlence' ? 'selected' : ''}>Eğlence</option>
-                                        <option value="Fatura" ${receiptData.category === 'Fatura' ? 'selected' : ''}>Fatura</option>
-                                        <option value="Kira" ${receiptData.category === 'Kira' ? 'selected' : ''}>Kira</option>
-                                        <option value="Giyim" ${receiptData.category === 'Giyim' ? 'selected' : ''}>Giyim</option>
-                                        <option value="Sağlık" ${receiptData.category === 'Sağlık' ? 'selected' : ''}>Sağlık</option>
-                                        <option value="Eğitim" ${receiptData.category === 'Eğitim' ? 'selected' : ''}>Eğitim</option>
-                                        <option value="Diğer" ${(!receiptData.category || receiptData.category === 'Diğer') ? 'selected' : ''}>Diğer</option>
+                                        ${isIncome ? `
+                                            <option value="Satış Geliri" ${(!docData.category || docData.category === 'Satış Geliri') ? 'selected' : ''}>Satış Geliri</option>
+                                            <option value="Hizmet / Danışmanlık" ${docData.category === 'Hizmet / Danışmanlık' ? 'selected' : ''}>Hizmet / Danışmanlık</option>
+                                            <option value="Hak Ediş" ${docData.category === 'Hak Ediş' ? 'selected' : ''}>Hak Ediş / Proje</option>
+                                            <option value="Tahsilat" ${docData.category === 'Tahsilat' ? 'selected' : ''}>Tahsilat</option>
+                                            <option value="Maaş" ${docData.category === 'Maaş' ? 'selected' : ''}>Maaş</option>
+                                            <option value="Yatırım" ${docData.category === 'Yatırım' ? 'selected' : ''}>Yatırım</option>
+                                            <option value="Diğer" ${docData.category === 'Diğer' ? 'selected' : ''}>Diğer Gelir</option>
+                                        ` : `
+                                            <option value="Market" ${docData.category === 'Market' ? 'selected' : ''}>Market & Gıda</option>
+                                            <option value="Ulaşım" ${docData.category === 'Ulaşım' ? 'selected' : ''}>Ulaşım & Yakıt</option>
+                                            <option value="Malzeme / Stok" ${docData.category === 'Malzeme / Stok' ? 'selected' : ''}>Malzeme / Stok</option>
+                                            <option value="Ofis & Kira" ${docData.category === 'Ofis & Kira' ? 'selected' : ''}>Ofis & Kira</option>
+                                            <option value="Teknoloji" ${docData.category === 'Teknoloji' ? 'selected' : ''}>Teknoloji</option>
+                                            <option value="Fatura" ${docData.category === 'Fatura' ? 'selected' : ''}>Fatura (Elektrik/Su/vb)</option>
+                                            <option value="Kargo & Lojistik" ${docData.category === 'Kargo & Lojistik' ? 'selected' : ''}>Kargo & Lojistik</option>
+                                            <option value="Reklam & Pazarlama" ${docData.category === 'Reklam & Pazarlama' ? 'selected' : ''}>Reklam & Pazarlama</option>
+                                            <option value="Kira" ${docData.category === 'Kira' ? 'selected' : ''}>Kira</option>
+                                            <option value="Giyim" ${docData.category === 'Giyim' ? 'selected' : ''}>Giyim</option>
+                                            <option value="Sağlık" ${docData.category === 'Sağlık' ? 'selected' : ''}>Sağlık</option>
+                                            <option value="Eğitim" ${docData.category === 'Eğitim' ? 'selected' : ''}>Eğitim</option>
+                                            <option value="Eğlence" ${docData.category === 'Eğlence' ? 'selected' : ''}>Eğlence</option>
+                                            <option value="Diğer" ${(!docData.category || docData.category === 'Diğer') ? 'selected' : ''}>Diğer Gider</option>
+                                        `}
                                     </select>
                                 </div>
                             </div>
                             <div>
                                 <label class="text-[11px] font-semibold text-outline uppercase block mb-1">İşlem Tarihi</label>
-                                <input id="rec-date-${uniqueId}" type="date" value="${receiptData.date || new Date().toISOString().split('T')[0]}" class="w-full px-3 py-1.5 bg-surface-container border border-surface-variant rounded-lg font-medium text-on-surface text-sm outline-none focus:ring-1 focus:ring-primary" />
+                                <input id="rec-date-${uniqueId}" type="date" value="${docData.date || new Date().toISOString().split('T')[0]}" class="w-full px-3 py-1.5 bg-surface-container border border-surface-variant rounded-lg font-medium text-on-surface text-sm outline-none focus:ring-1 focus:ring-primary" />
                             </div>
                         </div>
 
                         <div class="pt-2">
-                            <button id="${cardId}" onclick="submitEditedReceipt('${uniqueId}', '${cardId}')" class="w-full py-2.5 px-4 bg-primary text-on-primary rounded-xl font-label-md font-semibold flex items-center justify-center gap-2 hover:opacity-90 shadow-sm transition-all">
-                                <span class="material-symbols-outlined text-sm">add_circle</span>
-                                <span>Harcamalarıma Kaydet</span>
+                            <button id="${cardId}" onclick="submitEditedReceipt('${uniqueId}', '${cardId}')" class="w-full py-2.5 px-4 ${isIncome ? 'bg-emerald-600 hover:bg-emerald-700 text-white' : 'bg-primary hover:opacity-90 text-on-primary'} rounded-xl font-label-md font-semibold flex items-center justify-center gap-2 shadow-sm transition-all">
+                                <span class="material-symbols-outlined text-sm">${isIncome ? 'add_circle' : 'remove_circle'}</span>
+                                <span id="rec-btn-text-${uniqueId}">${isIncome ? `Gelirlerime Kaydet (+${receiptSym})` : `Harcamalarıma Kaydet (-${receiptSym})`}</span>
                             </button>
                         </div>
                     </div>
@@ -1143,21 +1819,22 @@
                 messagesContainer.appendChild(aiBubble);
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-                // 5. Sağ Paneli Güncelle:
                 const ocrCurr = receiptCurrency;
                 const ocrRate = liveExchangeRates[ocrCurr] || 1.0;
-                const ocrAmountInTRY = ocrCurr === "TRY" ? Number(receiptData.amount) : (Number(receiptData.amount) * ocrRate);
+                const ocrAmountInTRY = ocrCurr === "TRY" ? Number(docData.amount) : (Number(docData.amount) * ocrRate);
 
                 updateImpactPanel({
-                    product_name: receiptData.merchant,
+                    product_name: docData.merchant,
                     price: ocrAmountInTRY,
-                    category: receiptData.category,
-                    ai_suggestion: `Fiş okundu: ${receiptData.merchant} (${Number(receiptData.amount).toLocaleString('tr-TR')} ${receiptSym}). Tutarı gerekirse yukarıdan düzeltip 'Harcamalarıma Kaydet'e tıklayabilirsiniz.`
+                    category: docData.category,
+                    ai_suggestion: isIncome
+                        ? `Satış faturası tespit edildi: ${docData.merchant} (+${Number(docData.amount).toLocaleString('tr-TR')} ${receiptSym}). 'Gelirlerime Kaydet'e tıklayarak gelirinize ekleyebilirsiniz.`
+                        : `Fiş/Fatura okundu: ${docData.merchant} (-${Number(docData.amount).toLocaleString('tr-TR')} ${receiptSym}). 'Harcamalarıma Kaydet'e tıklayarak giderinize ekleyebilirsiniz.`
                 });
 
             } catch (error) {
                 loadingBubble?.remove();
-                console.error("Receipt OCR hatası:", error);
+                console.error("Belge analiz hatası:", error);
                 const errBubble = document.createElement("div");
                 errBubble.className = "flex items-start gap-md max-w-[95%]";
                 errBubble.innerHTML = `
@@ -1165,19 +1842,234 @@
                         <span class="material-symbols-outlined text-sm">error</span>
                     </div>
                     <div class="bg-error-container text-on-error-container p-md rounded-2xl rounded-tl-sm font-body-md text-body-md shadow-sm">
-                        Fiş taranırken bir hata oluştu: ${error.message || 'Lütfen görselin net olduğundan emin olun.'}
+                        Belge taranırken bir hata oluştu: ${escapeHtml(error.message || 'Lütfen belgenin net ve okunabilir olduğundan emin olun.')}
                     </div>
                 `;
                 messagesContainer.appendChild(errBubble);
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
             }
         };
-        reader.readAsDataURL(file);
+
+        if (isImage) {
+            // Güvenlik taraması yapılıyor göstergesi
+            const scanBubble = document.createElement("div");
+            scanBubble.id = "receipt-scan-indicator";
+            scanBubble.className = "flex items-start gap-md max-w-[85%] self-end flex-row-reverse";
+            scanBubble.innerHTML = `
+                <div class="w-10 h-10 rounded-full bg-emerald-700 text-white flex items-center justify-center shrink-0 animate-pulse">
+                    <span class="material-symbols-outlined text-sm">security</span>
+                </div>
+                <div class="bg-emerald-950/80 text-emerald-200 border border-emerald-500/30 p-md rounded-2xl rounded-tr-sm font-body-md text-xs shadow-sm flex items-center gap-2">
+                    <span class="material-symbols-outlined animate-spin text-sm text-emerald-400">sync</span>
+                    <span><strong>AI Güvenlik Kalkanı:</strong> Belgedeki hassas veriler (IBAN/Kart No) yerel OCR ile taranıyor...</span>
+                </div>
+            `;
+            messagesContainer.appendChild(scanBubble);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+            try {
+                const redactResult = await scanAndRedactPIIClient(file);
+                scanBubble.remove();
+                await uploadDocument(redactResult);
+            } catch (scanErr) {
+                scanBubble.remove();
+                console.warn("Ön tarama uyarısı:", scanErr);
+                await uploadDocument({
+                    fileToSend: file,
+                    previewUrl: null,
+                    originalUrl: null,
+                    isRedacted: false,
+                    summary: ""
+                });
+            }
+        } else {
+            await uploadDocument({
+                fileToSend: file,
+                previewUrl: null,
+                originalUrl: null,
+                isRedacted: false,
+                summary: ""
+            });
+        }
+    }
+
+    async function submitBatchStatement(statementId, btnId, currency) {
+        const transactions = window[`_stmt_data_${statementId}`] || [];
+        if (!transactions.length) {
+            showToast("Kaydedilecek işlem bulunamadı.", "error");
+            return;
+        }
+
+        const btn = document.getElementById(btnId);
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = `<span class="material-symbols-outlined animate-spin text-sm">progress_activity</span> ${transactions.length} İşlem Kaydediliyor...`;
+        }
+
+        try {
+            const rate = liveExchangeRates[currency] || 1.0;
+            const payload = transactions.map(tx => {
+                const rawAmount = Math.abs(parseFloat(tx.amount) || 0);
+                const baseAmountInTRY = currency === 'TRY' ? rawAmount : (rawAmount * rate);
+                let txDate = tx.date || new Date().toISOString().split('T')[0];
+                if (!txDate.includes('T')) txDate += 'T12:00:00';
+
+                return {
+                    type: tx.type === 'income' ? 'income' : 'expense',
+                    amount: baseAmountInTRY,
+                    category: tx.category || 'Diğer',
+                    description: tx.description || 'Ekstre İşlemi',
+                    date: txDate,
+                    currency: currency || 'TRY',
+                    original_amount: rawAmount,
+                    exchange_rate: rate
+                };
+            });
+
+            const res = await fetch(`${API_BASE}/transactions/batch`, {
+                method: "POST",
+                headers: getAuthHeaders(),
+                body: JSON.stringify(payload)
+            });
+
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.detail || "Toplu işlemler kaydedilemedi.");
+            }
+
+            const data = await res.json();
+
+            if (btn) {
+                btn.className = "w-full py-2.5 px-4 bg-emerald-600 text-white rounded-xl font-label-md font-semibold flex items-center justify-center gap-2 cursor-default shadow-sm";
+                btn.innerHTML = `<span class="material-symbols-outlined text-sm">check_circle</span> ${data.count || transactions.length} İşlem Başarıyla Eklendi!`;
+            }
+
+            showToast(`${data.count || transactions.length} adet işlem başarıyla harcamalarınıza eklendi!`, "success");
+            loadInitialPanelContext();
+
+        } catch (err) {
+            console.error("Batch save error:", err);
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = `<span class="material-symbols-outlined text-sm">cloud_upload</span> Tekrar Dene (${transactions.length} İşlem)`;
+            }
+            showToast(err.message || "İşlemler kaydedilirken hata oluştu.", "error");
+        }
+    }
+
+    const RECEIPT_EXPENSE_CATEGORIES = [
+        { value: 'Market', label: 'Market & Gıda' },
+        { value: 'Ulaşım', label: 'Ulaşım & Yakıt' },
+        { value: 'Malzeme / Stok', label: 'Malzeme / Stok' },
+        { value: 'Ofis & Kira', label: 'Ofis & Kira' },
+        { value: 'Teknoloji', label: 'Teknoloji' },
+        { value: 'Fatura', label: 'Fatura (Elektrik/Su/vb)' },
+        { value: 'Kargo & Lojistik', label: 'Kargo & Lojistik' },
+        { value: 'Reklam & Pazarlama', label: 'Reklam & Pazarlama' },
+        { value: 'Kira', label: 'Kira' },
+        { value: 'Giyim', label: 'Giyim' },
+        { value: 'Sağlık', label: 'Sağlık' },
+        { value: 'Eğitim', label: 'Eğitim' },
+        { value: 'Eğlence', label: 'Eğlence' },
+        { value: 'Diğer', label: 'Diğer Gider' }
+    ];
+
+    const RECEIPT_INCOME_CATEGORIES = [
+        { value: 'Satış Geliri', label: 'Satış Geliri' },
+        { value: 'Hizmet / Danışmanlık', label: 'Hizmet / Danışmanlık' },
+        { value: 'Hak Ediş', label: 'Hak Ediş / Proje' },
+        { value: 'Tahsilat', label: 'Tahsilat' },
+        { value: 'Maaş', label: 'Maaş' },
+        { value: 'Yatırım', label: 'Yatırım' },
+        { value: 'Diğer', label: 'Diğer Gelir' }
+    ];
+
+    function setReceiptCardType(uniqueId, newType) {
+        const hiddenType = document.getElementById(`rec-type-${uniqueId}`);
+        if (!hiddenType) return;
+        hiddenType.value = newType;
+
+        const btnExpense = document.getElementById(`rec-btn-expense-${uniqueId}`);
+        const btnIncome = document.getElementById(`rec-btn-income-${uniqueId}`);
+        const badge = document.getElementById(`rec-badge-${uniqueId}`);
+        const amountInput = document.getElementById(`rec-amount-${uniqueId}`);
+        const merchantLabel = document.getElementById(`rec-merchant-label-${uniqueId}`);
+        const merchantInput = document.getElementById(`rec-merchant-${uniqueId}`);
+        const submitBtnText = document.getElementById(`rec-btn-text-${uniqueId}`);
+        const submitBtn = submitBtnText ? submitBtnText.closest('button') : null;
+        const categorySelect = document.getElementById(`rec-category-${uniqueId}`);
+        const recCurr = document.getElementById(`rec-currency-${uniqueId}`)?.value || "TRY";
+        const receiptSym = getCurrencySymbol(recCurr);
+
+        const isIncome = (newType === 'income');
+
+        // 1. Toggle butonları
+        if (btnExpense && btnIncome) {
+            if (isIncome) {
+                btnIncome.className = "flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1 bg-surface-container-lowest text-emerald-600 dark:text-emerald-400 shadow-sm";
+                btnExpense.className = "flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1 text-on-surface-variant hover:text-on-surface";
+            } else {
+                btnExpense.className = "flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1 bg-surface-container-lowest text-error shadow-sm";
+                btnIncome.className = "flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1 text-on-surface-variant hover:text-on-surface";
+            }
+        }
+
+        // 2. Rozet (Badge)
+        if (badge) {
+            badge.className = `px-2 py-0.5 rounded-full text-[11px] font-bold ${isIncome ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400' : 'bg-rose-500/15 text-error'} flex items-center gap-1`;
+            badge.innerHTML = `<span class="material-symbols-outlined text-[13px]">${isIncome ? 'arrow_upward' : 'arrow_downward'}</span> ${isIncome ? 'Satış Faturası (Gelir)' : 'Alış / Gider Belgesi'}`;
+        }
+
+        // 3. Tutar rengi
+        if (amountInput) {
+            if (isIncome) {
+                amountInput.classList.remove("text-error");
+                amountInput.classList.add("text-emerald-600", "dark:text-emerald-400");
+            } else {
+                amountInput.classList.remove("text-emerald-600", "dark:text-emerald-400");
+                amountInput.classList.add("text-error");
+            }
+        }
+
+        // 4. Etiket ve placeholder
+        if (merchantLabel) {
+            merchantLabel.innerText = isIncome ? "Müşteri / Alıcı Firma Adı" : "İşyeri / Satıcı / Mağaza Adı";
+        }
+        if (merchantInput && !merchantInput.value) {
+            merchantInput.placeholder = isIncome ? "Müşteri Adı" : "İşletme Adı";
+        }
+
+        // 5. Kategori listesi
+        if (categorySelect) {
+            const currentCat = categorySelect.value;
+            const catList = isIncome ? RECEIPT_INCOME_CATEGORIES : RECEIPT_EXPENSE_CATEGORIES;
+            categorySelect.innerHTML = catList.map(c => 
+                `<option value="${c.value}" ${c.value === currentCat ? 'selected' : ''}>${c.label}</option>`
+            ).join("");
+            if (!catList.some(c => c.value === currentCat)) {
+                categorySelect.value = catList[0].value;
+            }
+        }
+
+        // 6. Kaydet butonu
+        if (submitBtn) {
+            if (isIncome) {
+                submitBtn.className = "w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-label-md font-semibold flex items-center justify-center gap-2 shadow-sm transition-all";
+                submitBtn.innerHTML = `<span class="material-symbols-outlined text-sm">add_circle</span> <span id="rec-btn-text-${uniqueId}">Gelirlerime Kaydet (+${receiptSym})</span>`;
+            } else {
+                submitBtn.className = "w-full py-2.5 px-4 bg-primary hover:opacity-90 text-on-primary rounded-xl font-label-md font-semibold flex items-center justify-center gap-2 shadow-sm transition-all";
+                submitBtn.innerHTML = `<span class="material-symbols-outlined text-sm">remove_circle</span> <span id="rec-btn-text-${uniqueId}">Harcamalarıma Kaydet (-${receiptSym})</span>`;
+            }
+        }
+
+        handleReceiptAmountChange(uniqueId);
     }
 
     function handleReceiptAmountChange(uniqueId) {
         const amount = parseFloat(document.getElementById(`rec-amount-${uniqueId}`)?.value) || 0;
-        const merchant = document.getElementById(`rec-merchant-${uniqueId}`)?.value || "Alışveriş";
+        const type = document.getElementById(`rec-type-${uniqueId}`)?.value || "expense";
+        const isIncome = (type === 'income');
+        const merchant = document.getElementById(`rec-merchant-${uniqueId}`)?.value || (isIncome ? "Müşteri" : "Alışveriş");
         const category = document.getElementById(`rec-category-${uniqueId}`)?.value || "Diğer";
         const recCurr = document.getElementById(`rec-currency-${uniqueId}`)?.value || "TRY";
 
@@ -1188,7 +2080,9 @@
             product_name: merchant,
             price: amountInTRY,
             category: category,
-            ai_suggestion: `Fiş tutarı güncellendi: ${amount.toLocaleString('tr-TR')} ${getCurrencySymbol(recCurr)}.`
+            ai_suggestion: isIncome
+                ? `Satış faturası güncellendi: ${merchant} (+${amount.toLocaleString('tr-TR')} ${getCurrencySymbol(recCurr)}). 'Gelirlerime Kaydet' ile gelirlerinize ekleyebilirsiniz.`
+                : `Fiş/fatura güncellendi: ${merchant} (-${amount.toLocaleString('tr-TR')} ${getCurrencySymbol(recCurr)}). 'Harcamalarıma Kaydet' ile giderlerinize ekleyebilirsiniz.`
         });
     }
 
@@ -1198,9 +2092,11 @@
 
     async function submitEditedReceipt(uniqueId, btnId) {
         const btn = document.getElementById(btnId);
-        const merchant = document.getElementById(`rec-merchant-${uniqueId}`)?.value.trim() || "Fiş";
+        const type = document.getElementById(`rec-type-${uniqueId}`)?.value || "expense";
+        const isIncome = (type === 'income');
+        const merchant = document.getElementById(`rec-merchant-${uniqueId}`)?.value.trim() || (isIncome ? "Müşteri" : "Fiş");
         const amountStr = document.getElementById(`rec-amount-${uniqueId}`)?.value;
-        const category = document.getElementById(`rec-category-${uniqueId}`)?.value || "Diğer";
+        const category = document.getElementById(`rec-category-${uniqueId}`)?.value || (isIncome ? "Satış Geliri" : "Diğer");
         const dateVal = document.getElementById(`rec-date-${uniqueId}`)?.value || new Date().toISOString().split('T')[0];
 
         const amount = parseFloat(amountStr);
@@ -1220,10 +2116,10 @@
             const baseAmountInTRY = recCurrency === 'TRY' ? amount : (amount * rate);
 
             const payload = {
-                type: "expense",
+                type: type,
                 amount: baseAmountInTRY,
                 category: category,
-                description: `${merchant} Fişi`,
+                description: isIncome ? `${merchant} Satış Faturası` : `${merchant} Fişi`,
                 date: dateVal + "T12:00:00",
                 currency: recCurrency,
                 original_amount: amount,
@@ -1241,20 +2137,22 @@
             }
 
             if (btn) {
-                btn.className = "w-full py-2.5 px-4 bg-secondary text-on-secondary rounded-xl font-label-md font-semibold flex items-center justify-center gap-2 cursor-default shadow-sm";
-                btn.innerHTML = `<span class="material-symbols-outlined text-sm">check_circle</span> Harcama Kaydedildi`;
+                btn.className = isIncome
+                    ? "w-full py-2.5 px-4 bg-emerald-600 text-white rounded-xl font-label-md font-semibold flex items-center justify-center gap-2 cursor-default shadow-sm"
+                    : "w-full py-2.5 px-4 bg-secondary text-on-secondary rounded-xl font-label-md font-semibold flex items-center justify-center gap-2 cursor-default shadow-sm";
+                btn.innerHTML = `<span class="material-symbols-outlined text-sm">check_circle</span> ${isIncome ? 'Gelir Kaydedildi 🚀' : 'Harcama Kaydedildi'}`;
             }
 
-            showToast(`'${merchant}' (${amount.toLocaleString('tr-TR')} ${getCurrencySymbol(recCurrency)}) başarıyla kaydedildi!`, "success");
+            showToast(`'${merchant}' (${amount.toLocaleString('tr-TR')} ${getCurrencySymbol(recCurrency)}) ${isIncome ? 'Gelir' : 'Gider'} olarak başarıyla kaydedildi!`, "success");
             loadInitialPanelContext();
 
         } catch (err) {
-            console.error("Harcama kaydetme hatası:", err);
+            console.error("Kayıt hatası:", err);
             if (btn) {
                 btn.disabled = false;
                 btn.innerHTML = `<span class="material-symbols-outlined text-sm">add_circle</span> Tekrar Dene`;
             }
-            showToast("Harcama kaydedilirken hata oluştu.", "error");
+            showToast("İşlem kaydedilirken hata oluştu.", "error");
         }
     }
 </script>
@@ -1263,6 +2161,53 @@
 <div id="toast" class="fixed top-6 right-6 z-50 transform translate-x-full opacity-0 transition-all duration-300 pointer-events-none flex items-center gap-3 px-lg py-md rounded-2xl shadow-xl text-on-primary font-label-md">
     <span id="toast-icon" class="material-symbols-outlined text-xl">check_circle</span>
     <span id="toast-message">İşlem başarılı!</span>
+</div>
+
+<!-- Büyütülmüş Belge / Fiş İnceleme Modalı (Lightbox) -->
+<div id="image-lightbox-modal" class="fixed inset-0 z-[100] hidden bg-black/90 backdrop-blur-md flex flex-col justify-between p-4 sm:p-6 transition-all duration-300" onclick="if(event.target === this) closeImageModal()">
+    <!-- Üst Bar: Başlık, Rozet ve Butonlar -->
+    <div class="flex items-center justify-between w-full max-w-5xl mx-auto z-10 pb-3 border-b border-white/15">
+        <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+                <span class="material-symbols-outlined text-lg">zoom_in</span>
+            </div>
+            <div>
+                <span class="text-white font-semibold text-sm sm:text-base block leading-tight">Belge İnceleme</span>
+                <span class="text-slate-400 text-[11px] block">Yüksek çözünürlüklü detay görünümü</span>
+            </div>
+            <span id="lightbox-badge" class="ml-2 inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                <span id="lightbox-badge-icon" class="material-symbols-outlined text-xs">enhanced_encryption</span>
+                <span id="lightbox-badge-text">Sansürlü Görünüm</span>
+            </span>
+        </div>
+        <div class="flex items-center gap-2.5">
+            <!-- Modal İçi Orijinal/Sansür Geçiş Düğmesi -->
+            <button id="lightbox-toggle-btn" type="button" onclick="toggleLightboxCensor()" class="bg-white/10 hover:bg-white/20 text-white text-xs font-medium px-3.5 py-2 rounded-xl backdrop-blur flex items-center gap-1.5 transition-all border border-white/20 shadow-sm cursor-pointer">
+                <span id="lightbox-toggle-icon" class="material-symbols-outlined text-sm">visibility</span>
+                <span id="lightbox-toggle-text">Orijinali Gör</span>
+            </button>
+            <!-- Kapat Düğmesi -->
+            <button type="button" onclick="closeImageModal()" class="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/25 text-white flex items-center justify-center transition-all cursor-pointer border border-white/20 shadow-sm" title="Kapat (ESC)">
+                <span class="material-symbols-outlined text-xl">close</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Orta Alan: Büyütülmüş Görsel -->
+    <div class="flex-1 flex items-center justify-center p-2 sm:p-4 overflow-auto min-h-0" onclick="if(event.target === this) closeImageModal()">
+        <img id="lightbox-img" src="" alt="Büyütülmüş Belge" class="max-w-full max-h-[78vh] sm:max-h-[82vh] object-contain rounded-xl shadow-2xl transition-all duration-200 border border-white/15 cursor-default select-none" />
+    </div>
+
+    <!-- Alt Bilgi Barı -->
+    <div class="w-full max-w-5xl mx-auto z-10 pt-3 border-t border-white/15 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-300">
+        <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-sm text-emerald-400">verified_user</span>
+            <span id="lightbox-info-text">Yapay zekaya (Gemini) yalnızca siyah bant ile sansürlenmiş görsel iletilmiştir.</span>
+        </div>
+        <div class="flex items-center gap-3 text-slate-400 text-[11px]">
+            <span>💡 Kapatmak için dışarıya tıklayın veya <kbd class="px-1.5 py-0.5 bg-white/10 rounded text-slate-300 border border-white/20 font-mono">ESC</kbd> tuşuna basın</span>
+        </div>
+    </div>
 </div>
 
 </body></html>

@@ -31,6 +31,54 @@ class AIGuardrails:
         r"dan moduna geç"
     ]
 
+    # 3. Gizlilik ve Başka Kullanıcı / Hesap Sorguları
+    PRIVACY_REPLY = (
+        "Ben sizin kişisel finans danışmanınızım. Gizlilik ve güvenlik politikaları gereği "
+        "yalnızca kendi hesabınıza ait verileri görüntüleyebilir ve yorumlayabilirim. "
+        "Diğer kullanıcıların finansal bilgilerine erişimim bulunmamaktadır."
+    )
+
+    PRIVACY_PATTERNS = [
+        r"\b(diğer|başka|farklı|öbür)\s+(kullanıcı|hesap|üye|insan|kişi|profil|müşteri)(lar|ler)?(in|ın|ün|un)?\b",
+        r"\b(başkalarının|başkası|başkasının|diğerlerinin)\s+(veri|hesap|bakiye|harcama|para|bilgi|gelir|gider)(ler|leri)?\b",
+        r"\b(tüm|bütün|herkesin)\s+(kullanıcı|hesap|üye)lar(ın)?\s+(veri|bakiye|harcama|para|bilgi|hesap)\b",
+        r"\b(sistemdeki|veritabanındaki)\s+(kullanıcı|hesap|üye)(lar|ler)?\b",
+        r"\b(benden|kendi\s+hesabımdan)\s+başka\b",
+        r"\bbaşka\s+kullanıcı\b",
+        r"\bdiğer\s+hesap\b",
+        r"\bbaşkası(nın)?\s+hesab",
+    ]
+
+    @classmethod
+    def detect_sensitive_data(cls, text: str) -> Optional[str]:
+        """
+        Metin içerisinde IBAN, Kredi Kartı, TCKN, Şifre/CVV gibi hassas veriler
+        olup olmadığını denetler. Bulunursa türünü döner, yoksa None.
+        """
+        # A) IBAN (TR ile başlayan 26 karakter)
+        if re.search(r'\bTR\d{2}[ ]?(?:\d{4}[ ]?){5}\d{2}\b', text, flags=re.IGNORECASE):
+            return "IBAN Numarası"
+
+        # B) Kredi / Banka Kartı (13-16 haneli ardışık sayılar)
+        # Sadece cep telefonu veya tarih olmayan 13-16 haneli kart kalıbı
+        card_match = re.search(r'\b(?:\d[ -]*?){13,16}\b', text)
+        if card_match:
+            digits_only = re.sub(r'\D', '', card_match.group(0))
+            if len(digits_only) in (13, 14, 15, 16):
+                # Telefon numarası (05xx veya 5xx) değilse
+                if not (len(digits_only) == 11 and digits_only.startswith('05')) and not (len(digits_only) == 10 and digits_only.startswith('5')):
+                    return "Kredi/Banka Kartı Numarası"
+
+        # C) TC Kimlik Numarası (11 haneli ve 0 ile başlamayan)
+        if re.search(r'\b[1-9]\d{10}\b', text):
+            return "TC Kimlik Numarası"
+
+        # D) CVV / Şifre / Parola / PIN
+        if re.search(r'(?i)\b(şifrem|parolam|pinim|cvv)\s*[:=]?\s*(\w+)\b', text):
+            return "Güvenlik Şifresi / PIN / CVV"
+
+        return None
+
     @classmethod
     def mask_sensitive_data(cls, text: str) -> str:
         """
@@ -66,7 +114,42 @@ class AIGuardrails:
         return masked
 
     @classmethod
-    def inspect_input(cls, user_message: str) -> Tuple[bool, Optional[str], str]:
+    def check_privacy_violation(cls, user_message: str, current_user_name: Optional[str] = None) -> bool:
+        """
+        Kullanıcının başka bir kişinin, hesabın veya sistemdeki genel kullanıcıların
+        verilerini sorgulayıp sorgulamadığını denetler.
+        """
+        lower_msg = user_message.lower().strip()
+
+        # Genel başka hesap / diğer kullanıcı kalıpları
+        for p in cls.PRIVACY_PATTERNS:
+            if re.search(p, lower_msg, flags=re.IGNORECASE):
+                return True
+
+        current_first_name = (current_user_name or "").strip().split()[0].lower() if current_user_name else ""
+        ignored_words = {
+            "ben", "benim", "biz", "bizim", "kendi", "hesap", "bütçe", "şirket", "ev", "aile",
+            "bugün", "dün", "bu ay", "geçen ay", "toplam", "şu an", "kullanıcı", "para", "market"
+        }
+
+        # İsimle sorgulama kalıbı (Örn: "Ahmet'in bakiyesi", "Ayşe'nin harcamaları")
+        name_match = re.search(r"\b([a-zçğıöşü]{3,})('in|'ın|'ün|'un|'nin|'nın|'nün|'nun|in|ın|ün|un)\s+(hesap|bakiye|harcama|para|gider|gelir|bütçe|durum)", lower_msg)
+        if name_match:
+            queried_name = name_match.group(1).lower()
+            if queried_name not in ignored_words and (not current_first_name or queried_name != current_first_name):
+                return True
+
+        # "Ahmet ne kadar harcamış / parası ne kadar" kalıbı
+        spent_match = re.search(r"\b([a-zçğıöşü]{3,})\s+(ne kadar|kaç para|kaç tl)\s+(harcadı|harcamış|kazandı|kazanmış|var|bakiye)", lower_msg)
+        if spent_match:
+            queried_name = spent_match.group(1).lower()
+            if queried_name not in ignored_words and (not current_first_name or queried_name != current_first_name):
+                return True
+
+        return False
+
+    @classmethod
+    def inspect_input(cls, user_message: str, current_user_name: Optional[str] = None) -> Tuple[bool, Optional[str], str]:
         """
         Kullanıcı girdisini denetler:
         Döner: (is_safe: bool, block_reason: str, sanitized_message: str)
@@ -90,7 +173,24 @@ class AIGuardrails:
                     user_message
                 )
 
-        # 3. Adım: Hassas Kişisel Verileri Maskele
+        # 3. Adım: Gizlilik & Başka Kullanıcı / Hesap Sorgusu Denetimi
+        if cls.check_privacy_violation(user_message, current_user_name):
+            return (
+                False,
+                cls.PRIVACY_REPLY,
+                user_message
+            )
+
+        # 4. Adım: Hassas Kişisel Veri Denetimi (Yapay Zekaya Asla Gönderilmez, Kapıda Engellenir)
+        sensitive_found = cls.detect_sensitive_data(user_message)
+        if sensitive_found:
+            return (
+                False,
+                f"Güvenlik ve Gizlilik Uyarısı: Mesajınızda '{sensitive_found}' tespit edildi. Kişisel veri güvenliğiniz gereği bu bilgiler yapay zekaya kesinlikle gönderilmez ve işlenemez. Lütfen kart, IBAN veya kimlik bilgisi paylaşmadan sorunuzu tekrar iletiniz.",
+                user_message
+            )
+
+        # 5. Adım: Ekstra PII Temizliği (Her ihtimale karşı arta kalan kalıpları maskele)
         sanitized = cls.mask_sensitive_data(user_message)
 
         return (True, None, sanitized)
