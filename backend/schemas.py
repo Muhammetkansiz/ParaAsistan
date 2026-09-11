@@ -1,21 +1,6 @@
 from pydantic import BaseModel, Field
-from typing import Optional, List, Literal
+from typing import Optional, List
 from datetime import datetime
-
-AllowedCategories = Literal[
-    "Market", 
-    "Kira", 
-    "Ulaşım", 
-    "Fatura", 
-    "Teknoloji", 
-    "Eğlence", 
-    "Maaş", 
-    "Ek Gelir",
-    "Yatırım",
-    "Sağlık",
-    "Eğitim",
-    "Diğer"
-]
 
 class TransactionBase(BaseModel):
     type: str = Field(..., description="'income' veya 'expense'")
@@ -71,10 +56,51 @@ class BudgetSummaryResponse(BaseModel):
     percentage: float
 
 
+from pydantic import BaseModel, Field, field_validator
+import re
+
+from email_validator import validate_email, EmailNotValidError, EmailUndeliverableError
+
 class UserCreate(BaseModel):
     full_name: str
     email: str
     password: str
+
+    @field_validator("full_name")
+    @classmethod
+    def validate_name(cls, v: str) -> str:
+        name = v.strip()
+        if len(name) < 2:
+            raise ValueError("Ad Soyad en az 2 karakter olmalıdır!")
+        if any(char.isdigit() for char in name):
+            raise ValueError("Ad Soyad alanında sayı veya rakam kullanılamaz!")
+        if not re.match(r"^[a-zA-ZçÇğĞıİöÖşŞüÜ\s\.\-']+$", name):
+            raise ValueError("Ad Soyad yalnızca harflerden oluşmalıdır!")
+        return name
+
+    @field_validator("email")
+    @classmethod
+    def validate_email_address(cls, v: str) -> str:
+        raw_email = v.strip()
+        if not raw_email:
+            raise ValueError("E-posta adresi boş bırakılamaz!")
+        try:
+            # check_deliverability=True: Alan adının (domain) gerçek bir mail sunucusu (MX) olup olmadığını denetler
+            validated = validate_email(raw_email, check_deliverability=True)
+            return validated.normalized
+        except EmailUndeliverableError:
+            raise ValueError("Girdiğiniz e-posta alan adına ait aktif bir posta sunucusu bulunamadı! Lütfen geçerli bir e-posta adresi giriniz.")
+        except EmailNotValidError as e:
+            raise ValueError(f"Geçersiz e-posta formatı: {str(e)}")
+
+    @field_validator("password")
+    @classmethod
+    def validate_password_strength(cls, v: str) -> str:
+        if len(v) < 6:
+            raise ValueError("Şifre en az 6 karakter olmalıdır!")
+        if not re.search(r"[a-zA-ZçÇğĞıİöÖşŞüÜ]", v) or not re.search(r"\d", v):
+            raise ValueError("Şifreniz en az bir harf ve bir rakam içermelidir!")
+        return v
 
 class UserResponse(BaseModel):
     id: int

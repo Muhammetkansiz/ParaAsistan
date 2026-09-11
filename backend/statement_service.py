@@ -16,11 +16,6 @@ from dotenv import load_dotenv
 load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 
-STANDARD_CATEGORIES = [
-    "Market", "Ulaşım", "Teknoloji", "Eğlence", "Fatura",
-    "Kira", "Sağlık", "Eğitim", "Giyim", "Maaş", "Yatırım", "Diğer"
-]
-
 
 def guess_category_from_description(desc: str) -> str:
     """Açıklamadaki anahtar kelimelere göre kategori tahmini yapar."""
